@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokemon Card Market - Economics Clicker</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; }
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-50px); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+```
+// Card data with rarity tiers
+const CARD_DATABASE = [
+  { id: 1, name: "Pikachu", rarity: "common", basePrice: 5, img: "⚡", type: "electric" },
+  { id: 2, name: "Charmander", rarity: "common", basePrice: 8, img: "🔥", type: "fire" },
+  { id: 3, name: "Bulbasaur", rarity: "common", basePrice: 6, img: "🌿", type: "grass" },
+  { id: 4, name: "Squirtle", rarity: "common", basePrice: 7, img: "💧", type: "water" },
+  { id: 5, name: "Eevee", rarity: "uncommon", basePrice: 25, img: "⭐", type: "normal" },
+  { id: 6, name: "Gengar", rarity: "uncommon", basePrice: 45, img: "👻", type: "ghost" },
+  { id: 7, name: "Dragonite", rarity: "rare", basePrice: 120, img: "🐉", type: "dragon" },
+  { id: 8, name: "Mewtwo", rarity: "rare", basePrice: 200, img: "🔮", type: "psychic" },
+  { id: 9, name: "Charizard", rarity: "ultra-rare", basePrice: 500, img: "🔥", type: "fire" },
+  { id: 10, name: "1st Ed Charizard", rarity: "legendary", basePrice: 5000, img: "✨", type: "fire" },
+  { id: 11, name: "Lugia", rarity: "rare", basePrice: 180, img: "🌊", type: "psychic" },
+  { id: 12, name: "Rayquaza", rarity: "ultra-rare", basePrice: 450, img: "🌪️", type: "dragon" },
+  { id: 13, name: "Mew", rarity: "ultra-rare", basePrice: 380, img: "💫", type: "psychic" },
+  { id: 14, name: "Umbreon", rarity: "rare", basePrice: 150, img: "🌙", type: "dark" },
+  { id: 15, name: "Gold Star Pikachu", rarity: "legendary", basePrice: 3000, img: "⚡", type: "electric" },
+];
+
+// Pack-exclusive cards
+const PACK_EXCLUSIVE_CARDS = [
+  { id: 101, name: "Shiny Charizard VMAX", rarity: "secret-rare", basePrice: 800, img: "🌟", type: "fire", packExclusive: true },
+  { id: 102, name: "Rainbow Pikachu", rarity: "secret-rare", basePrice: 650, img: "🌈", type: "electric", packExclusive: true },
+  { id: 103, name: "Alt Art Umbreon", rarity: "secret-rare", basePrice: 1200, img: "🎨", type: "dark", packExclusive: true },
+  { id: 104, name: "Gold Mew", rarity: "secret-rare", basePrice: 900, img: "🥇", type: "psychic", packExclusive: true },
+  { id: 105, name: "Moonbreon", rarity: "chase", basePrice: 2500, img: "🌑", type: "dark", packExclusive: true },
+  { id: 106, name: "Illustrator Pikachu", rarity: "chase", basePrice: 8000, img: "🎴", type: "electric", packExclusive: true },
+];
+
+const ALL_PULLABLE_CARDS = [...CARD_DATABASE, ...PACK_EXCLUSIVE_CARDS];
+
+// Pack definitions
+const PACK_TYPES = [
+  {
+    id: 'standard',
+    name: 'Standard Pack',
+    price: 50,
+    cardCount: 5,
+    img: '📦',
+    color: '#4a90d9',
+    pullRates: { common: 0.60, uncommon: 0.25, rare: 0.10, 'ultra-rare': 0.04, 'secret-rare': 0.008, legendary: 0.001, chase: 0.001 },
+    description: '5 cards, standard pull rates',
+    lesson: "EXPECTED VALUE: This pack costs $50. Calculate EV by multiplying each outcome's value by its probability. If EV < $50, the house always wins long-term."
+  },
+  {
+    id: 'premium',
+    name: 'Premium Pack',
+    price: 150,
+    cardCount: 5,
+    img: '💎',
+    color: '#9c27b0',
+    pullRates: { common: 0.30, uncommon: 0.35, rare: 0.20, 'ultra-rare': 0.10, 'secret-rare': 0.035, legendary: 0.01, chase: 0.005 },
+    guaranteedRare: true,
+    description: '5 cards, 1 guaranteed rare+',
+    lesson: "RISK PREMIUM: You pay more for better odds. But is 3x the price worth 2.5x the rare chance? Smart collectors calculate this."
+  },
+  {
+    id: 'elite',
+    name: 'Elite Trainer Box',
+    price: 500,
+    cardCount: 12,
+    img: '👑',
+    color: '#ffd700',
+    pullRates: { common: 0.20, uncommon: 0.30, rare: 0.25, 'ultra-rare': 0.15, 'secret-rare': 0.06, legendary: 0.025, chase: 0.015 },
+    guaranteedUltraRare: true,
+    description: '12 cards, 1 guaranteed ultra-rare+',
+    lesson: "WHALE ECONOMICS: Premium products target high-spenders. The 'chase' feeling is engineered. Casinos use the same psychology."
+  }
+];
+
+const RARITY_COLORS = {
+  common: "#78909c",
+  uncommon: "#4caf50",
+  rare: "#2196f3",
+  "ultra-rare": "#9c27b0",
+  "secret-rare": "#ff4081",
+  legendary: "#ffd700",
+  chase: "#ff6b6b"
+};
+
+const TYPE_COLORS = {
+  electric: "#f9d71c",
+  fire: "#fd7d24",
+  grass: "#9bcc50",
+  water: "#4592c4",
+  normal: "#a4acaf",
+  ghost: "#7b62a3",
+  dragon: "#7038f8",
+  psychic: "#f366b9",
+  dark: "#707070"
+};
+
+const MARKET_EVENTS = [
+  { title: "📺 Streamer Opens Rare Pack!", effect: "ultra-rare", multiplier: 1.8, duration: 30, lesson: "DEMAND SHOCK: When influencers showcase rare cards, demand spikes instantly." },
+  { title: "🏭 New Set Announced!", effect: "all", multiplier: 0.85, duration: 45, lesson: "SUPPLY EXPECTATIONS: Anticipation of new supply decreases current prices." },
+  { title: "📉 Market Correction", effect: "all", multiplier: 0.7, duration: 20, lesson: "MEAN REVERSION: Prices tend to return to historical averages." },
+  { title: "🎮 Pokemon Game Release!", effect: "all", multiplier: 1.4, duration: 40, lesson: "COMPLEMENTARY GOODS: Related product releases increase demand for TCG cards." },
+  { title: "🐻 Bear Market Begins", effect: "all", multiplier: 0.6, duration: 60, lesson: "BEAR MARKET: Smart collectors accumulate during fear." },
+  { title: "🐂 Bull Run!", effect: "all", multiplier: 1.6, duration: 50, lesson: "BULL MARKET: Rising prices create FOMO. Watch for bubbles!" },
+  { title: "🔥 Charizard Hits $500K!", effect: "fire", multiplier: 2.0, duration: 35, lesson: "ANCHOR PRICING: Record sales set new psychological price anchors." },
+];
+
+const UPGRADES = [
+  { id: 1, name: "Market Research", cost: 100, effect: "clickPower", value: 2, description: "2x appraisal speed", lesson: "INFORMATION ADVANTAGE: Better information = better decisions." },
+  { id: 2, name: "Bulk Buying Power", cost: 500, effect: "discount", value: 0.95, description: "5% discount on purchases", lesson: "ECONOMIES OF SCALE: Volume reduces per-unit costs." },
+  { id: 3, name: "Price Alert Bot", cost: 1000, effect: "passive", value: 5, description: "Earn $5/sec passively", lesson: "PASSIVE INCOME: Automated systems work while you sleep." },
+  { id: 4, name: "Grading Partnership", cost: 5000, effect: "sellBonus", value: 1.15, description: "15% bonus on sales", lesson: "VALUE-ADD SERVICES: Grading increases card value." },
+  { id: 5, name: "Storage Facility", cost: 10000, effect: "capacity", value: 50, description: "+50 collection slots", lesson: "INVENTORY MANAGEMENT: Storage costs affect strategy." },
+];
+
+const ACHIEVEMENTS = [
+  { id: 1, name: "First Flip", condition: (s) => s.totalSold >= 1, reward: 50, description: "Sell your first card" },
+  { id: 2, name: "Hoarder", condition: (s) => s.collection.length >= 10, reward: 200, description: "Own 10 cards" },
+  { id: 3, name: "Thousandaire", condition: (s) => s.money >= 1000, reward: 500, description: "Reach $1,000" },
+  { id: 4, name: "Rare Hunter", condition: (s) => s.collection.some(c => c.rarity === 'rare'), reward: 300, description: "Own a rare card" },
+  { id: 5, name: "Diamond Hands", condition: (s) => s.longestHold >= 120, reward: 1000, description: "Hold a card for 2 minutes" },
+  { id: 6, name: "Profit Master", condition: (s) => s.totalProfit >= 5000, reward: 2000, description: "Make $5,000 in profit" },
+  { id: 7, name: "Legendary Collector", condition: (s) => s.collection.some(c => c.rarity === 'legendary'), reward: 10000, description: "Own a legendary card" },
+  { id: 8, name: "Pack Rat", condition: (s) => s.packsOpened >= 10, reward: 500, description: "Open 10 packs" },
+  { id: 9, name: "Secret Hunter", condition: (s) => s.collection.some(c => c.rarity === 'secret-rare'), reward: 3000, description: "Pull a secret rare" },
+  { id: 10, name: "Chase Dream", condition: (s) => s.collection.some(c => c.rarity === 'chase'), reward: 25000, description: "Pull a chase card" },
+];
+
+function PokemonEconClicker() {
+  const [money, setMoney] = useState(100);
+  const [totalEarned, setTotalEarned] = useState(100);
+  const [totalProfit, setTotalProfit] = useState(0);
+  const [totalSold, setTotalSold] = useState(0);
+  const [collection, setCollection] = useState([]);
+  const [market, setMarket] = useState([]);
+  const [upgrades, setUpgrades] = useState([]);
+  const [achievements, setAchievements] = useState([]);
+  const [currentEvent, setCurrentEvent] = useState(null);
+  const [eventTimer, setEventTimer] = useState(0);
+  const [clickPower, setClickPower] = useState(1);
+  const [passiveIncome, setPassiveIncome] = useState(0);
+  const [discount, setDiscount] = useState(1);
+  const [sellBonus, setSellBonus] = useState(1);
+  const [capacity, setCapacity] = useState(20);
+  const [notifications, setNotifications] = useState([]);
+  const [showLesson, setShowLesson] = useState(null);
+  const [clickEffects, setClickEffects] = useState([]);
+  const [gameTime, setGameTime] = useState(0);
+  const [longestHold, setLongestHold] = useState(0);
+  const [view, setView] = useState('market');
+  const [packsOpened, setPacksOpened] = useState(0);
+  const [packResults, setPackResults] = useState(null);
+  const [packStats, setPackStats] = useState({ spent: 0, totalValue: 0, bestPull: null });
+  const [isOpeningPack, setIsOpeningPack] = useState(false);
+  const [revealedCards, setRevealedCards] = useState([]);
+
+  const currentEventRef = useRef(currentEvent);
+  const eventTimerRef = useRef(eventTimer);
+  const passiveIncomeRef = useRef(passiveIncome);
+
+  useEffect(() => { currentEventRef.current = currentEvent; }, [currentEvent]);
+  useEffect(() => { eventTimerRef.current = eventTimer; }, [eventTimer]);
+  useEffect(() => { passiveIncomeRef.current = passiveIncome; }, [passiveIncome]);
+
+  useEffect(() => {
+    if (collection.length > 0) {
+      const maxHold = Math.max(...collection.map(c => c.holdTime || 0));
+      if (maxHold > longestHold) setLongestHold(maxHold);
+    }
+  }, [collection, longestHold]);
+
+  const calculatePrice = (card, event) => {
+    let price = card.basePrice;
+    const volatility = 0.1 + (card.rarity === 'legendary' ? 0.2 : card.rarity === 'ultra-rare' ? 0.15 : 0.05);
+    price *= (1 + (Math.random() - 0.5) * volatility);
+    if (event) {
+      if (event.effect === 'all' || event.effect === card.rarity || event.effect === card.type) {
+        price *= event.multiplier;
+      }
+    }
+    return Math.max(1, Math.round(price * 100) / 100);
+  };
+
+  const refreshMarket = () => {
+    const available = CARD_DATABASE
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 8)
+      .map(card => ({
+        ...card,
+        currentPrice: calculatePrice(card, currentEventRef.current),
+        marketId: Date.now() + Math.random(),
+        priceHistory: []
+      }));
+    setMarket(available);
+  };
+
+  useEffect(() => { refreshMarket(); }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGameTime(t => t + 1);
+
+      if (passiveIncomeRef.current > 0) {
+        setMoney(m => m + passiveIncomeRef.current);
+        setTotalEarned(t => t + passiveIncomeRef.current);
+      }
+
+      setMarket(prev => prev.map(card => ({
+        ...card,
+        currentPrice: calculatePrice(card, currentEventRef.current),
+        priceHistory: [...(card.priceHistory || []).slice(-20), card.currentPrice]
+      })));
+
+      setCollection(prev => prev.map(card => ({
+        ...card,
+        holdTime: (card.holdTime || 0) + 1,
+        currentPrice: calculatePrice(card, currentEventRef.current)
+      })));
+
+      if (currentEventRef.current && eventTimerRef.current > 0) {
+        setEventTimer(t => {
+          const newTime = t - 1;
+          if (newTime <= 0) setCurrentEvent(null);
+          return newTime;
+        });
+      }
+
+      if (!currentEventRef.current && Math.random() < 0.02) {
+        const event = MARKET_EVENTS[Math.floor(Math.random() * MARKET_EVENTS.length)];
+        setCurrentEvent(event);
+        setEventTimer(event.duration);
+        addNotification(`📢 ${event.title}`);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const state = { money, collection, totalSold, totalProfit, longestHold, packsOpened, packStats };
+    ACHIEVEMENTS.forEach(ach => {
+      if (!achievements.includes(ach.id) && ach.condition(state)) {
+        setAchievements(prev => [...prev, ach.id]);
+        setMoney(m => m + ach.reward);
+        setTotalEarned(t => t + ach.reward);
+        addNotification(`🏆 Achievement: ${ach.name}! +$${ach.reward}`);
+      }
+    });
+  }, [money, collection, totalSold, totalProfit, longestHold, packsOpened, packStats, achievements]);
+
+  const addNotification = (message) => {
+    const id = Date.now();
+    setNotifications(prev => [...prev, { id, message }]);
+    setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== id)), 3000);
+  };
+
+  const handleClick = (e) => {
+    const earned = clickPower;
+    setMoney(m => m + earned);
+    setTotalEarned(t => t + earned);
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const id = Date.now();
+    setClickEffects(prev => [...prev, { id, x, y, value: earned }]);
+    setTimeout(() => setClickEffects(prev => prev.filter(ef => ef.id !== id)), 1000);
+  };
+
+  const buyCard = (card) => {
+    const price = Math.round(card.currentPrice * discount * 100) / 100;
+    if (money >= price && collection.length < capacity) {
+      setMoney(m => m - price);
+      setCollection(prev => [...prev, {
+        ...card,
+        purchasePrice: price,
+        purchaseTime: gameTime,
+        holdTime: 0,
+        collectionId: Date.now() + Math.random()
+      }]);
+      addNotification(`Bought ${card.name} for $${price.toFixed(2)}`);
+    }
+  };
+
+  const sellCard = (card) => {
+    const sellPrice = Math.round(card.currentPrice * sellBonus * 100) / 100;
+    const profit = sellPrice - card.purchasePrice;
+    setMoney(m => m + sellPrice);
+    setTotalEarned(t => t + Math.max(0, profit));
+    setTotalProfit(p => p + profit);
+    setTotalSold(s => s + 1);
+    setCollection(prev => prev.filter(c => c.collectionId !== card.collectionId));
+    addNotification(`Sold ${card.name} for $${sellPrice.toFixed(2)} (${profit >= 0 ? '+' : ''}$${profit.toFixed(2)})`);
+  };
+
+  const buyUpgrade = (upgrade) => {
+    if (money >= upgrade.cost && !upgrades.includes(upgrade.id)) {
+      setMoney(m => m - upgrade.cost);
+      setUpgrades(prev => [...prev, upgrade.id]);
+      switch (upgrade.effect) {
+        case 'clickPower': setClickPower(p => p * upgrade.value); break;
+        case 'discount': setDiscount(d => d * upgrade.value); break;
+        case 'passive': setPassiveIncome(p => p + upgrade.value); break;
+        case 'sellBonus': setSellBonus(b => b * upgrade.value); break;
+        case 'capacity': setCapacity(c => c + upgrade.value); break;
+      }
+      setShowLesson(upgrade.lesson);
+      addNotification(`Purchased: ${upgrade.name}`);
+    }
+  };
+
+  const pullCardFromPack = (packType) => {
+    const roll = Math.random();
+    let cumulative = 0;
+    let selectedRarity = 'common';
+    for (const [rarity, rate] of Object.entries(packType.pullRates)) {
+      cumulative += rate;
+      if (roll < cumulative) { selectedRarity = rarity; break; }
+    }
+    const cardsOfRarity = ALL_PULLABLE_CARDS.filter(c => c.rarity === selectedRarity);
+    if (cardsOfRarity.length === 0) {
+      const commons = ALL_PULLABLE_CARDS.filter(c => c.rarity === 'common');
+      return commons[Math.floor(Math.random() * commons.length)];
+    }
+    return cardsOfRarity[Math.floor(Math.random() * cardsOfRarity.length)];
+  };
+
+  const openPack = (packType) => {
+    if (money < packType.price) return;
+    if (collection.length >= capacity) {
+      addNotification("📦 Storage full! Sell some cards first.");
+      return;
+    }
+    setMoney(m => m - packType.price);
+    setIsOpeningPack(true);
+    setRevealedCards([]);
+
+    const pulledCards = [];
+    for (let i = 0; i < packType.cardCount; i++) {
+      let card = pullCardFromPack(packType);
+      if (i === packType.cardCount - 1) {
+        if (packType.guaranteedRare && !pulledCards.some(c => ['rare', 'ultra-rare', 'secret-rare', 'legendary', 'chase'].includes(c.rarity))) {
+          const rareCards = ALL_PULLABLE_CARDS.filter(c => ['rare', 'ultra-rare', 'secret-rare', 'legendary', 'chase'].includes(c.rarity));
+          card = rareCards[Math.floor(Math.random() * rareCards.length)];
+        }
+        if (packType.guaranteedUltraRare && !pulledCards.some(c => ['ultra-rare', 'secret-rare', 'legendary', 'chase'].includes(c.rarity))) {
+          const ultraRares = ALL_PULLABLE_CARDS.filter(c => ['ultra-rare', 'secret-rare', 'legendary', 'chase'].includes(c.rarity));
+          card = ultraRares[Math.floor(Math.random() * ultraRares.length)];
+        }
+      }
+      pulledCards.push({
+        ...card,
+        currentPrice: calculatePrice(card, currentEventRef.current),
+        purchasePrice: 0,
+        purchaseTime: gameTime,
+        holdTime: 0,
+        collectionId: Date.now() + Math.random() + i,
+        fromPack: packType.name
+      });
+    }
+    setPackResults(pulledCards);
+
+    pulledCards.forEach((card, index) => {
+      setTimeout(() => setRevealedCards(prev => [...prev, card]), index * 400);
+    });
+
+    setTimeout(() => {
+      const totalValue = pulledCards.reduce((sum, c) => sum + c.currentPrice, 0);
+      const bestPull = pulledCards.reduce((best, c) => (!best || c.basePrice > best.basePrice) ? c : best, null);
+      setPacksOpened(p => p + 1);
+      setPackStats(prev => ({
+        spent: prev.spent + packType.price,
+        totalValue: prev.totalValue + totalValue,
+        bestPull: (!prev.bestPull || bestPull.basePrice > prev.bestPull.basePrice) ? bestPull : prev.bestPull
+      }));
+      const spaceAvailable = capacity - collection.length;
+      const cardsToAdd = pulledCards.slice(0, spaceAvailable);
+      setCollection(prev => [...prev, ...cardsToAdd]);
+      if (cardsToAdd.length < pulledCards.length) {
+        addNotification(`⚠️ Only ${cardsToAdd.length}/${pulledCards.length} cards added - storage full!`);
+      }
+      pulledCards.filter(c => ['secret-rare', 'legendary', 'chase'].includes(c.rarity)).forEach(c => {
+        addNotification(`🌟 Amazing pull: ${c.name}!`);
+      });
+    }, pulledCards.length * 400 + 500);
+  };
+
+  const closePackResults = () => {
+    setIsOpeningPack(false);
+    setPackResults(null);
+    setRevealedCards([]);
+  };
+
+  const calculateExpectedValue = (packType) => {
+    let ev = 0;
+    for (const [rarity, rate] of Object.entries(packType.pullRates)) {
+      const cardsOfRarity = ALL_PULLABLE_CARDS.filter(c => c.rarity === rarity);
+      if (cardsOfRarity.length > 0) {
+        const avgValue = cardsOfRarity.reduce((sum, c) => sum + c.basePrice, 0) / cardsOfRarity.length;
+        ev += rate * avgValue;
+      }
+    }
+    return ev * packType.cardCount;
+  };
+
+  const formatMoney = (amount) => {
+    if (amount >= 1000000) return `$${(amount / 1000000).toFixed(2)}M`;
+    if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}K`;
+    return `$${amount.toFixed(2)}`;
+  };
+
+  const renderMiniChart = (history) => {
+    if (!history || history.length < 2) return null;
+    const min = Math.min(...history);
+    const max = Math.max(...history);
+    const range = max - min || 1;
+    return (
+      <svg width="60" height="24" style={{ marginLeft: 8 }}>
+        <polyline
+          points={history.map((p, i) => `${i * (60 / history.length)},${24 - ((p - min) / range) * 20}`).join(' ')}
+          fill="none"
+          stroke={history[history.length - 1] > history[0] ? '#4caf50' : '#f44336'}
+          strokeWidth="1.5"
+        />
+      </svg>
+    );
+  };
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+      color: '#fff',
+      fontFamily: "'Segoe UI', system-ui, sans-serif",
+      padding: 16
+    }}>
+      {/* Header Stats */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+        gap: 12,
+        marginBottom: 16
+      }}>
+        <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: 12, textAlign: 'center' }}>
+          <div style={{ fontSize: 12, opacity: 0.7 }}>💰 Balance</div>
+          <div style={{ fontSize: 24, fontWeight: 'bold', color: '#4caf50' }}>{formatMoney(money)}</div>
+        </div>
+        <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: 12, textAlign: 'center' }}>
+          <div style={{ fontSize: 12, opacity: 0.7 }}>📈 Total Profit</div>
+          <div style={{ fontSize: 24, fontWeight: 'bold', color: totalProfit >= 0 ? '#4caf50' : '#f44336' }}>
+            {totalProfit >= 0 ? '+' : ''}{formatMoney(totalProfit)}
+          </div>
+        </div>
+        <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: 12, textAlign: 'center' }}>
+          <div style={{ fontSize: 12, opacity: 0.7 }}>🃏 Collection</div>
+          <div style={{ fontSize: 24, fontWeight: 'bold' }}>{collection.length}/{capacity}</div>
+        </div>
+        <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: 12, textAlign: 'center' }}>
+          <div style={{ fontSize: 12, opacity: 0.7 }}>⚡ Per Click</div>
+          <div style={{ fontSize: 24, fontWeight: 'bold', color: '#ff9800' }}>${clickPower}</div>
+        </div>
+      </div>
+
+      {/* Market Event Banner */}
+      {currentEvent && (
+        <div
+          onClick={() => setShowLesson(currentEvent.lesson)}
+          style={{
+            background: 'linear-gradient(90deg, #ff6b6b, #ffd93d)',
+            borderRadius: 12,
+            padding: 12,
+            marginBottom: 16,
+            cursor: 'pointer',
+            animation: 'pulse 2s infinite'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontWeight: 'bold', color: '#1a1a2e' }}>{currentEvent.title}</span>
+            <span style={{ background: 'rgba(0,0,0,0.3)', padding: '4px 12px', borderRadius: 20, color: '#fff', fontSize: 14 }}>
+              {eventTimer}s • Click to learn
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Clicker Button */}
+      <div
+        onClick={handleClick}
+        style={{
+          position: 'relative',
+          background: 'linear-gradient(145deg, #ffd700, #ff8c00)',
+          borderRadius: 20,
+          padding: 24,
+          textAlign: 'center',
+          cursor: 'pointer',
+          marginBottom: 16,
+          boxShadow: '0 8px 32px rgba(255, 215, 0, 0.3)',
+          userSelect: 'none',
+        }}
+      >
+        <div style={{ fontSize: 48 }}>🎴</div>
+        <div style={{ fontSize: 18, fontWeight: 'bold', color: '#1a1a2e' }}>Click to Appraise Cards</div>
+        <div style={{ fontSize: 14, color: '#333' }}>+${clickPower} per click</div>
+        {clickEffects.map(ef => (
+          <div
+            key={ef.id}
+            style={{
+              position: 'absolute',
+              left: ef.x,
+              top: ef.y,
+              color: '#fff',
+              fontWeight: 'bold',
+              fontSize: 20,
+              pointerEvents: 'none',
+              animation: 'floatUp 1s ease-out forwards',
+              textShadow: '0 2px 4px rgba(0,0,0,0.5)'
+            }}
+          >
+            +${ef.value}
+          </div>
+        ))}
+      </div>
+
+      {/* Navigation Tabs */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+        {[
+          { id: 'market', label: '🏪 Market' },
+          { id: 'packs', label: '🎴 Packs' },
+          { id: 'collection', label: '📁 Collection' },
+          { id: 'upgrades', label: '⬆️ Upgrades' },
+          { id: 'lessons', label: '📚 Economics' }
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setView(tab.id)}
+            style={{
+              flex: 1,
+              minWidth: 80,
+              padding: '12px 16px',
+              border: 'none',
+              borderRadius: 12,
+              background: view === tab.id ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'rgba(255,255,255,0.1)',
+              color: '#fff',
+              cursor: 'pointer',
+              fontWeight: view === tab.id ? 'bold' : 'normal',
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Market View */}
+      {view === 'market' && (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <h2 style={{ margin: 0 }}>Available Cards</h2>
+            <button onClick={refreshMarket} style={{ padding: '8px 16px', border: 'none', borderRadius: 8, background: 'rgba(255,255,255,0.2)', color: '#fff', cursor: 'pointer' }}>
+              🔄 Refresh
+            </button>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+            {market.map(card => (
+              <div
+                key={card.marketId}
+                style={{
+                  background: `linear-gradient(145deg, ${TYPE_COLORS[card.type]}22, ${TYPE_COLORS[card.type]}44)`,
+                  border: `2px solid ${RARITY_COLORS[card.rarity]}`,
+                  borderRadius: 16,
+                  padding: 16,
+                  position: 'relative',
+                }}
+              >
+                <div style={{ position: 'absolute', top: 8, right: 8, background: RARITY_COLORS[card.rarity], padding: '2px 8px', borderRadius: 10, fontSize: 10, textTransform: 'uppercase', fontWeight: 'bold' }}>
+                  {card.rarity}
+                </div>
+                <div style={{ fontSize: 48, textAlign: 'center', marginBottom: 8 }}>{card.img}</div>
+                <div style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 4 }}>{card.name}</div>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+                  <span style={{ fontSize: 20, fontWeight: 'bold', color: '#4caf50' }}>${(card.currentPrice * discount).toFixed(2)}</span>
+                  {renderMiniChart(card.priceHistory)}
+                </div>
+                <button
+                  onClick={() => buyCard(card)}
+                  disabled={money < card.currentPrice * discount || collection.length >= capacity}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: 'none',
+                    borderRadius: 8,
+                    background: money >= card.currentPrice * discount && collection.length < capacity ? 'linear-gradient(135deg, #4caf50, #2e7d32)' : '#555',
+                    color: '#fff',
+                    cursor: money >= card.currentPrice * discount && collection.length < capacity ? 'pointer' : 'not-allowed',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {collection.length >= capacity ? '📦 Full' : '🛒 Buy'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Packs View */}
+      {view === 'packs' && (
+        <div>
+          <h2>🎴 Booster Packs</h2>
+          <p style={{ opacity: 0.7, marginBottom: 16 }}>Test your luck! Each pack teaches economics of gambling.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 12, marginBottom: 20, padding: 16, background: 'rgba(255,255,255,0.05)', borderRadius: 12 }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 12, opacity: 0.7 }}>Packs Opened</div>
+              <div style={{ fontSize: 20, fontWeight: 'bold' }}>{packsOpened}</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 12, opacity: 0.7 }}>Total Spent</div>
+              <div style={{ fontSize: 20, fontWeight: 'bold', color: '#f44336' }}>{formatMoney(packStats.spent)}</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 12, opacity: 0.7 }}>Cards Value</div>
+              <div style={{ fontSize: 20, fontWeight: 'bold', color: '#4caf50' }}>{formatMoney(packStats.totalValue)}</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 12, opacity: 0.7 }}>Net P&L</div>
+              <div style={{ fontSize: 20, fontWeight: 'bold', color: packStats.totalValue - packStats.spent >= 0 ? '#4caf50' : '#f44336' }}>
+                {packStats.totalValue - packStats.spent >= 0 ? '+' : ''}{formatMoney(packStats.totalValue - packStats.spent)}
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+            {PACK_TYPES.map(pack => {
+              const ev = calculateExpectedValue(pack);
+              const evDiff = ev - pack.price;
+              return (
+                <div key={pack.id} style={{ background: `linear-gradient(145deg, ${pack.color}22, ${pack.color}44)`, border: `2px solid ${pack.color}`, borderRadius: 16, padding: 20 }}>
+                  <div style={{ fontSize: 48, textAlign: 'center', marginBottom: 8 }}>{pack.img}</div>
+                  <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>{pack.name}</h3>
+                  <p style={{ fontSize: 13, opacity: 0.7, textAlign: 'center', margin: '0 0 12px 0' }}>{pack.description}</p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, padding: '8px 12px', background: 'rgba(0,0,0,0.2)', borderRadius: 8 }}>
+                    <div>
+                      <div style={{ fontSize: 11, opacity: 0.7 }}>Price</div>
+                      <div style={{ fontSize: 18, fontWeight: 'bold' }}>${pack.price}</div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: 11, opacity: 0.7 }}>Expected Value</div>
+                      <div style={{ fontSize: 18, fontWeight: 'bold', color: evDiff >= 0 ? '#4caf50' : '#ff9800' }}>${ev.toFixed(0)}</div>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 12, padding: 8, background: 'rgba(0,0,0,0.2)', borderRadius: 8 }}>
+                    💡 {pack.lesson.substring(0, 80)}...
+                  </div>
+                  <button
+                    onClick={() => openPack(pack)}
+                    disabled={money < pack.price || collection.length >= capacity}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: 'none',
+                      borderRadius: 8,
+                      background: money >= pack.price && collection.length < capacity ? `linear-gradient(135deg, ${pack.color}, ${pack.color}cc)` : '#555',
+                      color: '#fff',
+                      cursor: money >= pack.price && collection.length < capacity ? 'pointer' : 'not-allowed',
+                      fontWeight: 'bold',
+                      fontSize: 16
+                    }}
+                  >
+                    {collection.length >= capacity ? '📦 Storage Full' : money < pack.price ? '🔒 Need More Money' : '🎴 Open Pack'}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Collection View */}
+      {view === 'collection' && (
+        <div>
+          <h2>Your Collection</h2>
+          {collection.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: 40, opacity: 0.5 }}>
+              <div style={{ fontSize: 48 }}>📭</div>
+              <p>No cards yet! Visit the market or open packs!</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
+              {collection.map(card => {
+                const currentValue = card.currentPrice * sellBonus;
+                const profit = currentValue - card.purchasePrice;
+                const isFromPack = card.purchasePrice === 0;
+                return (
+                  <div key={card.collectionId} style={{ background: `linear-gradient(145deg, ${TYPE_COLORS[card.type]}22, ${TYPE_COLORS[card.type]}44)`, border: `2px solid ${RARITY_COLORS[card.rarity]}`, borderRadius: 16, padding: 16, position: 'relative' }}>
+                    {card.fromPack && <div style={{ position: 'absolute', top: 8, left: 8, background: 'rgba(255,255,255,0.2)', padding: '2px 6px', borderRadius: 6, fontSize: 9 }}>📦 Pack</div>}
+                    <div style={{ position: 'absolute', top: 8, right: 8, background: isFromPack ? '#667eea' : (profit >= 0 ? '#4caf50' : '#f44336'), padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 'bold' }}>
+                      {isFromPack ? 'FREE' : `${profit >= 0 ? '+' : ''}${((currentValue / card.purchasePrice - 1) * 100).toFixed(1)}%`}
+                    </div>
+                    <div style={{ fontSize: 40, textAlign: 'center' }}>{card.img}</div>
+                    <div style={{ fontWeight: 'bold', marginTop: 4 }}>{card.name}</div>
+                    <div style={{ fontSize: 12, opacity: 0.7, marginTop: 4 }}>{isFromPack ? 'From pack' : `Bought: $${card.purchasePrice.toFixed(2)}`} • Held: {card.holdTime}s</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+                      <div>
+                        <div style={{ fontSize: 10, opacity: 0.7 }}>Current Value</div>
+                        <div style={{ fontSize: 18, fontWeight: 'bold', color: '#4caf50' }}>${currentValue.toFixed(2)}</div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 10, opacity: 0.7 }}>{isFromPack ? 'Pure Profit' : 'P&L'}</div>
+                        <div style={{ fontSize: 14, color: isFromPack || profit >= 0 ? '#4caf50' : '#f44336' }}>
+                          {isFromPack ? '+' : (profit >= 0 ? '+' : '')}${isFromPack ? currentValue.toFixed(2) : profit.toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                    <button onClick={() => sellCard(card)} style={{ width: '100%', marginTop: 12, padding: '10px', border: 'none', borderRadius: 8, background: 'linear-gradient(135deg, #4caf50, #2e7d32)', color: '#fff', cursor: 'pointer', fontWeight: 'bold' }}>
+                      💰 Sell for ${currentValue.toFixed(2)}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Upgrades View */}
+      {view === 'upgrades' && (
+        <div>
+          <h2>Upgrades & Skills</h2>
+          <p style={{ opacity: 0.7, marginBottom: 16 }}>Each upgrade teaches a real economics principle!</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
+            {UPGRADES.map(upgrade => {
+              const owned = upgrades.includes(upgrade.id);
+              const canAfford = money >= upgrade.cost;
+              return (
+                <div key={upgrade.id} style={{ background: owned ? 'linear-gradient(145deg, #4caf5033, #2e7d3233)' : 'rgba(255,255,255,0.05)', border: `2px solid ${owned ? '#4caf50' : canAfford ? '#667eea' : '#555'}`, borderRadius: 16, padding: 16, opacity: owned ? 0.7 : 1 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <div style={{ fontWeight: 'bold', fontSize: 16 }}>{upgrade.name}</div>
+                      <div style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>{upgrade.description}</div>
+                    </div>
+                    <div style={{ fontSize: 18, fontWeight: 'bold', color: owned ? '#4caf50' : canAfford ? '#ffd700' : '#888' }}>
+                      {owned ? '✓' : formatMoney(upgrade.cost)}
+                    </div>
+                  </div>
+                  {!owned && (
+                    <button onClick={() => buyUpgrade(upgrade)} disabled={!canAfford} style={{ width: '100%', marginTop: 12, padding: '10px', border: 'none', borderRadius: 8, background: canAfford ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#444', color: '#fff', cursor: canAfford ? 'pointer' : 'not-allowed', fontWeight: 'bold' }}>
+                      {canAfford ? '📖 Purchase & Learn' : '🔒 Insufficient Funds'}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Economics Lessons View */}
+      {view === 'lessons' && (
+        <div>
+          <h2>📚 Economics Lessons</h2>
+          <h3 style={{ marginTop: 24 }}>🏆 Achievements</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+            {ACHIEVEMENTS.map(ach => {
+              const unlocked = achievements.includes(ach.id);
+              return (
+                <div key={ach.id} style={{ background: unlocked ? 'linear-gradient(145deg, #ffd70033, #ff8c0033)' : 'rgba(255,255,255,0.05)', border: `2px solid ${unlocked ? '#ffd700' : '#333'}`, borderRadius: 12, padding: 12, opacity: unlocked ? 1 : 0.5 }}>
+                  <div style={{ fontSize: 24 }}>{unlocked ? '🏆' : '🔒'}</div>
+                  <div style={{ fontWeight: 'bold', marginTop: 4 }}>{ach.name}</div>
+                  <div style={{ fontSize: 12, opacity: 0.7 }}>{ach.description}</div>
+                  <div style={{ fontSize: 12, color: '#ffd700', marginTop: 4 }}>Reward: ${ach.reward}</div>
+                </div>
+              );
+            })}
+          </div>
+          <h3 style={{ marginTop: 24 }}>💡 Key Concepts</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
+            {[
+              { title: "Supply & Demand", desc: "Prices rise when demand exceeds supply (rare cards), and fall when supply exceeds demand." },
+              { title: "Expected Value", desc: "EV = Σ(probability × value). If pack EV < price, buying packs loses money on average." },
+              { title: "Market Volatility", desc: "Rare items have higher price swings. Risk increases with potential reward." },
+              { title: "Opportunity Cost", desc: "Money spent on one card can't buy another. Every purchase is a trade-off." },
+              { title: "FOMO & Psychology", desc: "Fear of missing out drives bubbles. Prices often move on emotion more than fundamentals." },
+            ].map((concept, i) => (
+              <div key={i} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: 16, borderLeft: '4px solid #667eea' }}>
+                <div style={{ fontWeight: 'bold', marginBottom: 8 }}>{concept.title}</div>
+                <div style={{ fontSize: 13, opacity: 0.8 }}>{concept.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Pack Opening Modal */}
+      {isOpeningPack && packResults && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}>
+          <h2 style={{ marginBottom: 24, color: '#ffd700' }}>🎴 Pack Opening!</h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center', maxWidth: 800, marginBottom: 24 }}>
+            {packResults.map((card, index) => {
+              const isRevealed = revealedCards.includes(card);
+              return (
+                <div key={card.collectionId} style={{
+                  width: 120, height: 160, borderRadius: 12,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.5s ease',
+                  transform: isRevealed ? 'rotateY(0deg) scale(1)' : 'rotateY(180deg) scale(0.8)',
+                  opacity: isRevealed ? 1 : 0.3,
+                  background: isRevealed ? `linear-gradient(145deg, ${TYPE_COLORS[card.type]}44, ${TYPE_COLORS[card.type]}22)` : 'linear-gradient(145deg, #333, #222)',
+                  border: `3px solid ${isRevealed ? RARITY_COLORS[card.rarity] : '#444'}`,
+                  boxShadow: isRevealed && ['secret-rare', 'legendary', 'chase'].includes(card.rarity) ? `0 0 20px ${RARITY_COLORS[card.rarity]}` : 'none'
+                }}>
+                  {isRevealed ? (
+                    <>
+                      <div style={{ fontSize: 36, marginBottom: 4 }}>{card.img}</div>
+                      <div style={{ fontSize: 11, fontWeight: 'bold', textAlign: 'center', padding: '0 4px' }}>{card.name}</div>
+                      <div style={{ fontSize: 9, color: RARITY_COLORS[card.rarity], textTransform: 'uppercase', fontWeight: 'bold', marginTop: 2 }}>{card.rarity}</div>
+                      <div style={{ fontSize: 12, color: '#4caf50', marginTop: 4 }}>${card.currentPrice.toFixed(0)}</div>
+                    </>
+                  ) : (
+                    <div style={{ fontSize: 32 }}>❓</div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {revealedCards.length === packResults.length && (
+            <>
+              <div style={{ background: 'rgba(255,255,255,0.1)', padding: 16, borderRadius: 12, textAlign: 'center', marginBottom: 16 }}>
+                <div style={{ fontSize: 14, opacity: 0.7 }}>Total Value</div>
+                <div style={{ fontSize: 28, fontWeight: 'bold', color: '#4caf50' }}>${packResults.reduce((sum, c) => sum + c.currentPrice, 0).toFixed(0)}</div>
+              </div>
+              <button onClick={closePackResults} style={{ padding: '12px 32px', border: 'none', borderRadius: 8, background: 'linear-gradient(135deg, #667eea, #764ba2)', color: '#fff', cursor: 'pointer', fontWeight: 'bold', fontSize: 16 }}>
+                Collect Cards ✓
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Lesson Modal */}
+      {showLesson && (
+        <div onClick={() => setShowLesson(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 1000 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: 'linear-gradient(145deg, #1a1a2e, #16213e)', borderRadius: 20, padding: 24, maxWidth: 500, border: '2px solid #667eea' }}>
+            <div style={{ fontSize: 32, marginBottom: 16 }}>📚</div>
+            <h3 style={{ margin: '0 0 16px 0', color: '#ffd700' }}>Economics Lesson</h3>
+            <p style={{ lineHeight: 1.6, fontSize: 15 }}>{showLesson}</p>
+            <button onClick={() => setShowLesson(null)} style={{ width: '100%', marginTop: 16, padding: 12, border: 'none', borderRadius: 8, background: 'linear-gradient(135deg, #667eea, #764ba2)', color: '#fff', cursor: 'pointer', fontWeight: 'bold' }}>
+              Got it! ✓
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Notifications */}
+      <div style={{ position: 'fixed', bottom: 16, right: 16, display: 'flex', flexDirection: 'column', gap: 8, zIndex: 999 }}>
+        {notifications.map(n => (
+          <div key={n.id} style={{ background: 'rgba(0,0,0,0.9)', padding: '12px 16px', borderRadius: 8, animation: 'slideIn 0.3s ease-out', maxWidth: 300 }}>
+            {n.message}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<PokemonEconClicker />);
+```
+
+  </script>
+</body>
+</html>

@@ -8,6 +8,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useGameEngine } from '../engine/useGameEngine';
 import { thriftQueenGame } from './thriftQueen';
+import { ClothingVisual } from './ClothingVisual';
+import type { ClothingItem as VisualClothingItem } from './ClothingVisual';
 import type { SpawnedEntity } from '../engine/types';
 import './ThriftQueenGame.css';
 
@@ -172,6 +174,51 @@ function entityToClothingItem(entity: SpawnedEntity): ClothingItem {
     brand: p.brand ? String(p.brand) : undefined,
     description: String(p.description || ''),
     emoji: String(p.emoji || '👗')
+  };
+}
+
+// Convert game ClothingItem to VisualClothingItem for the visual component
+function toVisualItem(item: ClothingItem): VisualClothingItem {
+  // Map category to visual type
+  const typeMap: Record<Category, VisualClothingItem['type']> = {
+    dress: 'dress',
+    coat: 'jacket',
+    jacket: 'jacket',
+    accessories: 'accessory',
+    denim: 'pants',
+    sweater: 'blouse',
+    blouse: 'blouse',
+    skirt: 'skirt',
+    pants: 'pants',
+    shoes: 'shoes'
+  };
+
+  // Map rarity
+  const rarityMap: Record<Rarity, VisualClothingItem['rarity']> = {
+    common: 'common',
+    trendy: 'uncommon',
+    statement: 'uncommon',
+    designer: 'rare',
+    couture: 'legendary'
+  };
+
+  // Map condition
+  const conditionMap: Record<Condition, VisualClothingItem['condition']> = {
+    damaged: 'poor',
+    fair: 'fair',
+    good: 'good',
+    excellent: 'excellent',
+    mint: 'mint'
+  };
+
+  return {
+    id: item.id,
+    name: item.name,
+    type: typeMap[item.category],
+    era: item.era,
+    condition: conditionMap[item.condition],
+    rarity: rarityMap[item.rarity],
+    basePrice: item.basePrice
   };
 }
 
@@ -557,16 +604,20 @@ export function ThriftQueenGame({ onNavigateToHub }: ThriftQueenGameProps) {
             <div className="items-grid">
               {sourceItems.map(item => (
                 <div key={item.id} className={`item-card ${item.rarity}`}>
-                  <div className="item-emoji">{item.emoji}</div>
-                  <div className="item-name">{item.name}</div>
-                  <div className="item-details">
-                    <span className="item-era">{item.description}</span>
-                    <span className={`item-condition ${item.condition}`}>{item.condition}</span>
+                  <div className="item-visual">
+                    <ClothingVisual item={toVisualItem(item)} size="small" showDetails />
                   </div>
-                  {item.brand && <div className="item-brand">✨ {item.brand}</div>}
-                  <div className="item-prices">
-                    <span className="buy-price">Buy: {formatMoney(item.basePrice * sourcingDiscount)}</span>
-                    <span className="sell-price">Sell: ~{formatMoney(item.currentPrice * priceMultiplier)}</span>
+                  <div className="item-info">
+                    <div className="item-name">{item.name}</div>
+                    <div className="item-details">
+                      <span className="item-era">{item.description}</span>
+                      <span className={`item-condition ${item.condition}`}>{item.condition}</span>
+                    </div>
+                    {item.brand && <div className="item-brand">✨ {item.brand}</div>}
+                    <div className="item-prices">
+                      <span className="buy-price">Buy: {formatMoney(item.basePrice * sourcingDiscount)}</span>
+                      <span className="sell-price">Sell: ~{formatMoney(item.currentPrice * priceMultiplier)}</span>
+                    </div>
                   </div>
                   <button
                     className="source-btn"
@@ -611,15 +662,19 @@ export function ThriftQueenGame({ onNavigateToHub }: ThriftQueenGameProps) {
               <div className="items-grid">
                 {inventory.map(item => (
                   <div key={item.id} className={`item-card ${item.rarity}`}>
-                    <div className="item-emoji">{item.emoji}</div>
-                    <div className="item-name">{item.name}</div>
-                    <div className="item-details">
-                      <span className="item-era">{item.description}</span>
-                      <span className={`item-condition ${item.condition}`}>{item.condition}</span>
+                    <div className="item-visual">
+                      <ClothingVisual item={toVisualItem(item)} size="small" showDetails />
                     </div>
-                    {item.brand && <div className="item-brand">✨ {item.brand}</div>}
-                    <div className="item-prices">
-                      <span className="sell-price">Value: {formatMoney(item.currentPrice * priceMultiplier)}</span>
+                    <div className="item-info">
+                      <div className="item-name">{item.name}</div>
+                      <div className="item-details">
+                        <span className="item-era">{item.description}</span>
+                        <span className={`item-condition ${item.condition}`}>{item.condition}</span>
+                      </div>
+                      {item.brand && <div className="item-brand">✨ {item.brand}</div>}
+                      <div className="item-prices">
+                        <span className="sell-price">Value: {formatMoney(item.currentPrice * priceMultiplier)}</span>
+                      </div>
                     </div>
                     <button
                       className="list-btn"
@@ -657,15 +712,19 @@ export function ThriftQueenGame({ onNavigateToHub }: ThriftQueenGameProps) {
               <div className="items-grid">
                 {listings.map(item => (
                   <div key={item.id} className={`item-card ${item.rarity} listed`}>
-                    <div className="item-emoji">{item.emoji}</div>
-                    <div className="item-name">{item.name}</div>
-                    <div className="item-details">
-                      <span className="item-era">{item.description}</span>
-                      <span className={`item-condition ${item.condition}`}>{item.condition}</span>
+                    <div className="item-visual">
+                      <ClothingVisual item={toVisualItem(item)} size="small" showDetails />
                     </div>
-                    {item.brand && <div className="item-brand">✨ {item.brand}</div>}
-                    <div className="item-prices">
-                      <span className="sell-price">💰 {formatMoney(item.currentPrice)}</span>
+                    <div className="item-info">
+                      <div className="item-name">{item.name}</div>
+                      <div className="item-details">
+                        <span className="item-era">{item.description}</span>
+                        <span className={`item-condition ${item.condition}`}>{item.condition}</span>
+                      </div>
+                      {item.brand && <div className="item-brand">✨ {item.brand}</div>}
+                      <div className="item-prices">
+                        <span className="sell-price">💰 {formatMoney(item.currentPrice)}</span>
+                      </div>
                     </div>
                     <button className="sell-btn" onClick={() => sellItem(item)}>
                       💸 Sell Now!

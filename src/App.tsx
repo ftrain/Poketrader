@@ -6,7 +6,8 @@ import {
   Navigation,
   Notifications,
   LessonModal,
-  StartupModal
+  StartupModal,
+  EnvelopeModal
 } from './components';
 import {
   MarketView,
@@ -15,7 +16,8 @@ import {
   UpgradesView,
   LessonsView,
   PackOpeningModal,
-  RulesView
+  RulesView,
+  GradingView
 } from './views';
 import type { RuleEngineState } from './engine';
 import { formatMoney } from './utils';
@@ -155,6 +157,18 @@ export function App() {
         />
       )}
 
+      {game.view === 'grading' && (
+        <GradingView
+          collection={game.collection}
+          gradingQueue={game.gradingQueue}
+          gradedCards={game.gradedCards}
+          money={game.money}
+          gameTime={game.gameTime}
+          onSubmitForGrading={game.submitForGrading}
+          onCollectGradedCard={game.collectGradedCard}
+        />
+      )}
+
       {game.view === 'upgrades' && (
         <UpgradesView
           money={game.money}
@@ -205,6 +219,14 @@ export function App() {
         <LessonModal
           lesson={game.showLesson}
           onClose={() => game.setShowLesson(null)}
+        />
+      )}
+
+      {/* Envelope Modal for Grading Results */}
+      {game.envelopeCard && (
+        <EnvelopeModal
+          gradedCard={game.envelopeCard}
+          onClose={game.closeEnvelopeModal}
         />
       )}
 

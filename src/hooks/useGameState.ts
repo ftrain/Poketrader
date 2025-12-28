@@ -9,7 +9,10 @@ import type {
   PackStats,
   Card,
   PackType,
-  Rarity
+  Rarity,
+  GradingSubmission,
+  GradedCard,
+  GradeResult
 } from '../types';
 import {
   CARD_DATABASE,
@@ -123,6 +126,12 @@ export function useGameState() {
   const [totalClicks, setTotalClicks] = useState(0);
   const lastClickTime = useRef(0);
   const comboResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Grading system state
+  const [gradingQueue, setGradingQueue] = useState<GradingSubmission[]>(savedGame?.gradingQueue ?? []);
+  const [gradedCards, setGradedCards] = useState<GradedCard[]>(savedGame?.gradedCards ?? []);
+  const [envelopeCard, setEnvelopeCard] = useState<GradedCard | null>(null);
+  let gradingIdCounter = useRef(savedGame?.gradingIdCounter ?? 1);
 
   const currentEventRef = useRef(currentEvent);
   const eventTimerRef = useRef(eventTimer);
@@ -475,6 +484,80 @@ export function useGameState() {
     addNotification(`💰 Sold ${cards.length} cards for $${totalSellPrice.toFixed(2)}!`, 'sale');
   }, [sellBonus, addNotification]);
 
+  // Grading system functions
+  const GRADING_COST_BASE = 25;
+  const GRADING_TIME = 30; // seconds
+  const FORGERY_CHANCE = 0.08; // 8% chance of forgery
+
+  const getGradingCost = useCallback((card: CollectionCard) => {
+    return Math.max(GRADING_COST_BASE, Math.round(card.currentPrice * 0.1));
+  }, []);
+
+  const determineGrade = useCallback((): { grade: GradeResult; multiplier: number; isForgery: boolean } => {
+    // Check for forgery first
+    if (Math.random() < FORGERY_CHANCE) {
+      return { grade: 'FORGERY', multiplier: 0, isForgery: true };
+    }
+
+    // Grade distribution: PSA 10 is rare, PSA 6-7 is common
+    const roll = Math.random();
+    if (roll < 0.05) return { grade: 'PSA 10', multiplier: 3.0, isForgery: false };
+    if (roll < 0.20) return { grade: 'PSA 9', multiplier: 2.0, isForgery: false };
+    if (roll < 0.45) return { grade: 'PSA 8', multiplier: 1.5, isForgery: false };
+    if (roll < 0.75) return { grade: 'PSA 7', multiplier: 1.2, isForgery: false };
+    return { grade: 'PSA 6', multiplier: 1.0, isForgery: false };
+  }, []);
+
+  const submitForGrading = useCallback((card: CollectionCard) => {
+    const cost = getGradingCost(card);
+    if (money < cost) return;
+
+    setMoney((m: number) => m - cost);
+    setCollection(prev => prev.filter(c => c.collectionId !== card.collectionId));
+
+    const submission: GradingSubmission = {
+      id: gradingIdCounter.current++,
+      card,
+      submittedAt: gameTime,
+      returnTime: gameTime + GRADING_TIME,
+      cost
+    };
+
+    setGradingQueue(prev => [...prev, submission]);
+    addNotification(`📨 Submitted ${card.name} for grading`, 'upgrade');
+  }, [money, gameTime, getGradingCost, addNotification]);
+
+  const collectGradedCard = useCallback((submission: GradingSubmission) => {
+    const { grade, multiplier, isForgery } = determineGrade();
+
+    const gradedCard: GradedCard = {
+      ...submission.card,
+      collectionId: Date.now() + Math.random(), // New unique ID
+      grade,
+      gradeMultiplier: multiplier,
+      isForgery,
+      currentPrice: isForgery ? 0 : submission.card.currentPrice * multiplier
+    };
+
+    // Remove from queue
+    setGradingQueue(prev => prev.filter(g => g.id !== submission.id));
+
+    // Show envelope modal
+    setEnvelopeCard(gradedCard);
+
+    if (isForgery) {
+      addNotification(`🚨 FORGERY! ${submission.card.name} was a fake!`, 'warning');
+    } else {
+      // Add to graded cards collection
+      setGradedCards(prev => [...prev, gradedCard]);
+      addNotification(`🏅 ${submission.card.name} graded ${grade}!`, 'achievement');
+    }
+  }, [determineGrade, addNotification]);
+
+  const closeEnvelopeModal = useCallback(() => {
+    setEnvelopeCard(null);
+  }, []);
+
   const buyUpgrade = useCallback((upgradeId: number) => {
     const upgrade = UPGRADES.find(u => u.id === upgradeId);
     if (!upgrade || money < upgrade.cost || upgrades.includes(upgrade.id)) return;
@@ -662,7 +745,10 @@ export function useGameState() {
         gameTime,
         longestHold,
         packsOpened,
-        packStats
+        packStats,
+        gradingQueue,
+        gradedCards,
+        gradingIdCounter: gradingIdCounter.current
       };
       try {
         localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
@@ -675,7 +761,7 @@ export function useGameState() {
     saveGame(); // Save immediately on state change
 
     return () => clearInterval(saveInterval);
-  }, [starterPath, debt, money, totalEarned, totalProfit, totalSold, collection, upgrades, achievements, clickPower, passiveIncome, discount, sellBonus, capacity, marketSize, packDiscount, critBonus, gameTime, longestHold, packsOpened, packStats]);
+  }, [starterPath, debt, money, totalEarned, totalProfit, totalSold, collection, upgrades, achievements, clickPower, passiveIncome, discount, sellBonus, capacity, marketSize, packDiscount, critBonus, gameTime, longestHold, packsOpened, packStats, gradingQueue, gradedCards]);
 
   const resetGame = useCallback(() => {
     localStorage.removeItem(SAVE_KEY);
@@ -721,6 +807,11 @@ export function useGameState() {
     comboMultiplier,
     totalClicks,
 
+    // Grading system
+    gradingQueue,
+    gradedCards,
+    envelopeCard,
+
     // Actions
     setView,
     setShowLesson,
@@ -736,5 +827,10 @@ export function useGameState() {
     chooseStarterPath,
     payDebt,
     resetGame,
+
+    // Grading actions
+    submitForGrading,
+    collectGradedCard,
+    closeEnvelopeModal,
   };
 }

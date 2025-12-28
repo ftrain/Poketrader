@@ -133,4 +133,41 @@ export interface ClickEffect {
   comboLevel?: number;
 }
 
-export type ViewType = 'market' | 'packs' | 'collection' | 'upgrades' | 'lessons' | 'rules';
+export type ViewType = 'market' | 'packs' | 'collection' | 'upgrades' | 'lessons' | 'rules' | 'grading';
+
+// Grading system types
+export type GradeResult = 'PSA 10' | 'PSA 9' | 'PSA 8' | 'PSA 7' | 'PSA 6' | 'FORGERY';
+
+export interface GradingSubmission {
+  id: number;
+  card: CollectionCard;
+  submittedAt: number;
+  returnTime: number; // game time when it will return
+  cost: number;
+}
+
+export interface GradedCard extends CollectionCard {
+  grade: GradeResult;
+  gradeMultiplier: number;
+  isForgery: boolean;
+}
+
+// Appraiser types for mini-game
+export interface Appraiser {
+  id: number;
+  name: string;
+  level: number;
+  experience: number;
+  specialty: CardType;
+  earnRate: number; // $/sec passive income
+}
+
+// Modal notification for important events
+export interface ModalNotification {
+  id: number;
+  type: 'envelope' | 'achievement' | 'forgery' | 'rare_pull';
+  title: string;
+  content: string;
+  card?: CollectionCard | GradedCard;
+  spriteId?: number;
+}

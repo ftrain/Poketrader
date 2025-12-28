@@ -9,9 +9,9 @@ const TABS: { id: ViewType; label: string }[] = [
   { id: 'market', label: 'Market' },
   { id: 'packs', label: 'Packs' },
   { id: 'collection', label: 'Cards' },
+  { id: 'grading', label: 'Grade' },
   { id: 'upgrades', label: 'Upgrades' },
   { id: 'lessons', label: 'Learn' },
-  { id: 'rules', label: 'Rules' },
 ];
 
 export function Navigation({ currentView, onViewChange }: NavigationProps) {

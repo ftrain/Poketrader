@@ -7,3 +7,4 @@ export { ClickerButton } from './ClickerButton';
 export { Navigation } from './Navigation';
 export { LessonModal } from './LessonModal';
 export { StartupModal } from './StartupModal';
+export { EnvelopeModal } from './EnvelopeModal';

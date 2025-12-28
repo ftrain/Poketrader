@@ -70,36 +70,50 @@ export const STARTER_PATHS: StarterPathInfo[] = [
   }
 ];
 
+const SAVE_KEY = 'poketrader_save';
+
+function loadSavedGame() {
+  try {
+    const saved = localStorage.getItem(SAVE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch (e) {
+    console.error('Failed to load save:', e);
+  }
+  return null;
+}
+
 export function useGameState() {
-  const [starterPath, setStarterPath] = useState<StarterPath>(null);
-  const [debt, setDebt] = useState(0);
-  const [money, setMoney] = useState(0);
-  const [totalEarned, setTotalEarned] = useState(0);
-  const [totalProfit, setTotalProfit] = useState(0);
-  const [totalSold, setTotalSold] = useState(0);
-  const [collection, setCollection] = useState<CollectionCard[]>([]);
+  const savedGame = loadSavedGame();
+
+  const [starterPath, setStarterPath] = useState<StarterPath>(savedGame?.starterPath ?? null);
+  const [debt, setDebt] = useState(savedGame?.debt ?? 0);
+  const [money, setMoney] = useState(savedGame?.money ?? 0);
+  const [totalEarned, setTotalEarned] = useState(savedGame?.totalEarned ?? 0);
+  const [totalProfit, setTotalProfit] = useState(savedGame?.totalProfit ?? 0);
+  const [totalSold, setTotalSold] = useState(savedGame?.totalSold ?? 0);
+  const [collection, setCollection] = useState<CollectionCard[]>(savedGame?.collection ?? []);
   const [market, setMarket] = useState<MarketCard[]>([]);
-  const [upgrades, setUpgrades] = useState<number[]>([]);
-  const [achievements, setAchievements] = useState<number[]>([]);
+  const [upgrades, setUpgrades] = useState<number[]>(savedGame?.upgrades ?? []);
+  const [achievements, setAchievements] = useState<number[]>(savedGame?.achievements ?? []);
   const [currentEvent, setCurrentEvent] = useState<MarketEvent | null>(null);
   const [eventTimer, setEventTimer] = useState(0);
-  const [clickPower, setClickPower] = useState(1);
-  const [passiveIncome, setPassiveIncome] = useState(0);
-  const [discount, setDiscount] = useState(1);
-  const [sellBonus, setSellBonus] = useState(1);
-  const [capacity, setCapacity] = useState(20);
-  const [marketSize, setMarketSize] = useState(8);
-  const [packDiscount, setPackDiscount] = useState(1);
-  const [critBonus, setCritBonus] = useState(0);
+  const [clickPower, setClickPower] = useState(savedGame?.clickPower ?? 1);
+  const [passiveIncome, setPassiveIncome] = useState(savedGame?.passiveIncome ?? 0);
+  const [discount, setDiscount] = useState(savedGame?.discount ?? 1);
+  const [sellBonus, setSellBonus] = useState(savedGame?.sellBonus ?? 1);
+  const [capacity, setCapacity] = useState(savedGame?.capacity ?? 20);
+  const [marketSize, setMarketSize] = useState(savedGame?.marketSize ?? 8);
+  const [packDiscount, setPackDiscount] = useState(savedGame?.packDiscount ?? 1);
+  const [critBonus, setCritBonus] = useState(savedGame?.critBonus ?? 0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showLesson, setShowLesson] = useState<string | null>(null);
   const [clickEffects, setClickEffects] = useState<ClickEffect[]>([]);
-  const [gameTime, setGameTime] = useState(0);
-  const [longestHold, setLongestHold] = useState(0);
+  const [gameTime, setGameTime] = useState(savedGame?.gameTime ?? 0);
+  const [longestHold, setLongestHold] = useState(savedGame?.longestHold ?? 0);
   const [view, setView] = useState<ViewType>('market');
-  const [packsOpened, setPacksOpened] = useState(0);
+  const [packsOpened, setPacksOpened] = useState(savedGame?.packsOpened ?? 0);
   const [packResults, setPackResults] = useState<CollectionCard[] | null>(null);
-  const [packStats, setPackStats] = useState<PackStats>({ spent: 0, totalValue: 0, bestPull: null });
+  const [packStats, setPackStats] = useState<PackStats>(savedGame?.packStats ?? { spent: 0, totalValue: 0, bestPull: null });
   const [isOpeningPack, setIsOpeningPack] = useState(false);
   const [revealedCards, setRevealedCards] = useState<CollectionCard[]>([]);
 
@@ -114,11 +128,27 @@ export function useGameState() {
   const eventTimerRef = useRef(eventTimer);
   const passiveIncomeRef = useRef(passiveIncome);
   const critBonusRef = useRef(critBonus);
+  const upgradesRef = useRef(upgrades);
+  const collectionRef = useRef(collection);
+  const moneyRef = useRef(money);
+  const capacityRef = useRef(capacity);
+  const sellBonusRef = useRef(sellBonus);
+  const discountRef = useRef(discount);
+  const debtRef = useRef(debt);
+  const marketRef = useRef(market);
 
   useEffect(() => { currentEventRef.current = currentEvent; }, [currentEvent]);
   useEffect(() => { eventTimerRef.current = eventTimer; }, [eventTimer]);
   useEffect(() => { passiveIncomeRef.current = passiveIncome; }, [passiveIncome]);
   useEffect(() => { critBonusRef.current = critBonus; }, [critBonus]);
+  useEffect(() => { upgradesRef.current = upgrades; }, [upgrades]);
+  useEffect(() => { collectionRef.current = collection; }, [collection]);
+  useEffect(() => { moneyRef.current = money; }, [money]);
+  useEffect(() => { capacityRef.current = capacity; }, [capacity]);
+  useEffect(() => { sellBonusRef.current = sellBonus; }, [sellBonus]);
+  useEffect(() => { discountRef.current = discount; }, [discount]);
+  useEffect(() => { debtRef.current = debt; }, [debt]);
+  useEffect(() => { marketRef.current = market; }, [market]);
 
   const calculatePrice = useCallback((card: Card, event: MarketEvent | null): number => {
     let price = card.basePrice;
@@ -173,12 +203,14 @@ export function useGameState() {
 
   // Game loop
   useEffect(() => {
+    let tick = 0;
     const interval = setInterval(() => {
-      setGameTime(t => t + 1);
+      tick++;
+      setGameTime((t: number) => t + 1);
 
       if (passiveIncomeRef.current > 0) {
-        setMoney(m => m + passiveIncomeRef.current);
-        setTotalEarned(t => t + passiveIncomeRef.current);
+        setMoney((m: number) => m + passiveIncomeRef.current);
+        setTotalEarned((t: number) => t + passiveIncomeRef.current);
       }
 
       setMarket(prev => prev.map(card => ({
@@ -192,6 +224,67 @@ export function useGameState() {
         holdTime: (card.holdTime || 0) + 1,
         currentPrice: calculatePrice(card, currentEventRef.current)
       })));
+
+      // AUTO-SELL: Stores automatically sell profitable cards
+      // 21 = eBay Store, 23 = Pop-up Booth, 24 = Dedicated Storefront
+      const hasEbay = upgradesRef.current.includes(21);
+      const hasPopup = upgradesRef.current.includes(23);
+      const hasStore = upgradesRef.current.includes(24);
+      const autoSellRate = hasStore ? 2 : hasPopup ? 4 : hasEbay ? 6 : 0;
+
+      if (autoSellRate > 0 && tick % autoSellRate === 0 && collectionRef.current.length > 0) {
+        // Find a card with profit
+        const profitableCard = collectionRef.current.find(c =>
+          c.currentPrice * sellBonusRef.current > c.purchasePrice * 1.1
+        );
+        if (profitableCard) {
+          const sellPrice = Math.round(profitableCard.currentPrice * sellBonusRef.current * 100) / 100;
+          const profit = sellPrice - profitableCard.purchasePrice;
+
+          // Handle debt payment
+          let netProfit = sellPrice;
+          if (debtRef.current > 0 && profit > 0) {
+            const debtPayment = Math.min(debtRef.current, profit * 0.2);
+            netProfit = sellPrice - debtPayment;
+            setDebt((d: number) => Math.max(0, d - debtPayment));
+          }
+
+          setMoney((m: number) => m + netProfit);
+          setTotalEarned((t: number) => t + Math.max(0, profit));
+          setTotalProfit((p: number) => p + profit);
+          setTotalSold((s: number) => s + 1);
+          setCollection(prev => prev.filter(c => c.collectionId !== profitableCard.collectionId));
+          addNotification(`🏪 Auto-sold ${profitableCard.name} for $${sellPrice.toFixed(0)}`, 'sale');
+        }
+      }
+
+      // AUTO-BUY: Wholesale upgrades auto-buy good deals
+      // 50 = Bulk Buyer Network, 51 = Distributor Partnership
+      const hasBulkBuyer = upgradesRef.current.includes(50);
+      const hasDistributor = upgradesRef.current.includes(51);
+      const autoBuyRate = hasDistributor ? 5 : hasBulkBuyer ? 8 : 0;
+
+      if (autoBuyRate > 0 && tick % autoBuyRate === 0) {
+        const canBuy = collectionRef.current.length < capacityRef.current;
+        const goodDeal = marketRef.current.find(c =>
+          c.currentPrice < c.basePrice * 0.85 * discountRef.current &&
+          c.currentPrice * discountRef.current <= moneyRef.current
+        );
+        if (canBuy && goodDeal) {
+          const price = Math.round(goodDeal.currentPrice * discountRef.current * 100) / 100;
+          if (moneyRef.current >= price) {
+            setMoney((m: number) => m - price);
+            setCollection(prev => [...prev, {
+              ...goodDeal,
+              purchasePrice: price,
+              purchaseTime: tick,
+              holdTime: 0,
+              collectionId: Date.now() + Math.random()
+            }]);
+            addNotification(`📦 Auto-bought ${goodDeal.name} for $${price.toFixed(0)} (deal!)`, 'purchase');
+          }
+        }
+      }
 
       if (currentEventRef.current && eventTimerRef.current > 0) {
         setEventTimer(t => {
@@ -222,16 +315,16 @@ export function useGameState() {
         // Apply the achievement effect
         switch (ach.effect) {
           case 'capacity':
-            setCapacity(c => c + ach.value);
+            setCapacity((c: number) => c + ach.value);
             break;
           case 'discount':
-            setDiscount(d => d * ach.value);
+            setDiscount((d: number) => d * ach.value);
             break;
           case 'sellBonus':
-            setSellBonus(b => b * ach.value);
+            setSellBonus((b: number) => b * ach.value);
             break;
           case 'clickPower':
-            setClickPower(p => p * ach.value);
+            setClickPower((p: number) => p * ach.value);
             break;
           // marketSpeed and priceInsight are handled in UI
         }
@@ -285,8 +378,8 @@ export function useGameState() {
     const critBonus = isCritical ? baseEarned * 2 : 0;
     const totalEarned = baseEarned + comboBonus + critBonus;
 
-    setMoney(m => m + totalEarned);
-    setTotalEarned(t => t + totalEarned);
+    setMoney((m: number) => m + totalEarned);
+    setTotalEarned((t: number) => t + totalEarned);
 
     // Visual feedback
     const rect = e.currentTarget.getBoundingClientRect();
@@ -310,7 +403,7 @@ export function useGameState() {
   const buyCard = useCallback((card: MarketCard) => {
     const price = Math.round(card.currentPrice * discount * 100) / 100;
     if (money >= price && collection.length < capacity) {
-      setMoney(m => m - price);
+      setMoney((m: number) => m - price);
       setCollection(prev => [...prev, {
         ...card,
         purchasePrice: price,
@@ -326,22 +419,22 @@ export function useGameState() {
     const profit = sellPrice - card.purchasePrice;
 
     // Auto-pay debt from profits
-    setDebt(currentDebt => {
+    setDebt((currentDebt: number) => {
       if (currentDebt > 0 && profit > 0) {
         const debtPayment = Math.min(currentDebt, profit * 0.2); // 20% of profits go to debt
-        setMoney(m => m + sellPrice - debtPayment);
+        setMoney((m: number) => m + sellPrice - debtPayment);
         if (debtPayment > 0 && currentDebt - debtPayment <= 0) {
           addNotification("🎉 Debt fully repaid! You're free!", 'achievement');
         }
         return Math.max(0, currentDebt - debtPayment);
       }
-      setMoney(m => m + sellPrice);
+      setMoney((m: number) => m + sellPrice);
       return currentDebt;
     });
 
-    setTotalEarned(t => t + Math.max(0, profit));
-    setTotalProfit(p => p + profit);
-    setTotalSold(s => s + 1);
+    setTotalEarned((t: number) => t + Math.max(0, profit));
+    setTotalProfit((p: number) => p + profit);
+    setTotalSold((s: number) => s + 1);
     setCollection(prev => prev.filter(c => c.collectionId !== card.collectionId));
   }, [sellBonus, addNotification]);
 
@@ -355,18 +448,18 @@ export function useGameState() {
       if (!hasAllReqs) return;
     }
 
-    setMoney(m => m - upgrade.cost);
+    setMoney((m: number) => m - upgrade.cost);
     setUpgrades(prev => [...prev, upgrade.id]);
 
     switch (upgrade.effect) {
-      case 'clickPower': setClickPower(p => p * upgrade.value); break;
-      case 'discount': setDiscount(d => d * upgrade.value); break;
-      case 'passive': setPassiveIncome(p => p + upgrade.value); break;
-      case 'sellBonus': setSellBonus(b => b * upgrade.value); break;
-      case 'capacity': setCapacity(c => c + upgrade.value); break;
-      case 'marketSize': setMarketSize(s => s + upgrade.value); break;
-      case 'packDiscount': setPackDiscount(d => d * upgrade.value); break;
-      case 'critChance': setCritBonus(b => b + upgrade.value); break;
+      case 'clickPower': setClickPower((p: number) => p * upgrade.value); break;
+      case 'discount': setDiscount((d: number) => d * upgrade.value); break;
+      case 'passive': setPassiveIncome((p: number) => p + upgrade.value); break;
+      case 'sellBonus': setSellBonus((b: number) => b * upgrade.value); break;
+      case 'capacity': setCapacity((c: number) => c + upgrade.value); break;
+      case 'marketSize': setMarketSize((s: number) => s + upgrade.value); break;
+      case 'packDiscount': setPackDiscount((d: number) => d * upgrade.value); break;
+      case 'critChance': setCritBonus((b: number) => b + upgrade.value); break;
       // eventDuration, bulkBonus, refreshDiscount, rareChance handled elsewhere or not yet implemented
     }
     setShowLesson(upgrade.lesson);
@@ -402,7 +495,7 @@ export function useGameState() {
       return;
     }
 
-    setMoney(m => m - actualPrice);
+    setMoney((m: number) => m - actualPrice);
     setIsOpeningPack(true);
     setRevealedCards([]);
 
@@ -446,7 +539,7 @@ export function useGameState() {
       const bestPull = pulledCards.reduce((best: Card | null, c) =>
         (!best || c.basePrice > best.basePrice) ? c : best, null);
 
-      setPacksOpened(p => p + 1);
+      setPacksOpened((p: number) => p + 1);
       setPackStats(prev => ({
         spent: prev.spent + actualPrice,
         totalValue: prev.totalValue + totalValue,
@@ -495,8 +588,8 @@ export function useGameState() {
   const payDebt = useCallback((amount: number) => {
     const payment = Math.min(amount, debt, money);
     if (payment > 0) {
-      setMoney(m => m - payment);
-      setDebt(d => {
+      setMoney((m: number) => m - payment);
+      setDebt((d: number) => {
         const newDebt = d - payment;
         if (newDebt <= 0) {
           addNotification("🎉 Debt fully repaid! You're free!", 'achievement');
@@ -505,6 +598,52 @@ export function useGameState() {
       });
     }
   }, [debt, money, addNotification]);
+
+  // Auto-save game state every 5 seconds
+  useEffect(() => {
+    if (!starterPath) return; // Don't save if game hasn't started
+
+    const saveGame = () => {
+      const saveData = {
+        starterPath,
+        debt,
+        money,
+        totalEarned,
+        totalProfit,
+        totalSold,
+        collection,
+        upgrades,
+        achievements,
+        clickPower,
+        passiveIncome,
+        discount,
+        sellBonus,
+        capacity,
+        marketSize,
+        packDiscount,
+        critBonus,
+        gameTime,
+        longestHold,
+        packsOpened,
+        packStats
+      };
+      try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+      } catch (e) {
+        console.error('Failed to save game:', e);
+      }
+    };
+
+    const saveInterval = setInterval(saveGame, 5000);
+    saveGame(); // Save immediately on state change
+
+    return () => clearInterval(saveInterval);
+  }, [starterPath, debt, money, totalEarned, totalProfit, totalSold, collection, upgrades, achievements, clickPower, passiveIncome, discount, sellBonus, capacity, marketSize, packDiscount, critBonus, gameTime, longestHold, packsOpened, packStats]);
+
+  const resetGame = useCallback(() => {
+    localStorage.removeItem(SAVE_KEY);
+    window.location.reload();
+  }, []);
 
   return {
     // State
@@ -554,5 +693,6 @@ export function useGameState() {
     addNotification,
     chooseStarterPath,
     payDebt,
+    resetGame,
   };
 }

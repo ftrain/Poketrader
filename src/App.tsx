@@ -38,8 +38,20 @@ export function App() {
     <div className="app">
       {/* Terminal Header */}
       <div className="terminal-header">
-        <span className="terminal-title">POKE-TERMINAL v{VERSION}</span>
-        <span className="terminal-subtitle">Pokemon Trading Economics Simulator</span>
+        <div>
+          <span className="terminal-title">POKE-TERMINAL v{VERSION}</span>
+          <span className="terminal-subtitle">Pokemon Trading Economics Simulator</span>
+        </div>
+        <button
+          className="reset-btn"
+          onClick={() => {
+            if (window.confirm('Reset game? All progress will be lost!')) {
+              game.resetGame();
+            }
+          }}
+        >
+          ↺
+        </button>
       </div>
 
       {/* Debt Banner - Click to pay $50 */}

@@ -1,4 +1,4 @@
-export const VERSION = '2.0.0';
+export const VERSION = '2.1.0';
 
 export interface ReleaseNote {
   version: string;
@@ -7,6 +7,19 @@ export interface ReleaseNote {
 }
 
 export const RELEASE_NOTES: ReleaseNote[] = [
+  {
+    version: '2.1.0',
+    date: '2025-12-28',
+    changes: [
+      'Bloomberg-style finance terminal theme with IBM Plex fonts',
+      'Orange accent colors for professional trading terminal aesthetic',
+      '3x sprite sizes (288px) for better Pokemon visibility',
+      'Added 20+ new rules including win conditions and market strategies',
+      'Added market cornering mechanics for type monopolies',
+      'Reduced visual glow effects for cleaner interface',
+      'Non-fixed header for better scrolling experience'
+    ]
+  },
   {
     version: '2.0.0',
     date: '2025-12-28',

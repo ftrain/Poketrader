@@ -24,9 +24,57 @@ import type { MessageCategory } from '../data';
 const RARE_PLUS: Rarity[] = ['rare', 'ultra-rare', 'secret-rare', 'legendary', 'chase'];
 const ULTRA_RARE_PLUS: Rarity[] = ['ultra-rare', 'secret-rare', 'legendary', 'chase'];
 
+export type StarterPath = 'solo' | 'partner' | 'investor' | null;
+
+export interface StarterPathInfo {
+  id: StarterPath;
+  name: string;
+  icon: string;
+  startingMoney: number;
+  debt: number;
+  clickPower: number;
+  bonus: string;
+  description: string;
+}
+
+export const STARTER_PATHS: StarterPathInfo[] = [
+  {
+    id: 'solo',
+    name: 'Solo Hustler',
+    icon: '🎒',
+    startingMoney: 150,
+    debt: 0,
+    clickPower: 1,
+    bonus: 'No debt, full independence',
+    description: 'Start small and build from scratch. Every dollar is yours to keep.'
+  },
+  {
+    id: 'partner',
+    name: "Oak's Lab Partner",
+    icon: '🔬',
+    startingMoney: 400,
+    debt: 300,
+    clickPower: 2,
+    bonus: '+$300 capital, 2x click power',
+    description: 'Professor Oak fronts you $300 for equipment. Pay it back as you grow.'
+  },
+  {
+    id: 'investor',
+    name: 'Silph Co. Backed',
+    icon: '🏢',
+    startingMoney: 800,
+    debt: 600,
+    clickPower: 3,
+    bonus: '+$700 capital, 3x click power, +10 storage',
+    description: 'Silph Co. sees potential. Big money, but they expect returns.'
+  }
+];
+
 export function useGameState() {
-  const [money, setMoney] = useState(100);
-  const [totalEarned, setTotalEarned] = useState(100);
+  const [starterPath, setStarterPath] = useState<StarterPath>(null);
+  const [debt, setDebt] = useState(0);
+  const [money, setMoney] = useState(0);
+  const [totalEarned, setTotalEarned] = useState(0);
   const [totalProfit, setTotalProfit] = useState(0);
   const [totalSold, setTotalSold] = useState(0);
   const [collection, setCollection] = useState<CollectionCard[]>([]);
@@ -276,12 +324,26 @@ export function useGameState() {
   const sellCard = useCallback((card: CollectionCard) => {
     const sellPrice = Math.round(card.currentPrice * sellBonus * 100) / 100;
     const profit = sellPrice - card.purchasePrice;
-    setMoney(m => m + sellPrice);
+
+    // Auto-pay debt from profits
+    setDebt(currentDebt => {
+      if (currentDebt > 0 && profit > 0) {
+        const debtPayment = Math.min(currentDebt, profit * 0.2); // 20% of profits go to debt
+        setMoney(m => m + sellPrice - debtPayment);
+        if (debtPayment > 0 && currentDebt - debtPayment <= 0) {
+          addNotification("🎉 Debt fully repaid! You're free!", 'achievement');
+        }
+        return Math.max(0, currentDebt - debtPayment);
+      }
+      setMoney(m => m + sellPrice);
+      return currentDebt;
+    });
+
     setTotalEarned(t => t + Math.max(0, profit));
     setTotalProfit(p => p + profit);
     setTotalSold(s => s + 1);
     setCollection(prev => prev.filter(c => c.collectionId !== card.collectionId));
-  }, [sellBonus]);
+  }, [sellBonus, addNotification]);
 
   const buyUpgrade = useCallback((upgradeId: number) => {
     const upgrade = UPGRADES.find(u => u.id === upgradeId);
@@ -409,8 +471,45 @@ export function useGameState() {
     setRevealedCards([]);
   }, []);
 
+  const chooseStarterPath = useCallback((pathId: 'solo' | 'partner' | 'investor') => {
+    const path = STARTER_PATHS.find(p => p.id === pathId);
+    if (!path) return;
+
+    setStarterPath(pathId);
+    setMoney(path.startingMoney);
+    setTotalEarned(path.startingMoney);
+    setDebt(path.debt);
+    setClickPower(path.clickPower);
+
+    // Investor path gets bonus capacity
+    if (pathId === 'investor') {
+      setCapacity(30);
+    }
+
+    // Initialize market
+    refreshMarket();
+
+    addNotification(`${path.icon} Starting as ${path.name}!`, 'achievement');
+  }, [refreshMarket, addNotification]);
+
+  const payDebt = useCallback((amount: number) => {
+    const payment = Math.min(amount, debt, money);
+    if (payment > 0) {
+      setMoney(m => m - payment);
+      setDebt(d => {
+        const newDebt = d - payment;
+        if (newDebt <= 0) {
+          addNotification("🎉 Debt fully repaid! You're free!", 'achievement');
+        }
+        return Math.max(0, newDebt);
+      });
+    }
+  }, [debt, money, addNotification]);
+
   return {
     // State
+    starterPath,
+    debt,
     money,
     totalEarned,
     totalProfit,
@@ -453,5 +552,7 @@ export function useGameState() {
     closePackResults,
     refreshMarket,
     addNotification,
+    chooseStarterPath,
+    payDebt,
   };
 }

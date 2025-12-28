@@ -8,7 +8,7 @@ interface NavigationProps {
 const TABS: { id: ViewType; label: string }[] = [
   { id: 'market', label: 'Market' },
   { id: 'packs', label: 'Packs' },
-  { id: 'collection', label: 'Collection' },
+  { id: 'collection', label: 'Cards' },
   { id: 'upgrades', label: 'Upgrades' },
   { id: 'lessons', label: 'Learn' },
   { id: 'rules', label: 'Rules' },

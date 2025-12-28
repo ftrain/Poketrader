@@ -5,7 +5,8 @@ import {
   ClickerButton,
   Navigation,
   Notifications,
-  LessonModal
+  LessonModal,
+  StartupModal
 } from './components';
 import {
   MarketView,
@@ -24,6 +25,15 @@ import './App.css';
 export function App() {
   const game = useGameState();
 
+  // Show startup modal if no path chosen
+  if (!game.starterPath) {
+    return (
+      <div className="app">
+        <StartupModal onChoosePath={game.chooseStarterPath} />
+      </div>
+    );
+  }
+
   return (
     <div className="app">
       {/* Terminal Header */}
@@ -31,6 +41,15 @@ export function App() {
         <span className="terminal-title">POKE-TERMINAL v{VERSION}</span>
         <span className="terminal-subtitle">Pokemon Trading Economics Simulator</span>
       </div>
+
+      {/* Debt Banner */}
+      {game.debt > 0 && (
+        <div className="debt-banner">
+          <span className="debt-label">Debt Remaining</span>
+          <span className="debt-amount">{formatMoney(game.debt)}</span>
+          <span className="debt-info">20% of profits auto-pay</span>
+        </div>
+      )}
 
       {/* Header Stats */}
       <div className="stats-grid">

@@ -40,8 +40,7 @@ body {
 }
 
 /* Terminal Header */
-.app::after {
-  content: '[ POKE-TERMINAL v2.0 ] -- POKEMON TRADING ECONOMICS SYSTEM';
+.terminal-header {
   position: fixed;
   top: 0;
   left: 0;
@@ -49,11 +48,23 @@ body {
   background: linear-gradient(90deg, #1a3a1a, #0d2010);
   border-bottom: 2px solid #00ff88;
   padding: 8px 16px;
-  font-family: 'Press Start 2P', cursive;
-  font-size: 10px;
-  color: #00ff88;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   z-index: 1000;
+}
+
+.terminal-title {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 12px;
+  color: #00ff88;
   text-shadow: 0 0 10px #00ff88;
+}
+
+.terminal-subtitle {
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  color: #00aa66;
 }
 
 .app {
@@ -966,4 +977,62 @@ body {
   font-family: 'Press Start 2P', cursive;
   font-size: 8px;
   animation: terminalBlink 1s infinite;
+}
+
+/* Release Notes */
+.release-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.release-card {
+  background: rgba(0, 20, 10, 0.8);
+  border: 1px solid #00aa66;
+  padding: 16px;
+}
+
+.release-card:first-child {
+  border-color: #00ff88;
+}
+
+.release-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #333;
+}
+
+.release-version {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 12px;
+  color: #00ff88;
+}
+
+.release-date {
+  font-size: 14px;
+  color: #888;
+}
+
+.release-changes {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.release-changes li {
+  padding: 4px 0;
+  padding-left: 20px;
+  position: relative;
+  color: #aaa;
+  font-size: 15px;
+}
+
+.release-changes li::before {
+  content: '>';
+  position: absolute;
+  left: 0;
+  color: #00aa66;
 }

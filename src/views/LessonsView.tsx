@@ -1,4 +1,4 @@
-import { ACHIEVEMENTS } from '../data';
+import { ACHIEVEMENTS, RELEASE_NOTES, VERSION } from '../data';
 
 interface LessonsViewProps {
   unlockedAchievements: number[];
@@ -30,9 +30,9 @@ const KEY_CONCEPTS = [
 export function LessonsView({ unlockedAchievements }: LessonsViewProps) {
   return (
     <div className="view">
-      <h2>📚 Economics Lessons</h2>
+      <h2>[ LEARN ]</h2>
 
-      <h3 className="section-title">🏆 Achievements</h3>
+      <h3 className="section-title">Achievements</h3>
       <div className="achievement-grid">
         {ACHIEVEMENTS.map(ach => {
           const unlocked = unlockedAchievements.includes(ach.id);
@@ -50,12 +50,29 @@ export function LessonsView({ unlockedAchievements }: LessonsViewProps) {
         })}
       </div>
 
-      <h3 className="section-title">💡 Key Concepts</h3>
+      <h3 className="section-title">Key Concepts</h3>
       <div className="concepts-grid">
         {KEY_CONCEPTS.map((concept, i) => (
           <div key={i} className="concept-card">
             <div className="concept-title">{concept.title}</div>
             <div className="concept-description">{concept.desc}</div>
+          </div>
+        ))}
+      </div>
+
+      <h3 className="section-title">Release Notes (v{VERSION})</h3>
+      <div className="release-notes">
+        {RELEASE_NOTES.map(release => (
+          <div key={release.version} className="release-card">
+            <div className="release-header">
+              <span className="release-version">v{release.version}</span>
+              <span className="release-date">{release.date}</span>
+            </div>
+            <ul className="release-changes">
+              {release.changes.map((change, i) => (
+                <li key={i}>{change}</li>
+              ))}
+            </ul>
           </div>
         ))}
       </div>

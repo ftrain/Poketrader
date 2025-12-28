@@ -18,14 +18,20 @@ import {
 } from './views';
 import type { RuleEngineState } from './engine';
 import { formatMoney } from './utils';
+import { VERSION } from './data';
 import './App.css';
 
-// PokeTrader v2.0 - Pokemon Trading Economics Simulator
 export function App() {
   const game = useGameState();
 
   return (
     <div className="app">
+      {/* Terminal Header */}
+      <div className="terminal-header">
+        <span className="terminal-title">POKE-TERMINAL v{VERSION}</span>
+        <span className="terminal-subtitle">Pokemon Trading Economics Simulator</span>
+      </div>
+
       {/* Header Stats */}
       <div className="stats-grid">
         <StatCard

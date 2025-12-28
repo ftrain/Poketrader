@@ -6,3 +6,5 @@ export { MARKET_EVENTS } from './events';
 export { RARITY_COLORS, TYPE_COLORS } from './colors';
 export { POKEMON_ADVISORS, getAdvisorForCategory, generatePokemonMessage } from './advisors';
 export type { PokemonAdvisor, MessageCategory } from './advisors';
+export { VERSION, RELEASE_NOTES } from './version';
+export type { ReleaseNote } from './version';

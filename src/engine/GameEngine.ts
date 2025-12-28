@@ -75,6 +75,7 @@ export class GameEngine {
       deltaTime: Date.now() - this.lastTickTime,
       random: this.rng,
       functions: this.definition.functions,
+      entities: this.runtime.entities,
     };
   }
 
@@ -226,12 +227,15 @@ export class GameEngine {
       onEvent: (eventId) => this.handleEvent(eventId),
       onEmit: (event, data) => this.handleEmit(event, data),
       onSpawn: (entity) => this.handleSpawn(entity),
+      onModifyEntity: (entityId, updates) => this.handleModifyEntity(entityId, updates),
+      onRemoveEntity: (entityId) => this.handleRemoveEntity(entityId),
       onAnimate: (target, animation, duration, options) =>
         this.events.onAnimate?.(target, animation, duration, options),
       onSound: (sound, options) => this.events.onSound?.(sound, options),
       onDelay: (pending) => this.runtime.pendingActions.push(pending),
       functions: this.definition.functions,
       currentTick: this.runtime.tick,
+      entities: this.runtime.entities,
     });
 
     this.events.onStateChange?.(this.runtime.state);
@@ -274,6 +278,26 @@ export class GameEngine {
   }
 
   /**
+   * Handle entity modification
+   */
+  private handleModifyEntity(entityId: string, updates: Record<string, number | boolean | string>): void {
+    const entity = this.runtime.entities.find(e => e.id === entityId);
+    if (entity) {
+      Object.assign(entity.properties, updates);
+    }
+  }
+
+  /**
+   * Handle entity removal
+   */
+  private handleRemoveEntity(entityId: string): void {
+    const index = this.runtime.entities.findIndex(e => e.id === entityId);
+    if (index >= 0) {
+      this.runtime.entities.splice(index, 1);
+    }
+  }
+
+  /**
    * Get all spawned entities
    */
   getEntities(): SpawnedEntity[] {
@@ -308,6 +332,38 @@ export class GameEngine {
     } else {
       this.runtime.entities = [];
     }
+  }
+
+  /**
+   * Spawn a new entity directly
+   */
+  spawnEntity(type: string, properties: Record<string, number | boolean | string> = {}): SpawnedEntity {
+    const entity: SpawnedEntity = {
+      id: `entity_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      type,
+      properties,
+      spawnTick: this.runtime.tick,
+    };
+    this.runtime.entities.push(entity);
+    this.events.onSpawn?.(entity);
+    return entity;
+  }
+
+  /**
+   * Modify an entity's properties
+   */
+  modifyEntity(entityId: string, updates: Record<string, number | boolean | string>): boolean {
+    const entity = this.runtime.entities.find(e => e.id === entityId);
+    if (!entity) return false;
+    Object.assign(entity.properties, updates);
+    return true;
+  }
+
+  /**
+   * Get entity by ID
+   */
+  getEntity(entityId: string): SpawnedEntity | undefined {
+    return this.runtime.entities.find(e => e.id === entityId);
   }
 
   /**
@@ -479,6 +535,7 @@ export class GameEngine {
       phase: this.runtime.phase,
       completedProjects: this.runtime.completedProjects,
       ruleFires: this.runtime.ruleFires,
+      entities: this.runtime.entities,
       timestamp: Date.now(),
     };
 
@@ -500,6 +557,7 @@ export class GameEngine {
       this.runtime.phase = saveData.phase;
       this.runtime.completedProjects = saveData.completedProjects || {};
       this.runtime.ruleFires = saveData.ruleFires || {};
+      this.runtime.entities = saveData.entities || [];
 
       this.fireRulesByTiming('load');
       this.events.onStateChange?.(this.runtime.state);

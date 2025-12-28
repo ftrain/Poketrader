@@ -14,11 +14,15 @@ import type {
   SpawnedEntity,
   AnimateOptions,
   SoundOptions,
+  ModifyEntityAction,
+  RemoveEntityAction,
+  ForEachEntityAction,
 } from './types';
 
 import {
   evaluateExpression,
   evaluateCondition,
+  evaluateEntityCondition,
   getStateValue,
   setStateValue,
 } from './evaluator';
@@ -28,11 +32,14 @@ export interface ActionExecutorConfig {
   onEvent?: (eventId: string) => void;
   onEmit?: (event: string, data?: Record<string, unknown>) => void;
   onSpawn?: (entity: SpawnedEntity) => void;
+  onModifyEntity?: (entityId: string, updates: Record<string, number | boolean | string>) => void;
+  onRemoveEntity?: (entityId: string) => void;
   onAnimate?: (target: string, animation: string, duration?: number, options?: AnimateOptions) => void;
   onSound?: (sound: string, options: SoundOptions) => void;
   onDelay?: (pending: PendingAction) => void;
   functions?: Record<string, Action[]>;
   currentTick?: number;
+  entities?: SpawnedEntity[];  // Reference to entities array for entity actions
 }
 
 let pendingActionIdCounter = 0;
@@ -338,6 +345,139 @@ export function executeAction(
 
       if (config.onSound) {
         config.onSound(action.sound, options);
+      }
+      break;
+    }
+
+    case 'modifyEntity': {
+      const modifyAction = action as ModifyEntityAction;
+      const entities = config.entities || ctx.entities || [];
+
+      // Find matching entities
+      let targetEntities: SpawnedEntity[] = [];
+
+      if (modifyAction.entityId) {
+        const entityIdValue = evaluateExpression(modifyAction.entityId, ctx);
+        const entityId = String(entityIdValue);
+
+        if (entityId === 'all') {
+          // Modify all entities of type
+          targetEntities = modifyAction.entityType
+            ? entities.filter(e => e.type === modifyAction.entityType)
+            : [...entities];
+        } else if (entityId === '_current' && ctx.currentEntity) {
+          // Modify current entity in forEachEntity loop
+          targetEntities = [ctx.currentEntity];
+        } else {
+          // Modify specific entity by ID
+          const entity = entities.find(e => e.id === entityId);
+          if (entity) targetEntities = [entity];
+        }
+      } else if (modifyAction.entityType) {
+        targetEntities = entities.filter(e => e.type === modifyAction.entityType);
+      }
+
+      // Filter by where condition
+      if (modifyAction.where) {
+        targetEntities = targetEntities.filter(e =>
+          evaluateEntityCondition(modifyAction.where!, e, ctx)
+        );
+      }
+
+      // Apply updates
+      for (const entity of targetEntities) {
+        const updates: Record<string, number | boolean | string> = {};
+        for (const [key, expr] of Object.entries(modifyAction.set)) {
+          // Create context with current entity for expressions
+          const entityCtx = { ...ctx, currentEntity: entity };
+          updates[key] = evaluateExpression(expr, entityCtx);
+        }
+
+        // Update entity properties directly
+        Object.assign(entity.properties, updates);
+
+        // Notify callback
+        if (config.onModifyEntity) {
+          config.onModifyEntity(entity.id, updates);
+        }
+      }
+      break;
+    }
+
+    case 'removeEntity': {
+      const removeAction = action as RemoveEntityAction;
+      const entities = config.entities || ctx.entities || [];
+
+      // Find entities to remove
+      let toRemove: SpawnedEntity[] = [];
+
+      if (removeAction.entityId) {
+        const entityIdValue = evaluateExpression(removeAction.entityId, ctx);
+        const entityId = String(entityIdValue);
+
+        if (entityId === '_current' && ctx.currentEntity) {
+          toRemove = [ctx.currentEntity];
+        } else {
+          const entity = entities.find(e => e.id === entityId);
+          if (entity) toRemove = [entity];
+        }
+      } else if (removeAction.entityType) {
+        toRemove = entities.filter(e => e.type === removeAction.entityType);
+      }
+
+      // Filter by where condition
+      if (removeAction.where) {
+        toRemove = toRemove.filter(e =>
+          evaluateEntityCondition(removeAction.where!, e, ctx)
+        );
+      }
+
+      // Only remove first if specified
+      if (removeAction.first && toRemove.length > 0) {
+        toRemove = [toRemove[0]];
+      }
+
+      // Remove entities
+      for (const entity of toRemove) {
+        if (config.onRemoveEntity) {
+          config.onRemoveEntity(entity.id);
+        }
+      }
+      break;
+    }
+
+    case 'forEachEntity': {
+      const forEachAction = action as ForEachEntityAction;
+      let entities = config.entities || ctx.entities || [];
+
+      // Filter by type
+      entities = entities.filter(e => e.type === forEachAction.entityType);
+
+      // Filter by where condition
+      if (forEachAction.where) {
+        entities = entities.filter(e =>
+          evaluateEntityCondition(forEachAction.where!, e, ctx)
+        );
+      }
+
+      // Apply limit
+      if (forEachAction.limit && forEachAction.limit > 0) {
+        entities = entities.slice(0, forEachAction.limit);
+      }
+
+      // Execute actions for each entity
+      for (const entity of entities) {
+        // Create context with current entity bound
+        const entityCtx: EvaluationContext = {
+          ...ctx,
+          currentEntity: entity,
+          state: {
+            ...ctx.state,
+            [forEachAction.as]: entity.id,
+          } as GameState,
+        };
+
+        executeAction(forEachAction.actions, entityCtx, config);
       }
       break;
     }

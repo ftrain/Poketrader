@@ -4,7 +4,7 @@
  * Evaluates expressions and conditions against game state.
  */
 
-import type { Expression, Condition, EvaluationContext, GameState } from './types';
+import type { Expression, Condition, EvaluationContext, GameState, EntityCondition, SpawnedEntity } from './types';
 
 /**
  * Get a nested value from state using dot notation
@@ -115,6 +115,55 @@ function evaluateOperation(
     // Conditional
     case 'if': return Boolean(args[0]) ? args[1] : (args[2] ?? 0);
     case 'coalesce': return args.find(a => a !== null && a !== undefined && a !== 0) ?? 0;
+
+    // Entity operations
+    case 'entityCount': {
+      const type = String(args[0]);
+      if (!ctx.entities) return 0;
+      return ctx.entities.filter(e => e.type === type).length;
+    }
+
+    case 'entitySum': {
+      const type = String(args[0]);
+      const propName = String(args[1]);
+      if (!ctx.entities) return 0;
+      return ctx.entities
+        .filter(e => e.type === type)
+        .reduce((sum, e) => {
+          const val = e.properties[propName];
+          return sum + (typeof val === 'number' ? val : 0);
+        }, 0);
+    }
+
+    case 'entityProp': {
+      const entityId = String(args[0]);
+      const propName = String(args[1]);
+      if (!ctx.entities) return 0;
+
+      // Check if referencing current entity in forEachEntity loop
+      if (entityId === '_current' && ctx.currentEntity) {
+        const val = ctx.currentEntity.properties[propName];
+        return val ?? 0;
+      }
+
+      const entity = ctx.entities.find(e => e.id === entityId);
+      if (!entity) return 0;
+      const val = entity.properties[propName];
+      return val ?? 0;
+    }
+
+    case 'entityFirst': {
+      const type = String(args[0]);
+      if (!ctx.entities) return '';
+      const entity = ctx.entities.find(e => e.type === type);
+      return entity?.id ?? '';
+    }
+
+    case 'entityHas': {
+      const entityId = String(args[0]);
+      if (!ctx.entities) return false;
+      return ctx.entities.some(e => e.id === entityId);
+    }
 
     default:
       console.warn(`Unknown operation: ${op}`);
@@ -251,4 +300,55 @@ export function formatTime(seconds: number): string {
   if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes`;
   if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours`;
   return `${Math.floor(seconds / 86400)} days`;
+}
+
+/**
+ * Evaluate an entity condition against a single entity
+ */
+export function evaluateEntityCondition(
+  cond: EntityCondition,
+  entity: SpawnedEntity,
+  ctx: EvaluationContext
+): boolean {
+  switch (cond.op) {
+    case 'eq':
+    case 'neq':
+    case 'lt':
+    case 'lte':
+    case 'gt':
+    case 'gte': {
+      const propValue = entity.properties[cond.prop];
+      const targetValue = evaluateExpression(cond.value, ctx);
+
+      // Convert to numbers for comparison
+      const propNum = typeof propValue === 'number' ? propValue :
+        (typeof propValue === 'boolean' ? (propValue ? 1 : 0) : parseFloat(String(propValue)) || 0);
+      const targetNum = typeof targetValue === 'number' ? targetValue :
+        (typeof targetValue === 'boolean' ? (targetValue ? 1 : 0) : parseFloat(String(targetValue)) || 0);
+
+      switch (cond.op) {
+        case 'eq': return propValue === targetValue;
+        case 'neq': return propValue !== targetValue;
+        case 'lt': return propNum < targetNum;
+        case 'lte': return propNum <= targetNum;
+        case 'gt': return propNum > targetNum;
+        case 'gte': return propNum >= targetNum;
+      }
+      break;
+    }
+
+    case 'and':
+      return cond.conditions.every(c => evaluateEntityCondition(c, entity, ctx));
+
+    case 'or':
+      return cond.conditions.some(c => evaluateEntityCondition(c, entity, ctx));
+
+    case 'not':
+      return !evaluateEntityCondition(cond.condition, entity, ctx);
+
+    case 'hasProperty':
+      return cond.prop in entity.properties;
+  }
+
+  return false;
 }

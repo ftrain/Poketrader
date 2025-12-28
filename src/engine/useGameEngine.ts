@@ -40,6 +40,14 @@ export interface UseGameEngineReturn {
   getState: <T = number | boolean | string>(path: string) => T | undefined;
   setState: (path: string, value: number | boolean | string) => void;
 
+  // Entity management
+  spawnEntity: (type: string, properties?: Record<string, number | boolean | string>) => SpawnedEntity;
+  modifyEntity: (entityId: string, updates: Record<string, number | boolean | string>) => boolean;
+  removeEntity: (entityId: string) => boolean;
+  getEntity: (entityId: string) => SpawnedEntity | undefined;
+  getEntitiesByType: (type: string) => SpawnedEntity[];
+  clearEntities: (type?: string) => void;
+
   // Engine control
   start: () => void;
   stop: () => void;
@@ -213,6 +221,42 @@ export function useGameEngine(
   const save = useCallback((slot?: string) => engine.save(slot), [engine]);
   const load = useCallback((slot?: string) => engine.load(slot), [engine]);
 
+  // Entity management
+  const spawnEntity = useCallback((type: string, properties: Record<string, number | boolean | string> = {}) => {
+    const entity = engine.spawnEntity(type, properties);
+    setEntities([...engine.getEntities()]);
+    return entity;
+  }, [engine]);
+
+  const modifyEntity = useCallback((entityId: string, updates: Record<string, number | boolean | string>) => {
+    const result = engine.modifyEntity(entityId, updates);
+    if (result) {
+      setEntities([...engine.getEntities()]);
+    }
+    return result;
+  }, [engine]);
+
+  const removeEntity = useCallback((entityId: string) => {
+    const result = engine.removeEntity(entityId);
+    if (result) {
+      setEntities([...engine.getEntities()]);
+    }
+    return result;
+  }, [engine]);
+
+  const getEntity = useCallback((entityId: string) => {
+    return engine.getEntity(entityId);
+  }, [engine]);
+
+  const getEntitiesByType = useCallback((type: string) => {
+    return engine.getEntitiesByType(type);
+  }, [engine]);
+
+  const clearEntities = useCallback((type?: string) => {
+    engine.clearEntities(type);
+    setEntities([...engine.getEntities()]);
+  }, [engine]);
+
   // Helper: evaluate expression
   const evaluate = useCallback((expr: import('./types').Expression) => {
     const ctx = {
@@ -259,6 +303,12 @@ export function useGameEngine(
     playerAction,
     getState,
     setState,
+    spawnEntity,
+    modifyEntity,
+    removeEntity,
+    getEntity,
+    getEntitiesByType,
+    clearEntities,
     start,
     stop,
     reset,

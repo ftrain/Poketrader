@@ -1,34 +1,25 @@
 /**
- * PoketraderGame - React Component using JSON Game Engine
+ * PoketraderGame - React Component using JSON Game Engine with Entities
  *
- * This component uses the JSON game engine for state management while
- * managing complex card arrays and UI logic in React.
- *
- * Design:
- * - Engine handles: money, stats, flags, passive income, upgrades, events
- * - React handles: card arrays (collection, market), pack opening, grading, mini-games
- * - Communication: Engine emits events, React responds via callbacks
+ * All game state is stored in the engine:
+ * - Scalar values (money, stats, flags) in engine state
+ * - Card arrays stored as entities in the engine
+ * - React is purely a rendering layer
  */
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useGameEngine } from '../engine/useGameEngine';
 import { poketraderGame } from './poketrader';
 import type {
-  MarketCard,
-  CollectionCard,
-  GradingSubmission,
-  GradedCard,
-  GradeResult,
-  Appraiser,
   CardType,
   CardCondition,
-  Card,
   Notification,
   ClickEffect,
   ViewType,
   PackStats,
   PackType,
-  Rarity
+  Rarity,
+  GradeResult
 } from '../types';
 import { CONDITION_MULTIPLIERS } from '../types';
 import {
@@ -60,6 +51,7 @@ import {
   SpeedAppraisalGame
 } from '../views';
 import type { RuleEngineState } from '../engine';
+import type { SpawnedEntity } from '../engine/types';
 import { formatMoney } from '../utils';
 import {
   VERSION,
@@ -89,14 +81,127 @@ function generateCondition(): CardCondition {
   return 'poor';
 }
 
-function calculatePrice(card: Card, eventMultiplier: number, eventType: string): number {
-  let price = card.basePrice;
-  const volatility = 0.1 + (card.rarity === 'legendary' ? 0.2 : card.rarity === 'ultra-rare' ? 0.15 : 0.05);
+function calculatePrice(basePrice: number, rarity: string, type: string, eventMultiplier: number, eventType: string): number {
+  let price = basePrice;
+  const volatility = 0.1 + (rarity === 'legendary' ? 0.2 : rarity === 'ultra-rare' ? 0.15 : 0.05);
   price *= (1 + (Math.random() - 0.5) * volatility);
-  if (eventType && (eventType === 'all' || eventType === card.rarity || eventType === card.type)) {
+  if (eventType && (eventType === 'all' || eventType === rarity || eventType === type)) {
     price *= eventMultiplier;
   }
   return Math.max(1, Math.round(price * 100) / 100);
+}
+
+// Convert entity to card format for views
+function entityToMarketCard(entity: SpawnedEntity) {
+  const p = entity.properties;
+  return {
+    id: Number(p.cardId) || 0,
+    marketId: entity.id,
+    name: String(p.name || ''),
+    rarity: String(p.rarity || 'common') as Rarity,
+    type: String(p.cardType || 'normal') as CardType,
+    basePrice: Number(p.basePrice) || 0,
+    currentPrice: Number(p.currentPrice) || 0,
+    condition: String(p.condition || 'good') as CardCondition,
+    spriteId: Number(p.spriteId) || 1,
+    shiny: Boolean(p.shiny),
+    priceHistory: [] as number[],
+    img: '',
+    hp: 0,
+    attack: 0,
+    defense: 0
+  };
+}
+
+function entityToCollectionCard(entity: SpawnedEntity) {
+  const p = entity.properties;
+  return {
+    id: Number(p.cardId) || 0,
+    collectionId: entity.id,
+    name: String(p.name || ''),
+    rarity: String(p.rarity || 'common') as Rarity,
+    type: String(p.cardType || 'normal') as CardType,
+    basePrice: Number(p.basePrice) || 0,
+    currentPrice: Number(p.currentPrice) || 0,
+    condition: String(p.condition || 'good') as CardCondition,
+    spriteId: Number(p.spriteId) || 1,
+    shiny: Boolean(p.shiny),
+    purchasePrice: Number(p.purchasePrice) || 0,
+    purchaseTime: Number(p.purchaseTime) || 0,
+    holdTime: Number(p.holdTime) || 0,
+    fromPack: p.fromPack ? String(p.fromPack) : undefined,
+    img: '',
+    hp: 0,
+    attack: 0,
+    defense: 0
+  };
+}
+
+function entityToGradingSubmission(entity: SpawnedEntity) {
+  const p = entity.properties;
+  return {
+    id: entity.id,
+    card: {
+      id: Number(p.cardId) || 0,
+      collectionId: entity.id,
+      name: String(p.name || ''),
+      rarity: String(p.rarity || 'common') as Rarity,
+      type: String(p.cardType || 'normal') as CardType,
+      basePrice: Number(p.basePrice) || 0,
+      currentPrice: Number(p.currentPrice) || 0,
+      condition: String(p.condition || 'good') as CardCondition,
+      spriteId: Number(p.spriteId) || 1,
+      shiny: Boolean(p.shiny),
+      purchasePrice: Number(p.purchasePrice) || 0,
+      purchaseTime: Number(p.purchaseTime) || 0,
+      holdTime: Number(p.holdTime) || 0,
+      img: '',
+      hp: 0,
+      attack: 0,
+      defense: 0
+    },
+    submittedAt: Number(p.submittedAt) || 0,
+    returnTime: Number(p.returnTime) || 0,
+    cost: Number(p.cost) || 50
+  };
+}
+
+function entityToGradedCard(entity: SpawnedEntity) {
+  const p = entity.properties;
+  return {
+    id: Number(p.cardId) || 0,
+    collectionId: entity.id,
+    name: String(p.name || ''),
+    rarity: String(p.rarity || 'common') as Rarity,
+    type: String(p.cardType || 'normal') as CardType,
+    basePrice: Number(p.basePrice) || 0,
+    currentPrice: Number(p.currentPrice) || 0,
+    condition: String(p.condition || 'good') as CardCondition,
+    spriteId: Number(p.spriteId) || 1,
+    shiny: Boolean(p.shiny),
+    purchasePrice: Number(p.purchasePrice) || 0,
+    purchaseTime: Number(p.purchaseTime) || 0,
+    holdTime: Number(p.holdTime) || 0,
+    grade: String(p.grade || 'PSA 7') as GradeResult,
+    gradeMultiplier: Number(p.gradeMultiplier) || 1,
+    isForgery: Boolean(p.isForgery),
+    img: '',
+    hp: 0,
+    attack: 0,
+    defense: 0
+  };
+}
+
+function entityToAppraiser(entity: SpawnedEntity) {
+  const p = entity.properties;
+  return {
+    id: entity.id,
+    name: String(p.name || 'Appraiser'),
+    level: Number(p.level) || 1,
+    experience: Number(p.experience) || 0,
+    specialty: String(p.specialty || 'normal') as CardType,
+    earnRate: Number(p.earnRate) || 1
+  };
 }
 
 interface PoketraderGameProps {
@@ -104,27 +209,20 @@ interface PoketraderGameProps {
 }
 
 export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
-  // JSON Game Engine
+  // JSON Game Engine with entities
   const game = useGameEngine(poketraderGame, { autoStart: true, autoLoad: true });
 
-  // React-managed card state
-  const [collection, setCollection] = useState<CollectionCard[]>([]);
-  const [market, setMarket] = useState<MarketCard[]>([]);
-  const [gradingQueue, setGradingQueue] = useState<GradingSubmission[]>([]);
-  const [gradedCards, setGradedCards] = useState<GradedCard[]>([]);
-  const [appraisers, setAppraisers] = useState<Appraiser[]>([]);
-
-  // UI state
+  // UI state only (not game data)
   const [view, setView] = useState<ViewType>('market');
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [clickEffects, setClickEffects] = useState<ClickEffect[]>([]);
   const [showLesson, setShowLesson] = useState<string | null>(null);
   const [dismissedTips, setDismissedTips] = useState<Set<string>>(new Set());
-  const [envelopeCard, setEnvelopeCard] = useState<GradedCard | null>(null);
+  const [envelopeCard, setEnvelopeCard] = useState<ReturnType<typeof entityToGradedCard> | null>(null);
 
-  // Pack opening state
-  const [packResults, setPackResults] = useState<CollectionCard[] | null>(null);
-  const [revealedCards, setRevealedCards] = useState<CollectionCard[]>([]);
+  // Pack opening UI state
+  const [packResults, setPackResults] = useState<ReturnType<typeof entityToCollectionCard>[] | null>(null);
+  const [revealedCards, setRevealedCards] = useState<ReturnType<typeof entityToCollectionCard>[]>([]);
   const [isOpeningPack, setIsOpeningPack] = useState(false);
   const [packStats, setPackStats] = useState<PackStats>({ spent: 0, totalValue: 0, bestPull: null });
 
@@ -133,18 +231,6 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
   const [comboMultiplier, setComboMultiplier] = useState(1);
   const lastClickTime = useRef(0);
   const comboResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // ID counters
-  const gradingIdCounter = useRef(1);
-  const appraiserIdCounter = useRef(1);
-  const collectionIdCounter = useRef(1);
-  const marketIdCounter = useRef(1);
-
-  // Refs for callbacks
-  const collectionRef = useRef(collection);
-  const marketRef = useRef(market);
-  useEffect(() => { collectionRef.current = collection; }, [collection]);
-  useEffect(() => { marketRef.current = market; }, [market]);
 
   // Derived state from engine
   const money = (game.state.money as number) || 0;
@@ -170,6 +256,32 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
   const showGrading = game.state.showGrading as boolean;
   const showAppraisal = game.state.showAppraisal as boolean;
   const appraiserIncome = (game.state.appraiserIncome as number) || 0;
+
+  // Derive cards from entities
+  const marketCards = useMemo(() =>
+    game.entities.filter(e => e.type === 'marketCard').map(entityToMarketCard),
+    [game.entities]
+  );
+
+  const collection = useMemo(() =>
+    game.entities.filter(e => e.type === 'collectionCard').map(entityToCollectionCard),
+    [game.entities]
+  );
+
+  const gradingQueue = useMemo(() =>
+    game.entities.filter(e => e.type === 'gradingCard').map(entityToGradingSubmission),
+    [game.entities]
+  );
+
+  const gradedCards = useMemo(() =>
+    game.entities.filter(e => e.type === 'gradedCard').map(entityToGradedCard),
+    [game.entities]
+  );
+
+  const appraisers = useMemo(() =>
+    game.entities.filter(e => e.type === 'appraiser').map(entityToAppraiser),
+    [game.entities]
+  );
 
   // Calculate collection value
   const collectionValue = useMemo(() =>
@@ -205,115 +317,104 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
     setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== id)), 4000);
   }, []);
 
-  // Refresh market
+  // Spawn market cards
   const refreshMarket = useCallback(() => {
+    // Clear existing market cards
+    game.entities.filter(e => e.type === 'marketCard').forEach(e => game.removeEntity(e.id));
+
+    // Spawn new market cards
     const available = [...CARD_DATABASE]
       .sort(() => Math.random() - 0.5)
-      .slice(0, marketSize)
-      .map(card => {
-        const condition = generateCondition();
-        const conditionMult = CONDITION_MULTIPLIERS[condition];
-        return {
-          ...card,
-          condition,
-          currentPrice: calculatePrice(card, eventMultiplier, eventAffectedType) * conditionMult,
-          marketId: marketIdCounter.current++,
-          priceHistory: [] as number[]
-        };
+      .slice(0, marketSize);
+
+    available.forEach(card => {
+      const condition = generateCondition();
+      const conditionMult = CONDITION_MULTIPLIERS[condition];
+      const currentPrice = calculatePrice(card.basePrice, card.rarity, card.type, eventMultiplier, eventAffectedType) * conditionMult;
+
+      game.spawnEntity('marketCard', {
+        cardId: card.id,
+        name: card.name,
+        rarity: card.rarity,
+        cardType: card.type,
+        basePrice: card.basePrice,
+        currentPrice,
+        condition,
+        spriteId: card.spriteId,
+        shiny: card.shiny || false
       });
-    setMarket(available);
-  }, [marketSize, eventMultiplier, eventAffectedType]);
+    });
+  }, [game, marketSize, eventMultiplier, eventAffectedType]);
 
   // Initialize market on start
   useEffect(() => {
-    if (hasChosenStarter && market.length === 0) {
+    if (hasChosenStarter && marketCards.length === 0) {
       refreshMarket();
     }
-  }, [hasChosenStarter, refreshMarket, market.length]);
+  }, [hasChosenStarter, refreshMarket, marketCards.length]);
 
   // Market size change handler
   useEffect(() => {
-    if (hasChosenStarter && market.length !== marketSize) {
+    if (hasChosenStarter && marketCards.length !== marketSize && marketCards.length > 0) {
       refreshMarket();
     }
-  }, [marketSize, hasChosenStarter]);
+  }, [marketSize, hasChosenStarter, marketCards.length, refreshMarket]);
 
   // Game tick effect - update prices
   useEffect(() => {
     if (!hasChosenStarter) return;
 
     const interval = setInterval(() => {
-      // Update market prices
-      setMarket(prev => prev.map(card => ({
-        ...card,
-        currentPrice: calculatePrice(card, eventMultiplier, eventAffectedType) * CONDITION_MULTIPLIERS[card.condition],
-        priceHistory: [...(card.priceHistory || []).slice(-20), card.currentPrice]
-      })));
+      // Update market card prices
+      game.entities.filter(e => e.type === 'marketCard').forEach(entity => {
+        const p = entity.properties;
+        const newPrice = calculatePrice(
+          Number(p.basePrice),
+          String(p.rarity),
+          String(p.cardType),
+          eventMultiplier,
+          eventAffectedType
+        ) * CONDITION_MULTIPLIERS[String(p.condition) as CardCondition];
+        game.modifyEntity(entity.id, { currentPrice: newPrice });
+      });
 
-      // Update collection prices and hold time
-      setCollection(prev => prev.map(card => ({
-        ...card,
-        holdTime: (card.holdTime || 0) + 1,
-        currentPrice: calculatePrice(card, eventMultiplier, eventAffectedType) * CONDITION_MULTIPLIERS[card.condition]
-      })));
+      // Update collection card prices and hold time
+      game.entities.filter(e => e.type === 'collectionCard').forEach(entity => {
+        const p = entity.properties;
+        const newHoldTime = (Number(p.holdTime) || 0) + 1;
+        const newPrice = calculatePrice(
+          Number(p.basePrice),
+          String(p.rarity),
+          String(p.cardType),
+          eventMultiplier,
+          eventAffectedType
+        ) * CONDITION_MULTIPLIERS[String(p.condition) as CardCondition];
+        game.modifyEntity(entity.id, {
+          holdTime: newHoldTime,
+          currentPrice: newPrice
+        });
+      });
 
       // Update longest hold in engine
-      const maxHold = Math.max(...collectionRef.current.map(c => c.holdTime || 0), 0);
-      if (maxHold > (game.state.longestHold as number || 0)) {
+      const collectionEntities = game.entities.filter(e => e.type === 'collectionCard');
+      const maxHold = Math.max(...collectionEntities.map(e => Number(e.properties.holdTime) || 0), 0);
+      if (maxHold > longestHold) {
         game.setState('longestHold', maxHold);
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [hasChosenStarter, eventMultiplier, eventAffectedType, game]);
-
-  // Handle engine events
-  useEffect(() => {
-    // Auto-sell check
-    const handleAutoSell = () => {
-      if (collectionRef.current.length === 0) return;
-      const profitableCard = collectionRef.current.find(c =>
-        c.currentPrice * sellBonus > c.purchasePrice * 1.1
-      );
-      if (profitableCard) {
-        sellCard(profitableCard.collectionId);
-        addNotification(`🏪 Auto-sold ${profitableCard.name}`, 'sale');
-      }
-    };
-
-    // Auto-buy check
-    const handleAutoBuy = () => {
-      if (collectionRef.current.length >= capacity) return;
-      const goodDeal = marketRef.current.find(c =>
-        c.currentPrice < c.basePrice * 0.8 && c.currentPrice * discount <= money
-      );
-      if (goodDeal) {
-        buyCard(goodDeal.marketId);
-        addNotification(`📦 Auto-bought ${goodDeal.name}`, 'purchase');
-      }
-    };
-
-    // Listen to engine messages for event triggers
-    const lastMessage = game.messages[game.messages.length - 1];
-    if (lastMessage) {
-      if (lastMessage.text.includes('Auto-sell enabled')) {
-        handleAutoSell();
-      }
-      if (lastMessage.text.includes('Auto-buy enabled')) {
-        handleAutoBuy();
-      }
-    }
-  }, [game.messages, sellBonus, capacity, money, discount]);
+  }, [hasChosenStarter, eventMultiplier, eventAffectedType, game, longestHold]);
 
   // Grading queue processing
   useEffect(() => {
     const checkGrading = setInterval(() => {
-      setGradingQueue(prev => {
-        const completed = prev.filter(g => gameTime >= g.returnTime);
-        const pending = prev.filter(g => gameTime < g.returnTime);
+      const gradingEntities = game.entities.filter(e => e.type === 'gradingCard');
 
-        // Process completed grading
-        completed.forEach(submission => {
+      gradingEntities.forEach(entity => {
+        const returnTime = Number(entity.properties.returnTime) || 0;
+        if (gameTime >= returnTime) {
+          // Process completed grading
           const gradeRoll = Math.random();
           let grade: GradeResult;
           let gradeMultiplier: number;
@@ -340,22 +441,51 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
             gradeMultiplier = 1.2;
           }
 
-          const gradedCard: GradedCard = {
-            ...submission.card,
+          const p = entity.properties;
+          const gradedPrice = Number(p.currentPrice) * gradeMultiplier;
+
+          // Spawn graded card entity
+          game.spawnEntity('gradedCard', {
+            ...p,
             grade,
             gradeMultiplier,
             isForgery,
-            currentPrice: submission.card.currentPrice * gradeMultiplier
-          };
+            currentPrice: gradedPrice
+          });
 
-          setGradedCards(cards => [...cards, gradedCard]);
-          setEnvelopeCard(gradedCard);
+          // Remove from grading queue
+          game.removeEntity(entity.id);
+
+          // Set envelope card for modal
+          setEnvelopeCard({
+            id: Number(p.cardId) || 0,
+            collectionId: entity.id,
+            name: String(p.name || ''),
+            rarity: String(p.rarity || 'common') as Rarity,
+            type: String(p.cardType || 'normal') as CardType,
+            basePrice: Number(p.basePrice) || 0,
+            currentPrice: gradedPrice,
+            condition: String(p.condition || 'good') as CardCondition,
+            spriteId: Number(p.spriteId) || 1,
+            shiny: Boolean(p.shiny),
+            purchasePrice: Number(p.purchasePrice) || 0,
+            purchaseTime: Number(p.purchaseTime) || 0,
+            holdTime: Number(p.holdTime) || 0,
+            grade,
+            gradeMultiplier,
+            isForgery,
+            img: '',
+            hp: 0,
+            attack: 0,
+            defense: 0
+          });
+
           game.setState('hasGradedCard', true);
-        });
-
-        game.setState('gradingQueueSize', pending.length);
-        return pending;
+        }
       });
+
+      const remaining = game.entities.filter(e => e.type === 'gradingCard').length;
+      game.setState('gradingQueueSize', remaining);
     }, 1000);
 
     return () => clearInterval(checkGrading);
@@ -367,12 +497,10 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
     const timeSinceLastClick = now - lastClickTime.current;
     lastClickTime.current = now;
 
-    // Reset combo timer
     if (comboResetTimer.current) {
       clearTimeout(comboResetTimer.current);
     }
 
-    // Build combo (clicks within 1s)
     let newComboCount = comboCount;
     let newMultiplier = comboMultiplier;
 
@@ -387,24 +515,20 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
     setComboCount(newComboCount);
     setComboMultiplier(newMultiplier);
 
-    // Start combo decay timer
     comboResetTimer.current = setTimeout(() => {
       setComboCount(0);
       setComboMultiplier(1);
     }, 2000);
 
-    // Calculate earnings
     const basePower = clickPower;
     const isCrit = Math.random() < (0.05 + critBonus);
     const critMult = isCrit ? 3 : 1;
     const earnings = Math.round(basePower * newMultiplier * critMult * 100) / 100;
 
-    // Update engine state
     game.setState('money', money + earnings);
     game.setState('totalEarned', (game.state.totalEarned as number || 0) + earnings);
     game.playerAction('recordClick');
 
-    // Show click effect
     const rect = (e.target as HTMLElement).getBoundingClientRect();
     const effect: ClickEffect = {
       id: now,
@@ -420,12 +544,14 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
   }, [comboCount, comboMultiplier, clickPower, critBonus, money, game]);
 
   // Buy card from market
-  const buyCard = useCallback((cardOrId: MarketCard | number) => {
-    const marketId = typeof cardOrId === 'number' ? cardOrId : cardOrId.marketId;
-    const card = typeof cardOrId === 'number' ? market.find(c => c.marketId === marketId) : cardOrId;
-    if (!card) return;
+  const buyCard = useCallback((cardOrId: ReturnType<typeof entityToMarketCard> | string) => {
+    const marketId = typeof cardOrId === 'string' ? cardOrId : cardOrId.marketId;
+    const entity = game.entities.find(e => e.id === marketId && e.type === 'marketCard');
+    if (!entity) return;
 
-    const price = Math.round(card.currentPrice * discount * 100) / 100;
+    const currentPrice = Number(entity.properties.currentPrice) || 0;
+    const price = Math.round(currentPrice * discount * 100) / 100;
+
     if (money < price) {
       addNotification('Not enough money!', 'warning');
       return;
@@ -435,33 +561,35 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
       return;
     }
 
-    const collectionCard: CollectionCard = {
-      ...card,
-      collectionId: collectionIdCounter.current++,
+    // Spawn collection card
+    game.spawnEntity('collectionCard', {
+      ...entity.properties,
       purchasePrice: price,
       purchaseTime: gameTime,
       holdTime: 0
-    };
+    });
 
-    setCollection(prev => [...prev, collectionCard]);
-    setMarket(prev => prev.filter(c => c.marketId !== marketId));
+    // Remove from market
+    game.removeEntity(marketId);
+
     game.setState('money', money - price);
     game.setState('totalSpent', (game.state.totalSpent as number || 0) + price);
     game.playerAction('recordBuy');
 
-    addNotification(`Bought ${card.name}!`, 'purchase');
-  }, [market, money, discount, collection.length, capacity, gameTime, game, addNotification]);
+    addNotification(`Bought ${entity.properties.name}!`, 'purchase');
+  }, [game, money, discount, collection.length, capacity, gameTime, addNotification]);
 
   // Sell card from collection
-  const sellCard = useCallback((cardOrId: CollectionCard | number) => {
-    const collectionId = typeof cardOrId === 'number' ? cardOrId : cardOrId.collectionId;
-    const card = typeof cardOrId === 'number' ? collection.find(c => c.collectionId === collectionId) : cardOrId;
-    if (!card) return;
+  const sellCard = useCallback((cardOrId: ReturnType<typeof entityToCollectionCard> | string) => {
+    const collectionId = typeof cardOrId === 'string' ? cardOrId : cardOrId.collectionId;
+    const entity = game.entities.find(e => e.id === collectionId && e.type === 'collectionCard');
+    if (!entity) return;
 
-    const sellPrice = Math.round(card.currentPrice * sellBonus * 100) / 100;
-    const profit = sellPrice - card.purchasePrice;
+    const currentPrice = Number(entity.properties.currentPrice) || 0;
+    const purchasePrice = Number(entity.properties.purchasePrice) || 0;
+    const sellPrice = Math.round(currentPrice * sellBonus * 100) / 100;
+    const profit = sellPrice - purchasePrice;
 
-    // Handle debt payment (20% of profit)
     let netEarnings = sellPrice;
     if (debt > 0 && profit > 0) {
       const debtPayment = Math.min(debt, profit * 0.2);
@@ -469,7 +597,8 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
       game.setState('debt', debt - debtPayment);
     }
 
-    setCollection(prev => prev.filter(c => c.collectionId !== collectionId));
+    game.removeEntity(collectionId);
+
     game.setState('money', money + netEarnings);
     game.setState('totalEarned', (game.state.totalEarned as number || 0) + Math.max(0, profit));
     game.setState('totalProfit', (game.state.totalProfit as number || 0) + profit);
@@ -478,12 +607,15 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
     }
     game.playerAction('recordSell');
 
-    addNotification(`Sold ${card.name} for ${formatMoney(sellPrice)}!`, 'sale');
-  }, [collection, sellBonus, debt, money, game, addNotification]);
+    addNotification(`Sold ${entity.properties.name} for ${formatMoney(sellPrice)}!`, 'sale');
+  }, [game, sellBonus, debt, money, addNotification]);
 
   // Batch sell
-  const batchSellCards = useCallback((cardsOrIds: CollectionCard[] | number[]) => {
-    cardsOrIds.forEach(item => sellCard(item as CollectionCard | number));
+  const batchSellCards = useCallback((cardsOrIds: ReturnType<typeof entityToCollectionCard>[] | string[]) => {
+    cardsOrIds.forEach(item => {
+      const id = typeof item === 'string' ? item : item.collectionId;
+      sellCard(id);
+    });
   }, [sellCard]);
 
   // Open pack
@@ -501,8 +633,7 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
     game.setState('money', money - price);
     game.setState('totalSpent', (game.state.totalSpent as number || 0) + price);
 
-    // Generate cards
-    const pulledCards: CollectionCard[] = [];
+    const pulledCards: ReturnType<typeof entityToCollectionCard>[] = [];
     let guaranteedRare = packType.guaranteedRare;
     let guaranteedUltraRare = packType.guaranteedUltraRare;
 
@@ -511,7 +642,6 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
       const roll = Math.random();
       let cumulative = 0;
 
-      // Force guaranteed pulls on last card if needed
       if (i === packType.cardCount - 1) {
         if (guaranteedUltraRare) {
           rarity = 'ultra-rare';
@@ -538,24 +668,33 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
         rarity = rarity! || 'common';
       }
 
-      // Check if guaranteed has been satisfied
       if (RARE_PLUS.includes(rarity)) guaranteedRare = false;
       if (['ultra-rare', 'secret-rare', 'legendary', 'chase'].includes(rarity)) guaranteedUltraRare = false;
 
-      // Get random card of rarity
       const pool = ALL_PULLABLE_CARDS.filter(c => c.rarity === rarity);
       const card = pool[Math.floor(Math.random() * pool.length)] || CARD_DATABASE[0];
       const condition = generateCondition();
+      const currentPrice = card.basePrice * CONDITION_MULTIPLIERS[condition];
 
-      const collectionCard: CollectionCard = {
-        ...card,
+      const collectionCard = {
+        id: card.id,
+        collectionId: `temp_${Date.now()}_${i}`,
+        name: card.name,
+        rarity: card.rarity as Rarity,
+        type: card.type as CardType,
+        basePrice: card.basePrice,
+        currentPrice,
         condition,
-        collectionId: collectionIdCounter.current++,
-        currentPrice: card.basePrice * CONDITION_MULTIPLIERS[condition],
+        spriteId: card.spriteId,
+        shiny: card.shiny || false,
         purchasePrice: 0,
         purchaseTime: gameTime,
         holdTime: 0,
-        fromPack: packType.id
+        fromPack: packType.id,
+        img: card.img || '',
+        hp: card.hp || 0,
+        attack: card.attack || 0,
+        defense: card.defense || 0
       };
 
       pulledCards.push(collectionCard);
@@ -566,10 +705,9 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
     setIsOpeningPack(true);
     game.playerAction('recordPackOpen');
 
-    // Update pack stats
     const totalValue = pulledCards.reduce((sum, c) => sum + c.currentPrice, 0);
     const bestPull = pulledCards.reduce((best, c) =>
-      c.basePrice > (best?.basePrice || 0) ? c : best, packStats.bestPull);
+      c.basePrice > (best?.basePrice || 0) ? c : best, packStats.bestPull as typeof pulledCards[0] | null);
     setPackStats(prev => ({
       spent: prev.spent + price,
       totalValue: prev.totalValue + totalValue,
@@ -580,18 +718,34 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
   // Close pack results and add to collection
   const closePackResults = useCallback(() => {
     if (packResults) {
-      setCollection(prev => [...prev, ...packResults]);
+      packResults.forEach(card => {
+        game.spawnEntity('collectionCard', {
+          cardId: card.id,
+          name: card.name,
+          rarity: card.rarity,
+          cardType: card.type,
+          basePrice: card.basePrice,
+          currentPrice: card.currentPrice,
+          condition: card.condition,
+          spriteId: card.spriteId,
+          shiny: card.shiny,
+          purchasePrice: 0,
+          purchaseTime: gameTime,
+          holdTime: 0,
+          fromPack: card.fromPack || ''
+        });
+      });
     }
     setPackResults(null);
     setIsOpeningPack(false);
     setRevealedCards([]);
-  }, [packResults]);
+  }, [packResults, game, gameTime]);
 
   // Submit for grading
-  const submitForGrading = useCallback((cardOrId: CollectionCard | number) => {
-    const collectionId = typeof cardOrId === 'number' ? cardOrId : cardOrId.collectionId;
-    const card = typeof cardOrId === 'number' ? collection.find(c => c.collectionId === collectionId) : cardOrId;
-    if (!card) return;
+  const submitForGrading = useCallback((cardOrId: ReturnType<typeof entityToCollectionCard> | string) => {
+    const collectionId = typeof cardOrId === 'string' ? cardOrId : cardOrId.collectionId;
+    const entity = game.entities.find(e => e.id === collectionId && e.type === 'collectionCard');
+    if (!entity) return;
 
     const gradingCost = 50;
     if (money < gradingCost) {
@@ -600,36 +754,36 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
     }
 
     game.setState('money', money - gradingCost);
-    setCollection(prev => prev.filter(c => c.collectionId !== collectionId));
 
-    const submission: GradingSubmission = {
-      id: gradingIdCounter.current++,
-      card,
+    // Spawn grading card
+    game.spawnEntity('gradingCard', {
+      ...entity.properties,
       submittedAt: gameTime,
-      returnTime: gameTime + 60, // 60 seconds
+      returnTime: gameTime + 60,
       cost: gradingCost
-    };
+    });
 
-    setGradingQueue(prev => [...prev, submission]);
-    game.setState('gradingQueueSize', gradingQueue.length + 1);
-    addNotification(`Submitted ${card.name} for grading`, 'purchase');
-  }, [collection, money, gameTime, game, gradingQueue.length, addNotification]);
+    // Remove from collection
+    game.removeEntity(collectionId);
+
+    const queueSize = game.entities.filter(e => e.type === 'gradingCard').length;
+    game.setState('gradingQueueSize', queueSize);
+    addNotification(`Submitted ${entity.properties.name} for grading`, 'purchase');
+  }, [game, money, gameTime, addNotification]);
 
   // Collect graded card
-  const collectGradedCard = useCallback((submissionOrId: GradingSubmission | number) => {
-    // If a submission is passed, get the card from gradedCards by matching the submission's card
-    const cardId = typeof submissionOrId === 'number'
-      ? submissionOrId
-      : submissionOrId.card.collectionId;
+  const collectGradedCard = useCallback((submissionOrId: ReturnType<typeof entityToGradingSubmission> | string) => {
+    const cardId = typeof submissionOrId === 'string' ? submissionOrId : submissionOrId.id;
+    const entity = game.entities.find(e => e.id === cardId && e.type === 'gradedCard');
+    if (!entity) return;
 
-    const card = gradedCards.find(c => c.collectionId === cardId);
-    if (!card) return;
-
-    if (!card.isForgery) {
-      setCollection(prev => [...prev, card]);
+    if (!entity.properties.isForgery) {
+      game.spawnEntity('collectionCard', {
+        ...entity.properties,
+      });
     }
-    setGradedCards(prev => prev.filter(c => c.collectionId !== cardId));
-  }, [gradedCards]);
+    game.removeEntity(cardId);
+  }, [game]);
 
   // Speed Appraisal game handlers
   const startAppraisalGame = useCallback(() => {
@@ -640,39 +794,40 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
 
   const winAppraisalGame = useCallback((specialty: CardType) => {
     const name = APPRAISER_NAMES[Math.floor(Math.random() * APPRAISER_NAMES.length)];
-    const appraiser: Appraiser = {
-      id: appraiserIdCounter.current++,
+    game.spawnEntity('appraiser', {
       name,
       level: 1,
       experience: 0,
       specialty,
       earnRate: 1
-    };
-    setAppraisers(prev => [...prev, appraiser]);
+    });
     game.setState('appraiserCount', appraisers.length + 1);
     game.setState('appraiserIncome', appraiserIncome + 1);
     addNotification(`Hired ${name}!`, 'achievement');
   }, [appraisers.length, appraiserIncome, game, addNotification]);
 
-  const trainAppraiser = useCallback((appraiserId: number) => {
-    const appraiser = appraisers.find(a => a.id === appraiserId);
-    if (!appraiser) return;
+  const trainAppraiser = useCallback((appraiserId: string | number) => {
+    const id = String(appraiserId);
+    const entity = game.entities.find(e => e.id === id && e.type === 'appraiser');
+    if (!entity) return;
 
-    const cost = Math.round(100 * Math.pow(1.5, appraiser.level - 1));
+    const level = Number(entity.properties.level) || 1;
+    const cost = Math.round(100 * Math.pow(1.5, level - 1));
     if (money < cost) return;
 
     game.setState('money', money - cost);
-    setAppraisers(prev => prev.map(a => {
-      if (a.id !== appraiserId) return a;
-      const newEarnRate = a.earnRate + 0.5;
-      return { ...a, level: a.level + 1, earnRate: newEarnRate };
-    }));
 
-    // Update total appraiser income
-    const newTotalIncome = appraisers.reduce((sum, a) =>
-      sum + (a.id === appraiserId ? a.earnRate + 0.5 : a.earnRate), 0);
+    const newEarnRate = (Number(entity.properties.earnRate) || 1) + 0.5;
+    game.modifyEntity(id, {
+      level: level + 1,
+      earnRate: newEarnRate
+    });
+
+    const newTotalIncome = game.entities
+      .filter(e => e.type === 'appraiser')
+      .reduce((sum, e) => sum + (Number(e.properties.earnRate) || 0), 0);
     game.setState('appraiserIncome', newTotalIncome);
-  }, [appraisers, money, game]);
+  }, [game, money]);
 
   // Buy upgrade handler for legacy upgrade view
   const buyUpgrade = useCallback((upgradeId: number) => {
@@ -706,17 +861,17 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
     const eventTip = getEventTips(currentEvent as any);
     if (eventTip && !dismissedTips.has(eventTip.id)) return eventTip;
 
-    const collectionTip = getCollectionTips(collection, money, currentEvent as any);
+    const collectionTip = getCollectionTips(collection as any, money, currentEvent as any);
     if (collectionTip && !dismissedTips.has(collectionTip.id)) return collectionTip;
 
-    const marketTip = getMarketTips(market, money, collection);
+    const marketTip = getMarketTips(marketCards as any, money, collection as any);
     if (marketTip && !dismissedTips.has(marketTip.id)) return marketTip;
 
     const strategyTip = getStrategyTip(totalSold, packsOpened);
     if (strategyTip && !dismissedTips.has(strategyTip.id)) return strategyTip;
 
     return null;
-  }, [currentEvent, collection, money, market, totalSold, packsOpened, dismissedTips]);
+  }, [currentEvent, collection, money, marketCards, totalSold, packsOpened, dismissedTips]);
 
   const dismissTip = (tipId: string) => {
     setDismissedTips(prev => new Set([...prev, tipId]));
@@ -740,11 +895,6 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
   // Reset game
   const resetGame = useCallback(() => {
     game.reset();
-    setCollection([]);
-    setMarket([]);
-    setGradingQueue([]);
-    setGradedCards([]);
-    setAppraisers([]);
     setPackStats({ spent: 0, totalValue: 0, bestPull: null });
     setView('market');
   }, [game]);
@@ -760,6 +910,12 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
       </div>
     );
   }
+
+  // Convert appraisers for the view
+  const appraisersForView = appraisers.map(a => ({
+    ...a,
+    id: typeof a.id === 'string' ? parseInt(a.id.replace(/\D/g, '')) || 0 : a.id
+  }));
 
   return (
     <div className="app">
@@ -867,12 +1023,12 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
       {/* Views */}
       {view === 'market' && (
         <MarketView
-          market={market}
+          market={marketCards as any}
           money={money}
           discount={discount}
           collectionSize={collection.length}
           capacity={capacity}
-          onBuyCard={buyCard}
+          onBuyCard={buyCard as any}
           onRefresh={refreshMarket}
         />
       )}
@@ -890,32 +1046,32 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
 
       {view === 'collection' && (
         <CollectionView
-          collection={collection}
+          collection={collection as any}
           sellBonus={sellBonus}
-          onSellCard={sellCard}
-          onBatchSell={batchSellCards}
+          onSellCard={sellCard as any}
+          onBatchSell={batchSellCards as any}
         />
       )}
 
       {view === 'grading' && (
         <GradingView
-          collection={collection}
-          gradingQueue={gradingQueue}
-          gradedCards={gradedCards}
+          collection={collection as any}
+          gradingQueue={gradingQueue as any}
+          gradedCards={gradedCards as any}
           money={money}
           gameTime={gameTime}
-          onSubmitForGrading={submitForGrading}
-          onCollectGradedCard={collectGradedCard}
+          onSubmitForGrading={submitForGrading as any}
+          onCollectGradedCard={collectGradedCard as any}
         />
       )}
 
       {view === 'appraisal' && (
         <SpeedAppraisalGame
           money={money}
-          appraisers={appraisers}
+          appraisers={appraisersForView as any}
           onStartGame={startAppraisalGame}
           onWinGame={winAppraisalGame}
-          onTrainAppraiser={trainAppraiser}
+          onTrainAppraiser={trainAppraiser as any}
         />
       )}
 
@@ -935,13 +1091,13 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
         <RulesView
           gameState={{
             money,
-            collection,
+            collection: collection as any,
             totalSold,
             totalProfit,
             longestHold,
             packsOpened,
             packStats,
-            market,
+            market: marketCards as any,
             currentEvent,
             eventTimer: Math.ceil(eventTicksRemaining / 10),
             gameTime,
@@ -958,8 +1114,8 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
       {/* Pack Opening Modal */}
       {isOpeningPack && packResults && (
         <PackOpeningModal
-          packResults={packResults}
-          revealedCards={revealedCards}
+          packResults={packResults as any}
+          revealedCards={revealedCards as any}
           onClose={closePackResults}
         />
       )}
@@ -975,7 +1131,7 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
       {/* Envelope Modal for Grading Results */}
       {envelopeCard && (
         <EnvelopeModal
-          gradedCard={envelopeCard}
+          gradedCard={envelopeCard as any}
           onClose={() => setEnvelopeCard(null)}
         />
       )}

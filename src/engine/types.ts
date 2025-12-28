@@ -24,7 +24,13 @@ export type Operator =
   | 'sin' | 'cos' | 'random'
   | 'and' | 'or' | 'not'
   | 'eq' | 'neq' | 'lt' | 'lte' | 'gt' | 'gte'
-  | 'if' | 'coalesce';
+  | 'if' | 'coalesce'
+  // Entity operations
+  | 'entityCount'    // Count entities: { op: 'entityCount', args: ['type'] }
+  | 'entitySum'      // Sum entity property: { op: 'entitySum', args: ['type', 'propName'] }
+  | 'entityProp'     // Get entity property: { op: 'entityProp', args: ['entityId', 'propName'] }
+  | 'entityFirst'    // Get first matching entity ID: { op: 'entityFirst', args: ['type'] }
+  | 'entityHas';     // Check if entity exists: { op: 'entityHas', args: ['entityId'] }
 
 /** Condition for triggering rules */
 export type Condition =
@@ -84,7 +90,10 @@ export type Action =
   | SpawnAction
   | EmitAction
   | AnimateAction
-  | SoundAction;
+  | SoundAction
+  | ModifyEntityAction
+  | RemoveEntityAction
+  | ForEachEntityAction;
 
 export interface SetAction {
   action: 'set';
@@ -211,6 +220,39 @@ export interface SoundAction {
   fadeIn?: Expression;
   fadeOut?: Expression;
 }
+
+// Entity manipulation actions
+export interface ModifyEntityAction {
+  action: 'modifyEntity';
+  entityId: Expression;  // Entity ID to modify, or 'all' for all of type
+  entityType?: string;   // Filter by type
+  where?: EntityCondition;  // Filter condition
+  set: Record<string, Expression>;  // Properties to update
+}
+
+export interface RemoveEntityAction {
+  action: 'removeEntity';
+  entityId?: Expression;  // Specific entity ID
+  entityType?: string;    // Remove all of type
+  where?: EntityCondition;  // Filter condition
+  first?: boolean;  // Only remove first matching
+}
+
+export interface ForEachEntityAction {
+  action: 'forEachEntity';
+  entityType: string;
+  where?: EntityCondition;
+  as: string;  // Variable name to bind current entity (e.g., 'card')
+  actions: Action[];
+  limit?: number;
+}
+
+/** Condition for filtering entities */
+export type EntityCondition =
+  | { op: 'eq' | 'neq' | 'lt' | 'lte' | 'gt' | 'gte'; prop: string; value: Expression }
+  | { op: 'and' | 'or'; conditions: EntityCondition[] }
+  | { op: 'not'; condition: EntityCondition }
+  | { op: 'hasProperty'; prop: string };
 
 // ============================================================================
 // RULES
@@ -370,6 +412,8 @@ export interface EvaluationContext {
   deltaTime: number;
   random: () => number;
   functions?: Record<string, Action[]>;
+  entities?: SpawnedEntity[];  // For entity operations
+  currentEntity?: SpawnedEntity;  // Current entity in forEachEntity loop
 }
 
 export interface GameMessage {

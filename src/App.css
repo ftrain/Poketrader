@@ -1109,49 +1109,50 @@ body {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   overflow-y: auto;
   align-items: flex-start;
-  padding: 20px;
+  padding: 20px 16px;
 }
 
 .startup-content {
   max-width: 800px;
+  width: 100%;
   text-align: center;
-  padding: 24px;
-  margin: auto;
+  padding: 16px;
+  margin: 0 auto;
 }
 
 .startup-title {
   color: #fbbf24;
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 800;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
 }
 
 .startup-subtitle {
   color: #a8a8a8;
-  font-size: 14px;
-  margin-bottom: 24px;
+  font-size: 13px;
+  margin-bottom: 16px;
 }
 
 .path-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .path-card {
   background: #fff;
-  border-radius: 16px;
-  padding: 20px;
+  border-radius: 12px;
+  padding: 14px;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
   border: 3px solid transparent;
 }
 
 .path-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
 }
 
 .path-card.path-solo {
@@ -1167,35 +1168,35 @@ body {
 }
 
 .path-icon {
-  font-size: 48px;
-  margin-bottom: 12px;
-}
-
-.path-name {
-  font-size: 18px;
-  font-weight: 800;
-  color: #2d3436;
+  font-size: 32px;
   margin-bottom: 8px;
 }
 
+.path-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #2d3436;
+  margin-bottom: 4px;
+}
+
 .path-description {
-  font-size: 13px;
+  font-size: 11px;
   color: #636e72;
-  margin-bottom: 16px;
-  min-height: 40px;
+  margin-bottom: 10px;
+  min-height: 32px;
 }
 
 .path-stats {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 4px;
+  margin-bottom: 8px;
 }
 
 .path-stat {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .path-stat .stat-label {
@@ -1216,19 +1217,19 @@ body {
 }
 
 .path-bonus {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: #3b82f6;
   background: #eff6ff;
-  padding: 6px 10px;
-  border-radius: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
 }
 
 .startup-tip {
   color: #636e72;
-  font-size: 12px;
+  font-size: 11px;
   background: rgba(255,255,255,0.1);
-  padding: 10px 16px;
+  padding: 8px 12px;
   border-radius: 8px;
 }
 

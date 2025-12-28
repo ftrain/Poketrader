@@ -1242,17 +1242,34 @@ body {
   background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
   border: 2px solid #ef4444;
   border-radius: 8px;
-  padding: 8px 16px;
-  margin: 0 16px;
+  padding: 6px 12px;
+  margin: 8px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
+  font-size: 12px;
+  gap: 8px;
 }
 
 .debt-label {
   color: #991b1b;
   font-weight: 700;
+}
+
+.debt-pay-btn {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.debt-pay-btn:hover {
+  background: #dc2626;
 }
 
 .debt-amount {

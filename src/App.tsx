@@ -42,12 +42,18 @@ export function App() {
         <span className="terminal-subtitle">Pokemon Trading Economics Simulator</span>
       </div>
 
-      {/* Debt Banner */}
+      {/* Debt Banner - Click to pay $50 */}
       {game.debt > 0 && (
-        <div className="debt-banner">
-          <span className="debt-label">Debt Remaining</span>
-          <span className="debt-amount">{formatMoney(game.debt)}</span>
-          <span className="debt-info">20% of profits auto-pay</span>
+        <div
+          className="debt-banner"
+          onClick={() => game.payDebt(50)}
+          style={{ cursor: game.money >= 50 ? 'pointer' : 'default' }}
+        >
+          <span className="debt-label">Debt: {formatMoney(game.debt)}</span>
+          {game.money >= 50 && (
+            <button className="debt-pay-btn">Pay $50</button>
+          )}
+          <span className="debt-info">20% auto-pay</span>
         </div>
       )}
 

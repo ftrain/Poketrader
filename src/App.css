@@ -886,6 +886,10 @@ body {
 .modal-backdrop.pack-opening {
   flex-direction: column;
   background: radial-gradient(circle at center, #1e3a5f 0%, #0a0a15 100%);
+  overflow-y: auto;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px 16px 40px;
 }
 
 .modal-content {
@@ -922,26 +926,26 @@ body {
 
 /* Pack Opening Modal */
 .pack-opening-title {
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   color: #fbbf24;
   font-weight: 800;
-  font-size: 28px;
+  font-size: 22px;
   text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
 }
 
 .pack-cards-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
   justify-content: center;
   max-width: 800px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .pack-card-reveal {
-  width: 110px;
-  height: 150px;
-  border-radius: 14px;
+  width: 95px;
+  height: 130px;
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -995,21 +999,21 @@ body {
 
 .pack-total-value {
   background: rgba(255,255,255,0.95);
-  padding: 18px 24px;
-  border-radius: 16px;
+  padding: 12px 20px;
+  border-radius: 12px;
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.1);
 }
 
 .total-label {
-  font-size: 13px;
+  font-size: 11px;
   color: #636e72;
   font-weight: 600;
 }
 
 .total-amount {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 800;
   color: #10b981;
 }
@@ -1300,13 +1304,13 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 80px;
-  margin-bottom: 4px;
+  height: 60px;
+  margin-bottom: 2px;
 }
 
 .reveal-sprite img.sprite-small {
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   image-rendering: pixelated;
 }
 

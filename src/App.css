@@ -2677,3 +2677,69 @@ body {
 .grading-info li {
   margin-bottom: 4px;
 }
+
+/* Card Stack Badge */
+.stack-count {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 12px;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.card-value-display {
+  font-size: 16px;
+  font-weight: 700;
+  color: #22c55e;
+  text-align: center;
+  margin: 4px 0 8px;
+}
+
+.stack-total {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.card-actions {
+  width: 100%;
+}
+
+.stack-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.stack-actions button {
+  flex: 1;
+}
+
+.close-stack-btn {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: #64748b;
+  color: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-stack-btn:hover {
+  background: #475569;
+}
+
+.collection-card.expanded {
+  box-shadow: 0 0 0 3px #3b82f6;
+}

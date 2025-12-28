@@ -23,9 +23,38 @@ interface CollectionViewProps {
 
 const HOLO_RARITIES = ['rare', 'ultra-rare', 'secret-rare', 'legendary', 'chase'];
 
+// Group cards by name + condition for stacking
+interface CardStack {
+  key: string;
+  cards: CollectionCard[];
+  representative: CollectionCard;
+}
+
+function groupCards(collection: CollectionCard[]): CardStack[] {
+  const groups = new Map<string, CollectionCard[]>();
+
+  collection.forEach(card => {
+    // Group by name + condition for similar pricing
+    const key = `${card.id}-${card.condition}`;
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+    groups.get(key)!.push(card);
+  });
+
+  return Array.from(groups.entries()).map(([key, cards]) => ({
+    key,
+    cards,
+    representative: cards[0]
+  }));
+}
+
 export function CollectionView({ collection, sellBonus, onSellCard, onBatchSell }: CollectionViewProps) {
   const [selectedCards, setSelectedCards] = useState<Set<number>>(new Set());
   const [batchMode, setBatchMode] = useState(false);
+  const [expandedStack, setExpandedStack] = useState<string | null>(null);
+
+  const stacks = useMemo(() => groupCards(collection), [collection]);
 
   const selectedTotal = useMemo(() => {
     return collection
@@ -62,6 +91,18 @@ export function CollectionView({ collection, sellBonus, onSellCard, onBatchSell 
     }
   };
 
+  const sellOneFromStack = (stack: CardStack) => {
+    onSellCard(stack.cards[0]);
+    setExpandedStack(null);
+  };
+
+  const sellAllFromStack = (stack: CardStack) => {
+    if (onBatchSell && stack.cards.length > 0) {
+      onBatchSell(stack.cards);
+      setExpandedStack(null);
+    }
+  };
+
   if (collection.length === 0) {
     return (
       <div className="view">
@@ -77,36 +118,40 @@ export function CollectionView({ collection, sellBonus, onSellCard, onBatchSell 
   return (
     <div className="view">
       <div className="collection-header">
-        <h2>Your Collection</h2>
+        <h2>Your Collection ({collection.length})</h2>
         <Button
           onClick={() => {
             setBatchMode(!batchMode);
             if (batchMode) setSelectedCards(new Set());
+            setExpandedStack(null);
           }}
           variant={batchMode ? 'primary' : 'secondary'}
         >
-          {batchMode ? '✕ Cancel' : '☑ Batch Sell'}
+          {batchMode ? '✕ Cancel' : '☑ Batch'}
         </Button>
       </div>
 
       {batchMode && (
         <div className="batch-controls">
           <div className="batch-selection">
-            <Button onClick={selectAll} variant="secondary">Select All</Button>
-            <Button onClick={selectNone} variant="secondary">Select None</Button>
+            <Button onClick={selectAll} variant="secondary">All</Button>
+            <Button onClick={selectNone} variant="secondary">None</Button>
             <span className="batch-count">{selectedCards.size} selected</span>
           </div>
           {selectedCards.size > 0 && (
             <Button onClick={handleBatchSell} variant="success">
-              💰 Sell {selectedCards.size} cards for {formatMoney(selectedTotal)}
+              Sell {selectedCards.size} for {formatMoney(selectedTotal)}
             </Button>
           )}
         </div>
       )}
 
       <div className="card-grid">
-        {collection.map(card => {
+        {stacks.map(stack => {
+          const card = stack.representative;
+          const count = stack.cards.length;
           const currentValue = card.currentPrice * sellBonus;
+          const totalStackValue = stack.cards.reduce((sum, c) => sum + c.currentPrice * sellBonus, 0);
           const profit = currentValue - card.purchasePrice;
           const isFromPack = card.purchasePrice === 0;
           const profitPercent = isFromPack
@@ -114,29 +159,39 @@ export function CollectionView({ collection, sellBonus, onSellCard, onBatchSell 
             : ((currentValue / card.purchasePrice - 1) * 100);
           const spriteUrl = getSpriteUrl(card.spriteId, card.shiny);
           const isHolo = HOLO_RARITIES.includes(card.rarity);
-          const isSelected = selectedCards.has(card.collectionId);
+          const isExpanded = expandedStack === stack.key;
+
+          // In batch mode, check if any cards in stack are selected
+          const selectedInStack = stack.cards.filter(c => selectedCards.has(c.collectionId)).length;
 
           return (
             <div
-              key={card.collectionId}
-              className={`collection-card ${isHolo ? 'holo' : ''} ${isSelected ? 'selected' : ''}`}
+              key={stack.key}
+              className={`collection-card ${isHolo ? 'holo' : ''} ${isExpanded ? 'expanded' : ''}`}
               style={{
                 background: `linear-gradient(145deg, ${TYPE_COLORS[card.type]}22, ${TYPE_COLORS[card.type]}44)`,
-                border: `2px solid ${isSelected ? '#3b82f6' : RARITY_COLORS[card.rarity]}`,
+                border: `2px solid ${selectedInStack > 0 ? '#3b82f6' : RARITY_COLORS[card.rarity]}`,
               }}
-              onClick={batchMode ? () => toggleCard(card.collectionId) : undefined}
+              onClick={batchMode ? () => {
+                // Toggle all cards in stack
+                stack.cards.forEach(c => toggleCard(c.collectionId));
+              } : undefined}
             >
+              {/* Stack count badge */}
+              {count > 1 && (
+                <div className="stack-count">x{count}</div>
+              )}
+
               {batchMode && (
-                <div className={`select-checkbox ${isSelected ? 'checked' : ''}`}>
-                  {isSelected ? '✓' : ''}
+                <div className={`select-checkbox ${selectedInStack > 0 ? 'checked' : ''}`}>
+                  {selectedInStack > 0 ? selectedInStack : ''}
                 </div>
               )}
+
               {card.japanese && (
-                <div className="jp-badge">🇯🇵 JP</div>
+                <div className="jp-badge">🇯🇵</div>
               )}
-              {card.fromPack && (
-                <div className="pack-badge">📦 Pack</div>
-              )}
+
               {card.condition && (
                 <div
                   className="condition-badge"
@@ -145,13 +200,14 @@ export function CollectionView({ collection, sellBonus, onSellCard, onBatchSell 
                   {CONDITION_LABELS[card.condition]}
                 </div>
               )}
+
               <div
                 className="profit-badge"
                 style={{
                   background: isFromPack ? '#667eea' : (profit >= 0 ? '#4caf50' : '#f44336')
                 }}
               >
-                {isFromPack ? 'FREE' : `${profit >= 0 ? '+' : ''}${profitPercent.toFixed(1)}%`}
+                {isFromPack ? 'FREE' : `${profit >= 0 ? '+' : ''}${profitPercent.toFixed(0)}%`}
               </div>
 
               <div className="card-sprite">
@@ -162,30 +218,49 @@ export function CollectionView({ collection, sellBonus, onSellCard, onBatchSell 
                 />
               </div>
               <div className="card-name">{card.name}</div>
-              <div className="card-meta">
-                {isFromPack ? 'From pack' : `Bought: $${card.purchasePrice.toFixed(2)}`} • Held: {card.holdTime}s
-              </div>
 
-              <div className="card-values">
-                <div>
-                  <div className="value-label">Current Value</div>
-                  <div className="value-amount">${currentValue.toFixed(2)}</div>
-                </div>
-                <div className="text-right">
-                  <div className="value-label">{isFromPack ? 'Pure Profit' : 'P&L'}</div>
-                  <div
-                    className="value-amount"
-                    style={{ color: isFromPack || profit >= 0 ? '#4caf50' : '#f44336' }}
-                  >
-                    {isFromPack || profit >= 0 ? '+' : ''}${isFromPack ? currentValue.toFixed(2) : profit.toFixed(2)}
-                  </div>
-                </div>
+              <div className="card-value-display">
+                {formatMoney(currentValue)}
+                {count > 1 && (
+                  <span className="stack-total"> ({formatMoney(totalStackValue)} total)</span>
+                )}
               </div>
 
               {!batchMode && (
-                <Button onClick={() => onSellCard(card)} variant="success" fullWidth>
-                  💰 Sell for ${currentValue.toFixed(2)}
-                </Button>
+                <div className="card-actions">
+                  {count === 1 ? (
+                    <Button onClick={() => onSellCard(card)} variant="success" fullWidth>
+                      Sell {formatMoney(currentValue)}
+                    </Button>
+                  ) : (
+                    <>
+                      {isExpanded ? (
+                        <div className="stack-actions">
+                          <Button onClick={() => sellOneFromStack(stack)} variant="secondary">
+                            Sell 1
+                          </Button>
+                          <Button onClick={() => sellAllFromStack(stack)} variant="success">
+                            Sell All ({count})
+                          </Button>
+                          <button
+                            className="close-stack-btn"
+                            onClick={(e) => { e.stopPropagation(); setExpandedStack(null); }}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ) : (
+                        <Button
+                          onClick={() => setExpandedStack(stack.key)}
+                          variant="success"
+                          fullWidth
+                        >
+                          Sell ({count} cards)
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </div>
               )}
             </div>
           );

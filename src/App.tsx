@@ -22,6 +22,7 @@ import {
   GradingView,
   SpeedAppraisalGame
 } from './views';
+import { GameHub } from './games';
 import type { RuleEngineState } from './engine';
 import { formatMoney } from './utils';
 import {
@@ -37,6 +38,12 @@ import './App.css';
 export function App() {
   const game = useGameState();
   const [dismissedTips, setDismissedTips] = useState<Set<string>>(new Set());
+  const [showGameHub, setShowGameHub] = useState(false);
+
+  // Show GameHub if selected
+  if (showGameHub) {
+    return <GameHub onSelectPoketrader={() => setShowGameHub(false)} />;
+  }
 
   // Calculate current advisor tip
   const currentTip = useMemo((): AdvisorTipType | null => {
@@ -85,16 +92,25 @@ export function App() {
           <span className="terminal-title">POKE-TERMINAL v{VERSION}</span>
           <span className="terminal-subtitle">Pokemon Trading Economics Simulator</span>
         </div>
-        <button
-          className="reset-btn"
-          onClick={() => {
-            if (window.confirm('Reset game? All progress will be lost!')) {
-              game.resetGame();
-            }
-          }}
-        >
-          ↺
-        </button>
+        <div className="header-buttons">
+          <button
+            className="hub-btn"
+            onClick={() => setShowGameHub(true)}
+            title="Game Hub"
+          >
+            🎮
+          </button>
+          <button
+            className="reset-btn"
+            onClick={() => {
+              if (window.confirm('Reset game? All progress will be lost!')) {
+                game.resetGame();
+              }
+            }}
+          >
+            ↺
+          </button>
+        </div>
       </div>
 
       {/* Debt Banner - Click to pay $50 */}

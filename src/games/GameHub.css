@@ -1,0 +1,155 @@
+/**
+ * Game Hub Styles
+ */
+
+.game-hub {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0f23, #1a1a3e);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hub-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.hub-header h1 {
+  font-size: 2.5rem;
+  color: #fff;
+  margin: 0 0 0.5rem 0;
+}
+
+.hub-header p {
+  color: #888;
+  font-size: 1.1rem;
+}
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  max-width: 800px;
+  width: 100%;
+}
+
+.game-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.game-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--game-color);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3),
+              0 0 20px color-mix(in srgb, var(--game-color) 30%, transparent);
+}
+
+.game-icon {
+  font-size: 3.5rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.game-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.game-description {
+  color: #888;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.play-button {
+  margin-top: auto;
+  padding: 0.5rem 1.5rem;
+  background: var(--game-color);
+  color: #fff;
+  border-radius: 2rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+.game-card:hover .play-button {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hub-footer {
+  margin-top: auto;
+  padding-top: 3rem;
+  text-align: center;
+  color: #555;
+}
+
+.tech-stack {
+  font-size: 0.8rem;
+  color: #444;
+}
+
+/* Game Container */
+.game-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0f23, #1a1a3e);
+}
+
+.back-button {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #aaa;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  z-index: 100;
+  transition: all 0.2s;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .game-hub {
+    padding: 1rem;
+  }
+
+  .hub-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .games-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .game-card {
+    padding: 1.5rem;
+  }
+
+  .game-icon {
+    font-size: 2.5rem;
+  }
+}

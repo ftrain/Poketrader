@@ -72,6 +72,8 @@ export function App() {
       <ClickerButton
         clickPower={game.clickPower}
         clickEffects={game.clickEffects}
+        comboCount={game.comboCount}
+        comboMultiplier={game.comboMultiplier}
         onClick={game.handleClick}
       />
 

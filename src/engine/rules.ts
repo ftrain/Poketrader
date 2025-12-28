@@ -1,9 +1,10 @@
 import type { GameStats, MarketCard, MarketEvent } from '../types';
+import { EVOLUTION_CHAINS } from '../data/cards';
 
 export interface GameRule {
   id: string;
   name: string;
-  category: 'market' | 'collection' | 'achievement' | 'event' | 'economy' | 'pack' | 'victory' | 'strategy';
+  category: 'market' | 'collection' | 'achievement' | 'event' | 'economy' | 'pack' | 'victory' | 'strategy' | 'pokemon';
   description: string;
   condition: string; // Human readable condition
   effect: string; // Human readable effect
@@ -11,6 +12,23 @@ export interface GameRule {
   priority: number; // Higher priority rules checked first
   cooldown?: number; // Seconds between triggers
   lastTriggered?: number;
+}
+
+// Helper to check evolution chain completion
+function getEvolutionProgress(cardNames: string[]): { complete: string[], partial: string[] } {
+  const complete: string[] = [];
+  const partial: string[] = [];
+
+  for (const [chainName, pokemon] of Object.entries(EVOLUTION_CHAINS)) {
+    const owned = pokemon.filter(p => cardNames.includes(p));
+    if (owned.length === pokemon.length) {
+      complete.push(chainName);
+    } else if (owned.length >= 2) {
+      partial.push(chainName);
+    }
+  }
+
+  return { complete, partial };
 }
 
 export interface RuleEngineState extends GameStats {
@@ -462,11 +480,11 @@ export const GAME_RULES: GameRule[] = [
     id: 'corner-dragon-type',
     name: 'Dragon Type Corner',
     category: 'market',
-    description: 'Control the prestigious dragon market',
-    condition: 'Own 2+ dragon-type cards',
-    effect: 'Dragon-type market dominance',
+    description: 'Control the prestigious dragon market (only 2 needed - dragons are ultra-rare!)',
+    condition: 'Own 2+ dragon-type cards (lower threshold due to extreme rarity)',
+    effect: 'Dragon-type market dominance - true power!',
     checkCondition: (state) => state.collection.filter(c => c.type === 'dragon').length >= 2,
-    priority: 65
+    priority: 65  // Higher priority than other type corners due to prestige
   },
   {
     id: 'corner-psychic-type',
@@ -477,6 +495,181 @@ export const GAME_RULES: GameRule[] = [
     effect: 'Psychic-type market influence',
     checkCondition: (state) => state.collection.filter(c => c.type === 'psychic').length >= 3,
     priority: 55
+  },
+
+  // Pokemon Lore Rules - Evolution Chains
+  {
+    id: 'pokemon-evolution-complete',
+    name: 'Evolution Chain Complete!',
+    category: 'pokemon',
+    description: 'Collect an entire evolution family',
+    condition: 'Own all Pokemon in an evolution chain (e.g., Bulbasaur→Ivysaur→Venusaur)',
+    effect: 'Evolution mastery achieved - true collector status',
+    checkCondition: (state) => {
+      const cardNames = state.collection.map(c => c.name);
+      const progress = getEvolutionProgress(cardNames);
+      return progress.complete.length > 0;
+    },
+    priority: 80
+  },
+  {
+    id: 'pokemon-evolution-partial',
+    name: 'Evolution in Progress',
+    category: 'pokemon',
+    description: 'You have part of an evolution chain',
+    condition: 'Own 2+ Pokemon from the same evolution line',
+    effect: 'Keep collecting to complete the chain!',
+    checkCondition: (state) => {
+      const cardNames = state.collection.map(c => c.name);
+      const progress = getEvolutionProgress(cardNames);
+      return progress.partial.length > 0 && progress.complete.length === 0;
+    },
+    priority: 45
+  },
+  {
+    id: 'pokemon-starter-trio',
+    name: 'Kanto Starter Trio',
+    category: 'pokemon',
+    description: 'The original choice - Bulbasaur, Charmander, Squirtle',
+    condition: 'Own all three Kanto starters',
+    effect: 'Professor Oak would be proud!',
+    checkCondition: (state) => {
+      const names = state.collection.map(c => c.name);
+      return names.includes('Bulbasaur') && names.includes('Charmander') && names.includes('Squirtle');
+    },
+    priority: 75
+  },
+  {
+    id: 'pokemon-pikachu-raichu',
+    name: 'Electric Evolution',
+    category: 'pokemon',
+    description: 'The iconic Pikachu evolution line',
+    condition: 'Own both Pikachu and Raichu',
+    effect: 'Thunder Stone evolution complete!',
+    checkCondition: (state) => {
+      const names = state.collection.map(c => c.name);
+      return names.includes('Pikachu') && names.includes('Raichu');
+    },
+    priority: 70
+  },
+  {
+    id: 'pokemon-legendary-birds',
+    name: 'Legendary Bird Trio',
+    category: 'pokemon',
+    description: 'The legendary birds of Kanto',
+    condition: 'Own Articuno, Zapdos, and Moltres',
+    effect: 'Master of the legendary birds!',
+    checkCondition: (state) => {
+      const names = state.collection.map(c => c.name);
+      return names.includes('Articuno') && names.includes('Zapdos') && names.includes('Moltres');
+    },
+    priority: 90
+  },
+  {
+    id: 'pokemon-legendary-beasts',
+    name: 'Legendary Beast Trio',
+    category: 'pokemon',
+    description: 'The legendary beasts of Johto',
+    condition: 'Own Raikou, Entei, and Suicune',
+    effect: 'Master of the legendary beasts!',
+    checkCondition: (state) => {
+      const names = state.collection.map(c => c.name);
+      return names.includes('Raikou') && names.includes('Entei') && names.includes('Suicune');
+    },
+    priority: 90
+  },
+  {
+    id: 'pokemon-eeveelution-collector',
+    name: 'Eeveelution Collector',
+    category: 'pokemon',
+    description: 'Collect multiple Eevee evolutions',
+    condition: 'Own Eevee + 2 or more of its evolutions',
+    effect: 'The diverse evolution path!',
+    checkCondition: (state) => {
+      const names = state.collection.map(c => c.name);
+      const eeveelutions = ['Vaporeon', 'Jolteon', 'Flareon', 'Espeon', 'Umbreon', 'Leafeon', 'Glaceon', 'Sylveon'];
+      const hasEevee = names.includes('Eevee');
+      const eeveCount = eeveelutions.filter(e => names.includes(e)).length;
+      return hasEevee && eeveCount >= 2;
+    },
+    priority: 78
+  },
+  {
+    id: 'pokemon-mewtwo-mew',
+    name: 'Original & Clone',
+    category: 'pokemon',
+    description: 'The genetic Pokemon and its origin',
+    condition: 'Own both Mew and Mewtwo',
+    effect: 'Is Mewtwo a clone or something more?',
+    checkCondition: (state) => {
+      const names = state.collection.map(c => c.name);
+      return names.includes('Mew') && names.includes('Mewtwo');
+    },
+    priority: 92
+  },
+  {
+    id: 'pokemon-charizard-dragonite',
+    name: 'Dragon Masters',
+    category: 'pokemon',
+    description: 'The most iconic dragon-like Pokemon',
+    condition: 'Own both Charizard and Dragonite',
+    effect: 'Despite Charizard not being Dragon-type...',
+    checkCondition: (state) => {
+      const names = state.collection.map(c => c.name);
+      return names.includes('Charizard') && names.includes('Dragonite');
+    },
+    priority: 72
+  },
+  {
+    id: 'pokemon-final-evolutions',
+    name: 'Final Form Collector',
+    category: 'pokemon',
+    description: 'Collect fully evolved Pokemon',
+    condition: 'Own 3+ final evolution Pokemon (Venusaur, Charizard, Blastoise, etc.)',
+    effect: 'You prefer them at full power!',
+    checkCondition: (state) => {
+      const finalForms = ['Venusaur', 'Charizard', 'Blastoise', 'Raichu', 'Alakazam', 'Machamp',
+                          'Gengar', 'Dragonite', 'Gyarados', 'Arcanine', 'Tyranitar', 'Metagross'];
+      const count = state.collection.filter(c => finalForms.includes(c.name)).length;
+      return count >= 3;
+    },
+    priority: 68
+  },
+  {
+    id: 'pokemon-ghost-master',
+    name: 'Ghost Master',
+    category: 'pokemon',
+    description: 'The spooky collector',
+    condition: 'Own 3+ ghost-type Pokemon',
+    effect: 'They say ghosts follow you now...',
+    checkCondition: (state) => state.collection.filter(c => c.type === 'ghost').length >= 3,
+    priority: 55
+  },
+  {
+    id: 'pokemon-cute-collection',
+    name: 'Kawaii Collector',
+    category: 'pokemon',
+    description: 'Collect the cutest Pokemon',
+    condition: 'Own Pikachu, Eevee, and Jigglypuff',
+    effect: 'Maximum cuteness achieved!',
+    checkCondition: (state) => {
+      const names = state.collection.map(c => c.name);
+      return names.includes('Pikachu') && names.includes('Eevee') && names.includes('Jigglypuff');
+    },
+    priority: 60
+  },
+  {
+    id: 'pokemon-pseudo-legendary',
+    name: 'Pseudo-Legendary Collector',
+    category: 'pokemon',
+    description: 'The 600 BST club',
+    condition: 'Own Dragonite, Tyranitar, or Metagross',
+    effect: 'These Pokemon rival true legendaries!',
+    checkCondition: (state) => {
+      const pseudos = ['Dragonite', 'Tyranitar', 'Metagross', 'Salamence', 'Garchomp', 'Hydreigon'];
+      return state.collection.some(c => pseudos.includes(c.name));
+    },
+    priority: 76
   }
 ];
 

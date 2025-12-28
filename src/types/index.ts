@@ -109,6 +109,9 @@ export interface ClickEffect {
   x: number;
   y: number;
   value: number;
+  isCombo?: boolean;
+  isCritical?: boolean;
+  comboLevel?: number;
 }
 
 export type ViewType = 'market' | 'packs' | 'collection' | 'upgrades' | 'lessons' | 'rules';

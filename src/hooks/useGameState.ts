@@ -52,6 +52,13 @@ export function useGameState() {
   const [isOpeningPack, setIsOpeningPack] = useState(false);
   const [revealedCards, setRevealedCards] = useState<CollectionCard[]>([]);
 
+  // Combo system state
+  const [comboCount, setComboCount] = useState(0);
+  const [comboMultiplier, setComboMultiplier] = useState(1);
+  const [totalClicks, setTotalClicks] = useState(0);
+  const lastClickTime = useRef(0);
+  const comboResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const currentEventRef = useRef(currentEvent);
   const eventTimerRef = useRef(eventTimer);
   const passiveIncomeRef = useRef(passiveIncome);
@@ -182,16 +189,82 @@ export function useGameState() {
   }, [money, collection, totalSold, totalProfit, longestHold, packsOpened, packStats, achievements, addNotification]);
 
   const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const earned = clickPower;
-    setMoney(m => m + earned);
-    setTotalEarned(t => t + earned);
+    const now = Date.now();
+    const timeSinceLastClick = now - lastClickTime.current;
+    lastClickTime.current = now;
+
+    // Clear existing combo reset timer
+    if (comboResetTimer.current) {
+      clearTimeout(comboResetTimer.current);
+    }
+
+    // Combo logic: clicks within 600ms build combo
+    let newCombo = comboCount;
+    let newMultiplier = 1;
+    const isRapidClick = timeSinceLastClick < 600;
+
+    if (isRapidClick) {
+      newCombo = Math.min(comboCount + 1, 50); // Max 50x combo
+      // Combo multiplier: starts at 1, scales to 2.5x at 50 combo
+      newMultiplier = 1 + (newCombo * 0.03);
+    } else {
+      newCombo = 0;
+      newMultiplier = 1;
+    }
+
+    setComboCount(newCombo);
+    setComboMultiplier(newMultiplier);
+    setTotalClicks(c => c + 1);
+
+    // Reset combo after 1.5 seconds of no clicking
+    comboResetTimer.current = setTimeout(() => {
+      setComboCount(0);
+      setComboMultiplier(1);
+    }, 1500);
+
+    // Critical hit chance (5% base, +0.5% per combo level, max 15%)
+    const critChance = Math.min(0.05 + (newCombo * 0.005), 0.15);
+    const isCritical = Math.random() < critChance;
+
+    // Calculate final earnings
+    const baseEarned = clickPower;
+    const comboBonus = Math.floor(baseEarned * (newMultiplier - 1));
+    const critBonus = isCritical ? baseEarned * 2 : 0;
+    const totalEarned = baseEarned + comboBonus + critBonus;
+
+    setMoney(m => m + totalEarned);
+    setTotalEarned(t => t + totalEarned);
+
+    // Visual feedback
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     const id = Date.now();
-    setClickEffects(prev => [...prev, { id, x, y, value: earned }]);
-    setTimeout(() => setClickEffects(prev => prev.filter(ef => ef.id !== id)), 1000);
-  }, [clickPower]);
+
+    setClickEffects(prev => [...prev, {
+      id,
+      x,
+      y,
+      value: totalEarned,
+      isCombo: newCombo >= 5,
+      isCritical,
+      comboLevel: newCombo
+    }]);
+    setTimeout(() => setClickEffects(prev => prev.filter(ef => ef.id !== id)), 1200);
+
+    // Combo milestone notifications
+    if (newCombo === 10) {
+      addNotification("COMBO x10! Keep clicking!", 'achievement');
+    } else if (newCombo === 25) {
+      addNotification("COMBO x25! You're on fire!", 'achievement');
+    } else if (newCombo === 50) {
+      addNotification("MAX COMBO x50! INCREDIBLE!", 'achievement');
+    }
+
+    if (isCritical) {
+      addNotification(`CRITICAL HIT! +$${totalEarned}`, 'profit');
+    }
+  }, [clickPower, comboCount, addNotification]);
 
   const buyCard = useCallback((card: MarketCard) => {
     const price = Math.round(card.currentPrice * discount * 100) / 100;
@@ -366,6 +439,10 @@ export function useGameState() {
     packStats,
     isOpeningPack,
     revealedCards,
+    // Combo system
+    comboCount,
+    comboMultiplier,
+    totalClicks,
 
     // Actions
     setView,

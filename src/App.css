@@ -551,6 +551,90 @@ body {
   font-weight: 700;
 }
 
+.jp-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.pack-badge + .jp-badge,
+.jp-badge:not(:first-child) {
+  left: auto;
+  right: 10px;
+}
+
+/* Collection Header */
+.collection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.collection-header h2 {
+  margin: 0;
+}
+
+/* Batch Controls */
+.batch-controls {
+  background: #f3f4f6;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.batch-selection {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.batch-count {
+  font-weight: 600;
+  color: #4b5563;
+}
+
+/* Select checkbox for batch mode */
+.select-checkbox {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  z-index: 10;
+}
+
+.select-checkbox.checked {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.collection-card.selected {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+.collection-card {
+  cursor: default;
+}
+
 .profit-badge {
   position: absolute;
   top: 10px;

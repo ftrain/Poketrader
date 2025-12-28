@@ -438,6 +438,43 @@ export function useGameState() {
     setCollection(prev => prev.filter(c => c.collectionId !== card.collectionId));
   }, [sellBonus, addNotification]);
 
+  const batchSellCards = useCallback((cards: CollectionCard[]) => {
+    if (cards.length === 0) return;
+
+    let totalSellPrice = 0;
+    let totalProfitAmount = 0;
+
+    cards.forEach(card => {
+      const sellPrice = Math.round(card.currentPrice * sellBonus * 100) / 100;
+      const profit = sellPrice - card.purchasePrice;
+      totalSellPrice += sellPrice;
+      totalProfitAmount += profit;
+    });
+
+    // Auto-pay debt from profits
+    setDebt((currentDebt: number) => {
+      if (currentDebt > 0 && totalProfitAmount > 0) {
+        const debtPayment = Math.min(currentDebt, totalProfitAmount * 0.2);
+        setMoney((m: number) => m + totalSellPrice - debtPayment);
+        if (debtPayment > 0 && currentDebt - debtPayment <= 0) {
+          addNotification("🎉 Debt fully repaid! You're free!", 'achievement');
+        }
+        return Math.max(0, currentDebt - debtPayment);
+      }
+      setMoney((m: number) => m + totalSellPrice);
+      return currentDebt;
+    });
+
+    setTotalEarned((t: number) => t + Math.max(0, totalProfitAmount));
+    setTotalProfit((p: number) => p + totalProfitAmount);
+    setTotalSold((s: number) => s + cards.length);
+
+    const cardIds = new Set(cards.map(c => c.collectionId));
+    setCollection(prev => prev.filter(c => !cardIds.has(c.collectionId)));
+
+    addNotification(`💰 Sold ${cards.length} cards for $${totalSellPrice.toFixed(2)}!`, 'sale');
+  }, [sellBonus, addNotification]);
+
   const buyUpgrade = useCallback((upgradeId: number) => {
     const upgrade = UPGRADES.find(u => u.id === upgradeId);
     if (!upgrade || money < upgrade.cost || upgrades.includes(upgrade.id)) return;
@@ -690,6 +727,7 @@ export function useGameState() {
     handleClick,
     buyCard,
     sellCard,
+    batchSellCards,
     buyUpgrade,
     openPack,
     closePackResults,

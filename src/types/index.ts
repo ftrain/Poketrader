@@ -12,6 +12,7 @@ export interface Card {
   shiny?: boolean;
   type: CardType;
   packExclusive?: boolean;
+  japanese?: boolean;
   hp: number;
   attack: number;
   defense: number;

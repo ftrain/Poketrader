@@ -367,6 +367,19 @@ export const CARD_DATABASE: Card[] = [
   { id: 162, name: "Crystal Lugia", rarity: "legendary", basePrice: 1400, img: "💎", spriteId: 249, shiny: true, type: getType(249), hp: 120, attack: 90, defense: 130 },
   { id: 163, name: "Shining Mewtwo", rarity: "legendary", basePrice: 900, img: "✨", spriteId: 150, shiny: true, type: getType(150), hp: 70, attack: 90, defense: 60 },
   { id: 164, name: "Gold Star Rayquaza", rarity: "legendary", basePrice: 1600, img: "⭐", spriteId: 384, shiny: true, type: getType(384), hp: 120, attack: 150, defense: 90 },
+
+  // === JAPANESE ORIGINALS ===
+  // Japanese exclusive cards and early Japanese prints
+  { id: 170, name: "JP Vending Pikachu", rarity: "rare", basePrice: 120, img: "🎰", spriteId: 25, japanese: true, type: getType(25), hp: 40, attack: 50, defense: 35 },
+  { id: 171, name: "JP Corocoro Mew", rarity: "ultra-rare", basePrice: 450, img: "📰", spriteId: 151, japanese: true, type: getType(151), hp: 100, attack: 100, defense: 100 },
+  { id: 172, name: "JP Base Set Charizard", rarity: "legendary", basePrice: 950, img: "🇯🇵", spriteId: 6, japanese: true, type: getType(6), hp: 120, attack: 100, defense: 80 },
+  { id: 173, name: "JP Masaki Gengar", rarity: "legendary", basePrice: 1100, img: "📧", spriteId: 94, japanese: true, type: getType(94), hp: 80, attack: 80, defense: 60 },
+  { id: 174, name: "JP Tamamushi Univ. Magikarp", rarity: "legendary", basePrice: 800, img: "🎓", spriteId: 129, japanese: true, type: getType(129), hp: 30, attack: 10, defense: 55 },
+  { id: 175, name: "JP Lucky Stadium Chansey", rarity: "rare", basePrice: 85, img: "🏟️", spriteId: 113, japanese: true, type: getType(113), hp: 250, attack: 5, defense: 5 },
+  { id: 176, name: "JP Web Series Holo Dragonite", rarity: "rare", basePrice: 95, img: "🌐", spriteId: 149, japanese: true, type: getType(149), hp: 91, attack: 134, defense: 95 },
+  { id: 177, name: "JP VS Series Karen's Umbreon", rarity: "ultra-rare", basePrice: 380, img: "⚔️", spriteId: 197, japanese: true, type: getType(197), hp: 80, attack: 65, defense: 110 },
+  { id: 178, name: "JP Shining Gyarados", rarity: "legendary", basePrice: 720, img: "✨", spriteId: 130, japanese: true, shiny: true, type: getType(130), hp: 100, attack: 130, defense: 80 },
+  { id: 179, name: "JP Promo Birthday Pikachu", rarity: "ultra-rare", basePrice: 520, img: "🎂", spriteId: 25, japanese: true, type: getType(25), hp: 50, attack: 55, defense: 40 },
 ];
 
 // Pack-exclusive cards (only from packs, not market)

@@ -151,6 +151,7 @@ export function App() {
           collection={game.collection}
           sellBonus={game.sellBonus}
           onSellCard={game.sellCard}
+          onBatchSell={game.batchSellCards}
         />
       )}
 

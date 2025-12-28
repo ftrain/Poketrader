@@ -20,6 +20,7 @@ import type { RuleEngineState } from './engine';
 import { formatMoney } from './utils';
 import './App.css';
 
+// PokeTrader v2.0 - Pokemon Trading Economics Simulator
 export function App() {
   const game = useGameState();
 

@@ -8,3 +8,5 @@ export { POKEMON_ADVISORS, getAdvisorForCategory, generatePokemonMessage } from 
 export type { PokemonAdvisor, MessageCategory } from './advisors';
 export { VERSION, RELEASE_NOTES } from './version';
 export type { ReleaseNote } from './version';
+export { getEventTips, getCollectionTips, getMarketTips, getStrategyTip } from './advisorTips';
+export type { AdvisorTip } from './advisorTips';

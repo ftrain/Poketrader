@@ -2747,3 +2747,79 @@ body {
 .collection-card.expanded {
   box-shadow: 0 0 0 3px #3b82f6;
 }
+
+/* Advisor Tips - Actionable Advice */
+.advisor-tip {
+  margin: 8px 16px;
+  padding: 12px;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border: 2px solid #334155;
+  border-radius: 12px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.advisor-tip.priority-high {
+  border-color: #dc2626;
+  background: linear-gradient(135deg, #1e293b, #450a0a);
+}
+
+.advisor-tip.priority-medium {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #1e293b, #451a03);
+}
+
+.advisor-tip.priority-low {
+  border-color: #3b82f6;
+}
+
+.advisor-tip-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.advisor-icon {
+  font-size: 20px;
+}
+
+.advisor-name {
+  font-weight: 700;
+  font-size: 13px;
+  color: #94a3b8;
+  flex: 1;
+}
+
+.advisor-dismiss {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: #475569;
+  color: #e2e8f0;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.advisor-dismiss:hover {
+  background: #64748b;
+}
+
+.advisor-message {
+  color: #e2e8f0;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.advisor-action {
+  padding: 8px 12px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+  color: #fbbf24;
+  font-weight: 700;
+  font-size: 13px;
+}

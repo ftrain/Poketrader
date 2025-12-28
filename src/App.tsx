@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react';
 import { useGameState } from './hooks';
 import {
   StatCard,
@@ -7,7 +8,8 @@ import {
   Notifications,
   LessonModal,
   StartupModal,
-  EnvelopeModal
+  EnvelopeModal,
+  AdvisorTip
 } from './components';
 import {
   MarketView,
@@ -22,11 +24,49 @@ import {
 } from './views';
 import type { RuleEngineState } from './engine';
 import { formatMoney } from './utils';
-import { VERSION } from './data';
+import {
+  VERSION,
+  getEventTips,
+  getCollectionTips,
+  getMarketTips,
+  getStrategyTip
+} from './data';
+import type { AdvisorTip as AdvisorTipType } from './data';
 import './App.css';
 
 export function App() {
   const game = useGameState();
+  const [dismissedTips, setDismissedTips] = useState<Set<string>>(new Set());
+
+  // Calculate current advisor tip
+  const currentTip = useMemo((): AdvisorTipType | null => {
+    // Priority order: event tips > collection tips > market tips > strategy tips
+    const eventTip = getEventTips(game.currentEvent);
+    if (eventTip && !dismissedTips.has(eventTip.id)) return eventTip;
+
+    const collectionTip = getCollectionTips(game.collection, game.money, game.currentEvent);
+    if (collectionTip && !dismissedTips.has(collectionTip.id)) return collectionTip;
+
+    const marketTip = getMarketTips(game.market, game.money, game.collection);
+    if (marketTip && !dismissedTips.has(marketTip.id)) return marketTip;
+
+    const strategyTip = getStrategyTip(game.totalSold, game.packsOpened);
+    if (strategyTip && !dismissedTips.has(strategyTip.id)) return strategyTip;
+
+    return null;
+  }, [game.currentEvent, game.collection, game.money, game.market, game.totalSold, game.packsOpened, dismissedTips]);
+
+  const dismissTip = (tipId: string) => {
+    setDismissedTips(prev => new Set([...prev, tipId]));
+    // Auto-clear dismissed tips after 60 seconds so they can reappear
+    setTimeout(() => {
+      setDismissedTips(prev => {
+        const next = new Set(prev);
+        next.delete(tipId);
+        return next;
+      });
+    }, 60000);
+  };
 
   // Show startup modal if no path chosen
   if (!game.starterPath) {
@@ -107,6 +147,14 @@ export function App() {
           event={game.currentEvent}
           timer={game.eventTimer}
           onClick={() => game.setShowLesson(game.currentEvent!.lesson)}
+        />
+      )}
+
+      {/* Advisor Tip - Actionable Advice */}
+      {currentTip && (
+        <AdvisorTip
+          tip={currentTip}
+          onDismiss={() => dismissTip(currentTip.id)}
         />
       )}
 

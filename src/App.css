@@ -136,6 +136,12 @@ body {
   color: #2d3436;
 }
 
+.stat-subtext {
+  font-size: 10px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
 /* Event Banner - Pokemon Alert */
 .event-banner {
   background: linear-gradient(135deg, #fff9e6 0%, #fff3cc 100%);

@@ -645,6 +645,9 @@ export function useGameState() {
     window.location.reload();
   }, []);
 
+  // Calculate total collection value
+  const collectionValue = collection.reduce((sum, card) => sum + card.currentPrice, 0);
+
   return {
     // State
     starterPath,
@@ -654,6 +657,7 @@ export function useGameState() {
     totalProfit,
     totalSold,
     collection,
+    collectionValue,
     market,
     upgrades,
     achievements,

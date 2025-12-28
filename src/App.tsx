@@ -86,7 +86,9 @@ export function App() {
         <StatCard
           icon="🃏"
           label="Collection"
-          value={`${game.collection.length}/${game.capacity}`}
+          value={formatMoney(game.collectionValue)}
+          subtext={`${game.capacity - game.collection.length} slots free`}
+          color="#9c27b0"
         />
         <StatCard
           icon="⚡"

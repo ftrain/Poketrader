@@ -4,3 +4,5 @@ export { UPGRADES } from './upgrades';
 export { ACHIEVEMENTS } from './achievements';
 export { MARKET_EVENTS } from './events';
 export { RARITY_COLORS, TYPE_COLORS } from './colors';
+export { POKEMON_ADVISORS, getAdvisorForCategory, generatePokemonMessage } from './advisors';
+export type { PokemonAdvisor, MessageCategory } from './advisors';

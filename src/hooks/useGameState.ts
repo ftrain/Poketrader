@@ -16,8 +16,10 @@ import {
   ALL_PULLABLE_CARDS,
   MARKET_EVENTS,
   UPGRADES,
-  ACHIEVEMENTS
+  ACHIEVEMENTS,
+  generatePokemonMessage
 } from '../data';
+import type { MessageCategory } from '../data';
 
 const RARE_PLUS: Rarity[] = ['rare', 'ultra-rare', 'secret-rare', 'legendary', 'chase'];
 const ULTRA_RARE_PLUS: Rarity[] = ['ultra-rare', 'secret-rare', 'legendary', 'chase'];
@@ -70,10 +72,19 @@ export function useGameState() {
     return Math.max(1, Math.round(price * 100) / 100);
   }, []);
 
-  const addNotification = useCallback((message: string) => {
+  const addNotification = useCallback((message: string, category?: MessageCategory) => {
     const id = Date.now();
-    setNotifications(prev => [...prev, { id, message }]);
-    setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== id)), 3000);
+    if (category) {
+      const { advisor, message: pokemonMessage } = generatePokemonMessage(message, category);
+      setNotifications(prev => [...prev, {
+        id,
+        message: pokemonMessage,
+        advisor: { name: advisor.name, spriteId: advisor.spriteId, color: advisor.color }
+      }]);
+    } else {
+      setNotifications(prev => [...prev, { id, message }]);
+    }
+    setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== id)), 4000);
   }, []);
 
   const refreshMarket = useCallback(() => {
@@ -134,7 +145,7 @@ export function useGameState() {
         const event = MARKET_EVENTS[Math.floor(Math.random() * MARKET_EVENTS.length)];
         setCurrentEvent(event);
         setEventTimer(event.duration);
-        addNotification(`📢 ${event.title}`);
+        addNotification(`${event.title}`, 'event');
       }
     }, 1000);
 
@@ -165,7 +176,7 @@ export function useGameState() {
           // marketSpeed and priceInsight are handled in UI
         }
 
-        addNotification(`🏆 Achievement: ${ach.name}! ${ach.benefit}`);
+        addNotification(`Achievement: ${ach.name}! ${ach.benefit}`, 'achievement');
       }
     });
   }, [money, collection, totalSold, totalProfit, longestHold, packsOpened, packStats, achievements, addNotification]);
@@ -193,7 +204,7 @@ export function useGameState() {
         holdTime: 0,
         collectionId: Date.now() + Math.random()
       }]);
-      addNotification(`Bought ${card.name} for $${price.toFixed(2)}`);
+      addNotification(`Bought ${card.name} for $${price.toFixed(2)}`, 'purchase');
     }
   }, [money, collection.length, capacity, discount, gameTime, addNotification]);
 
@@ -205,7 +216,7 @@ export function useGameState() {
     setTotalProfit(p => p + profit);
     setTotalSold(s => s + 1);
     setCollection(prev => prev.filter(c => c.collectionId !== card.collectionId));
-    addNotification(`Sold ${card.name} for $${sellPrice.toFixed(2)} (${profit >= 0 ? '+' : ''}$${profit.toFixed(2)})`);
+    addNotification(`Sold ${card.name} for $${sellPrice.toFixed(2)} (${profit >= 0 ? '+' : ''}$${profit.toFixed(2)})`, profit >= 0 ? 'profit' : 'loss');
   }, [sellBonus, addNotification]);
 
   const buyUpgrade = useCallback((upgradeId: number) => {
@@ -223,7 +234,7 @@ export function useGameState() {
       case 'capacity': setCapacity(c => c + upgrade.value); break;
     }
     setShowLesson(upgrade.lesson);
-    addNotification(`Purchased: ${upgrade.name}`);
+    addNotification(`Purchased upgrade: ${upgrade.name}`, 'upgrade');
   }, [money, upgrades, addNotification]);
 
   const pullCardFromPack = useCallback((packType: PackType): Card => {
@@ -250,7 +261,7 @@ export function useGameState() {
   const openPack = useCallback((packType: PackType) => {
     if (money < packType.price) return;
     if (collection.length >= capacity) {
-      addNotification("📦 Storage full! Sell some cards first.");
+      addNotification("Storage full! Sell some cards first.", 'warning');
       return;
     }
 
@@ -312,12 +323,12 @@ export function useGameState() {
       setCollection(prev => [...prev, ...cardsToAdd]);
 
       if (cardsToAdd.length < pulledCards.length) {
-        addNotification(`⚠️ Only ${cardsToAdd.length}/${pulledCards.length} cards added - storage full!`);
+        addNotification(`Only ${cardsToAdd.length}/${pulledCards.length} cards added - storage full!`, 'warning');
       }
 
       pulledCards
         .filter(c => ['secret-rare', 'legendary', 'chase'].includes(c.rarity))
-        .forEach(c => addNotification(`🌟 Amazing pull: ${c.name}!`));
+        .forEach(c => addNotification(`Amazing pull: ${c.name}!`, 'pack'));
     }, pulledCards.length * 400 + 500);
   }, [money, collection.length, capacity, gameTime, calculatePrice, pullCardFromPack, addNotification]);
 

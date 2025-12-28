@@ -13,8 +13,10 @@ import {
   CollectionView,
   UpgradesView,
   LessonsView,
-  PackOpeningModal
+  PackOpeningModal,
+  RulesView
 } from './views';
+import type { RuleEngineState } from './engine';
 import { formatMoney } from './utils';
 import './App.css';
 
@@ -114,6 +116,30 @@ export function App() {
 
       {game.view === 'lessons' && (
         <LessonsView unlockedAchievements={game.achievements} />
+      )}
+
+      {game.view === 'rules' && (
+        <RulesView
+          gameState={{
+            money: game.money,
+            collection: game.collection,
+            totalSold: game.totalSold,
+            totalProfit: game.totalProfit,
+            longestHold: game.longestHold,
+            packsOpened: game.packsOpened,
+            packStats: game.packStats,
+            market: game.market,
+            currentEvent: game.currentEvent,
+            eventTimer: game.eventTimer,
+            gameTime: game.gameTime,
+            upgrades: game.upgrades,
+            clickPower: game.clickPower,
+            passiveIncome: game.passiveIncome,
+            discount: game.discount,
+            sellBonus: game.sellBonus,
+            capacity: game.capacity
+          } as RuleEngineState}
+        />
       )}
 
       {/* Pack Opening Modal */}

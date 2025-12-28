@@ -97,6 +97,11 @@ export interface PackStats {
 export interface Notification {
   id: number;
   message: string;
+  advisor?: {
+    name: string;
+    spriteId: number;
+    color: string;
+  };
 }
 
 export interface ClickEffect {
@@ -106,4 +111,4 @@ export interface ClickEffect {
   value: number;
 }
 
-export type ViewType = 'market' | 'packs' | 'collection' | 'upgrades' | 'lessons';
+export type ViewType = 'market' | 'packs' | 'collection' | 'upgrades' | 'lessons' | 'rules';

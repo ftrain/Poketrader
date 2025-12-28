@@ -1,4 +1,6 @@
-/* Base Styles */
+/* Pokemon Terminal Theme */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -6,14 +8,56 @@
 }
 
 body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: 'VT323', monospace;
+  font-size: 18px;
 }
 
 .app {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  color: #fff;
+  background: #0a0a12;
+  color: #00ff88;
   padding: 16px;
+  position: relative;
+}
+
+/* CRT Scanline Effect */
+.app::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15) 0px,
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  z-index: 9999;
+}
+
+/* Terminal Header */
+.app::after {
+  content: '[ POKE-TERMINAL v2.0 ] -- POKEMON TRADING ECONOMICS SYSTEM';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(90deg, #1a3a1a, #0d2010);
+  border-bottom: 2px solid #00ff88;
+  padding: 8px 16px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+  color: #00ff88;
+  z-index: 1000;
+  text-shadow: 0 0 10px #00ff88;
+}
+
+.app {
+  padding-top: 50px;
 }
 
 /* Animations */
@@ -37,70 +81,76 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Slower, more subtle holographic effects */
-@keyframes holoShine {
-  0% { background-position: 0% 50%; opacity: 0.3; }
-  25% { opacity: 0.5; }
-  50% { background-position: 100% 50%; opacity: 0.4; }
-  75% { opacity: 0.6; }
-  100% { background-position: 0% 50%; opacity: 0.3; }
+/* Terminal blink effect */
+@keyframes terminalBlink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.8; }
 }
 
-@keyframes holoSparkle {
-  0%, 100% { opacity: 0.2; }
-  50% { opacity: 0.5; }
-}
-
-@keyframes holoShimmer {
-  0% { transform: translateX(-100%) rotate(25deg); }
-  100% { transform: translateX(200%) rotate(25deg); }
-}
-
-@keyframes subtleFloat {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-2px) scale(1.005); }
-}
-
-/* Stats Grid */
+/* Stats Grid - Terminal Style */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
   margin-bottom: 16px;
 }
 
 .stats-grid.compact {
-  padding: 16px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 12px;
+  padding: 12px;
+  background: rgba(0, 255, 136, 0.05);
+  border: 1px solid #00ff88;
   margin-bottom: 20px;
 }
 
 .stat-card {
-  background: rgba(255,255,255,0.1);
-  border-radius: 12px;
+  background: rgba(0, 20, 10, 0.8);
+  border: 1px solid #00ff88;
   padding: 12px;
   text-align: center;
+  position: relative;
+}
+
+.stat-card::before {
+  content: '>';
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #00ff88;
+  animation: terminalBlink 1s infinite;
 }
 
 .stat-label {
-  font-size: 12px;
-  opacity: 0.7;
+  font-size: 14px;
+  color: #00aa66;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .stat-value {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: bold;
+  color: #00ff88;
+  text-shadow: 0 0 10px #00ff88;
 }
 
-/* Event Banner */
+/* Event Banner - Terminal Alert */
 .event-banner {
-  background: linear-gradient(90deg, #ff6b6b, #ffd93d);
-  border-radius: 12px;
+  background: rgba(255, 100, 100, 0.1);
+  border: 2px solid #ff6b6b;
   padding: 12px;
   margin-bottom: 16px;
   cursor: pointer;
   animation: pulse 2s infinite;
+}
+
+.event-banner::before {
+  content: '! MARKET ALERT !';
+  display: block;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 8px;
+  color: #ff6b6b;
+  margin-bottom: 4px;
 }
 
 .event-content {
@@ -111,28 +161,38 @@ body {
 
 .event-title {
   font-weight: bold;
-  color: #1a1a2e;
+  color: #ffaa00;
+  text-shadow: 0 0 8px #ffaa00;
 }
 
 .event-timer {
-  background: rgba(0,0,0,0.3);
+  background: rgba(255, 100, 100, 0.3);
+  border: 1px solid #ff6b6b;
   padding: 4px 12px;
-  border-radius: 20px;
-  color: #fff;
-  font-size: 14px;
+  color: #ff6b6b;
+  font-size: 16px;
+  font-family: 'VT323', monospace;
 }
 
-/* Clicker Button */
+/* Clicker Button - Terminal Command */
 .clicker-button {
   position: relative;
-  background: linear-gradient(145deg, #ffd700, #ff8c00);
-  border-radius: 20px;
-  padding: 24px;
+  background: rgba(255, 200, 0, 0.1);
+  border: 2px solid #ffd700;
+  padding: 20px;
   text-align: center;
   cursor: pointer;
   margin-bottom: 16px;
-  box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
   user-select: none;
+}
+
+.clicker-button::before {
+  content: '$ ./earn_pokebucks.sh';
+  display: block;
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 8px;
 }
 
 .clicker-icon {
@@ -140,51 +200,63 @@ body {
 }
 
 .clicker-text {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: bold;
-  color: #1a1a2e;
+  color: #ffd700;
+  text-shadow: 0 0 10px #ffd700;
 }
 
 .clicker-subtext {
-  font-size: 14px;
-  color: #333;
+  font-size: 16px;
+  color: #aa8800;
 }
 
 .click-effect {
   position: absolute;
-  color: #fff;
+  color: #ffd700;
   font-weight: bold;
-  font-size: 20px;
+  font-size: 24px;
   pointer-events: none;
   animation: floatUp 1s ease-out forwards;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  text-shadow: 0 0 10px #ffd700;
 }
 
-/* Navigation */
+/* Navigation - Terminal Tabs */
 .navigation {
   display: flex;
-  gap: 8px;
+  gap: 4px;
   margin-bottom: 16px;
   flex-wrap: wrap;
+  border-bottom: 1px solid #00ff88;
+  padding-bottom: 8px;
 }
 
 .nav-button {
   flex: 1;
   min-width: 80px;
-  padding: 12px 16px;
-  border: none;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.1);
-  color: #fff;
+  padding: 10px 12px;
+  border: 1px solid #00aa66;
+  background: rgba(0, 20, 10, 0.5);
+  color: #00aa66;
   cursor: pointer;
   font-weight: normal;
-  font-size: 14px;
+  font-size: 16px;
+  font-family: 'VT323', monospace;
   transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.nav-button:hover {
+  background: rgba(0, 255, 136, 0.1);
+  color: #00ff88;
 }
 
 .nav-button.active {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: rgba(0, 255, 136, 0.2);
+  border-color: #00ff88;
+  color: #00ff88;
   font-weight: bold;
+  text-shadow: 0 0 8px #00ff88;
 }
 
 /* Views */
@@ -216,89 +288,18 @@ body {
   gap: 12px;
 }
 
-/* Card Display - Pokemon Card Style */
+/* Card Display - Terminal Pokemon Card Style */
 .card-display {
-  border-radius: 16px;
+  border: 1px solid;
   padding: 16px;
   position: relative;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  overflow: hidden;
-}
-
-.card-display::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 16px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Holographic effect for rare+ cards - slower and more varied */
-.card-display.holo::before {
-  background: linear-gradient(
-    115deg,
-    transparent 20%,
-    rgba(255, 255, 255, 0.1) 40%,
-    rgba(255, 220, 100, 0.15) 45%,
-    rgba(255, 180, 255, 0.1) 50%,
-    rgba(100, 220, 255, 0.15) 55%,
-    rgba(255, 255, 255, 0.1) 60%,
-    transparent 80%
-  );
-  background-size: 300% 100%;
-  animation: holoShine 8s ease-in-out infinite;
-  animation-delay: var(--shimmer-delay, 0s);
-  opacity: 0.4;
-}
-
-.card-display.holo.rarity-rare::before {
-  animation-duration: 10s;
-}
-
-.card-display.holo.rarity-ultra-rare::before {
-  animation-duration: 7s;
-  background: linear-gradient(
-    115deg,
-    transparent 15%,
-    rgba(255, 255, 255, 0.15) 35%,
-    rgba(255, 200, 100, 0.2) 42%,
-    rgba(255, 150, 255, 0.15) 50%,
-    rgba(100, 200, 255, 0.2) 58%,
-    rgba(255, 255, 255, 0.15) 65%,
-    transparent 85%
-  );
-}
-
-.card-display.holo.rarity-secret-rare::before,
-.card-display.holo.rarity-legendary::before,
-.card-display.holo.rarity-chase::before {
-  animation-duration: 5s;
-  background: linear-gradient(
-    115deg,
-    transparent 10%,
-    rgba(255, 215, 0, 0.25) 25%,
-    rgba(255, 255, 255, 0.2) 35%,
-    rgba(255, 100, 200, 0.25) 45%,
-    rgba(100, 255, 255, 0.2) 55%,
-    rgba(200, 100, 255, 0.25) 65%,
-    rgba(255, 215, 0, 0.2) 75%,
-    transparent 95%
-  );
+  background: rgba(0, 20, 10, 0.8) !important;
+  transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .card-display:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-}
-
-.card-display:hover::before {
-  opacity: 1;
+  transform: translateY(-2px);
+  border-color: #00ff88 !important;
 }
 
 .card-rarity-badge {
@@ -336,50 +337,18 @@ body {
   color: #4caf50;
 }
 
-/* Collection Card */
+/* Collection Card - Terminal Style */
 .collection-card {
-  border-radius: 16px;
+  border: 1px solid;
   padding: 16px;
   position: relative;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  overflow: hidden;
-}
-
-.collection-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 16px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.collection-card.holo::before {
-  background: linear-gradient(
-    125deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.3) 45%,
-    rgba(255, 255, 255, 0) 50%,
-    rgba(255, 255, 255, 0.3) 95%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  background-size: 200% 200%;
-  animation: holoShine 3s ease-in-out infinite;
-  opacity: 0.5;
+  background: rgba(0, 20, 10, 0.8);
+  transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .collection-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-}
-
-.collection-card:hover::before {
-  opacity: 1;
+  transform: translateY(-2px);
+  border-color: #00ff88;
 }
 
 .pack-badge {
@@ -430,18 +399,33 @@ body {
   text-align: right;
 }
 
-/* Buttons */
+/* Buttons - Terminal Style */
 .game-button {
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  color: #fff;
+  padding: 10px 16px;
+  border: 1px solid #00ff88;
+  background: rgba(0, 255, 136, 0.1);
+  color: #00ff88;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 16px;
+  font-family: 'VT323', monospace;
   transition: all 0.2s;
+  cursor: pointer;
+  text-transform: uppercase;
 }
 
-/* Pack Grid */
+.game-button:hover {
+  background: rgba(0, 255, 136, 0.2);
+  text-shadow: 0 0 8px #00ff88;
+}
+
+.game-button:disabled {
+  border-color: #444;
+  color: #444;
+  background: rgba(40, 40, 40, 0.3);
+  cursor: not-allowed;
+}
+
+/* Pack Grid - Terminal Style */
 .pack-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -449,8 +433,9 @@ body {
 }
 
 .pack-card {
-  border-radius: 16px;
+  border: 1px solid;
   padding: 20px;
+  background: rgba(0, 20, 10, 0.8);
 }
 
 .pack-img {
@@ -500,7 +485,7 @@ body {
   border-radius: 8px;
 }
 
-/* Upgrade Grid */
+/* Upgrade Grid - Terminal Style */
 .upgrade-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -508,14 +493,23 @@ body {
 }
 
 .upgrade-card {
-  background: rgba(255,255,255,0.05);
-  border-radius: 16px;
+  background: rgba(0, 20, 10, 0.8);
+  border: 1px solid #00aa66;
   padding: 16px;
 }
 
 .upgrade-card.owned {
-  background: linear-gradient(145deg, #4caf5033, #2e7d3233);
+  background: rgba(0, 60, 30, 0.5);
+  border-color: #00ff88;
   opacity: 0.7;
+}
+
+.upgrade-card.owned::before {
+  content: '[ INSTALLED ]';
+  display: block;
+  font-size: 10px;
+  color: #00ff88;
+  margin-bottom: 8px;
 }
 
 .upgrade-header {
@@ -540,7 +534,7 @@ body {
   font-weight: bold;
 }
 
-/* Achievement Grid */
+/* Achievement Grid - Terminal Style */
 .achievement-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -548,17 +542,24 @@ body {
 }
 
 .achievement-card {
-  background: rgba(255,255,255,0.05);
-  border: 2px solid #333;
-  border-radius: 12px;
+  background: rgba(0, 20, 10, 0.8);
+  border: 1px solid #333;
   padding: 12px;
   opacity: 0.5;
 }
 
 .achievement-card.unlocked {
-  background: linear-gradient(145deg, #ffd70033, #ff8c0033);
+  background: rgba(60, 40, 0, 0.5);
   border-color: #ffd700;
   opacity: 1;
+}
+
+.achievement-card.unlocked::before {
+  content: '[ UNLOCKED ]';
+  display: block;
+  font-size: 8px;
+  color: #ffd700;
+  margin-bottom: 4px;
 }
 
 .achievement-icon {
@@ -568,17 +569,23 @@ body {
 .achievement-name {
   font-weight: bold;
   margin-top: 4px;
+  color: #ffcc00;
 }
 
 .achievement-description {
-  font-size: 12px;
+  font-size: 14px;
   opacity: 0.7;
+  color: #aaa;
 }
 
 .achievement-reward {
-  font-size: 12px;
-  color: #ffd700;
-  margin-top: 4px;
+  font-size: 14px;
+  color: #00ff88;
+  margin-top: 8px;
+  padding: 4px 8px;
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid #00aa66;
+  display: inline-block;
 }
 
 /* Concepts Grid */
@@ -616,14 +623,14 @@ body {
   font-size: 48px;
 }
 
-/* Modals */
+/* Modals - Terminal Style */
 .modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0, 10, 5, 0.95);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -633,15 +640,22 @@ body {
 
 .modal-backdrop.pack-opening {
   flex-direction: column;
-  background: rgba(0,0,0,0.9);
 }
 
 .modal-content {
-  background: linear-gradient(145deg, #1a1a2e, #16213e);
-  border-radius: 20px;
+  background: rgba(0, 20, 10, 0.95);
+  border: 2px solid #00ff88;
   padding: 24px;
   max-width: 500px;
-  border: 2px solid #667eea;
+}
+
+.modal-content::before {
+  content: '[ SYSTEM MESSAGE ]';
+  display: block;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+  color: #00ff88;
+  margin-bottom: 16px;
 }
 
 .modal-icon {
@@ -651,12 +665,15 @@ body {
 
 .modal-title {
   margin: 0 0 16px 0;
-  color: #ffd700;
+  color: #ffcc00;
+  font-family: 'VT323', monospace;
+  font-size: 28px;
 }
 
 .lesson-text {
-  line-height: 1.6;
-  font-size: 15px;
+  line-height: 1.8;
+  font-size: 18px;
+  color: #00ff88;
 }
 
 /* Pack Opening Modal */
@@ -740,7 +757,7 @@ body {
   color: #4caf50;
 }
 
-/* Notifications */
+/* Notifications - Terminal Pokemon Messages */
 .notifications-container {
   position: fixed;
   bottom: 16px;
@@ -752,54 +769,201 @@ body {
 }
 
 .notification {
-  background: rgba(0,0,0,0.9);
+  background: rgba(0, 20, 10, 0.95);
+  border: 1px solid #00ff88;
   padding: 12px 16px;
-  border-radius: 8px;
   animation: slideIn 0.3s ease-out;
-  max-width: 300px;
+  max-width: 350px;
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  color: #00ff88;
+  position: relative;
 }
 
-/* Sprite Styles */
+.notification::before {
+  content: '>';
+  margin-right: 8px;
+  animation: terminalBlink 0.5s infinite;
+}
+
+.notification.pokemon-voice {
+  border-color: #ffcc00;
+  color: #ffcc00;
+}
+
+.notification .pokemon-speaker {
+  font-weight: bold;
+  color: #ff6b6b;
+  display: block;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.notification .pokemon-message {
+  font-style: italic;
+}
+
+.pokemon-advisor-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.advisor-sprite {
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+}
+
+/* Sprite Styles - 2x Size */
 .card-sprite {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-bottom: 8px;
-  height: 96px;
+  height: 192px;
 }
 
 .card-sprite img.sprite {
-  width: 96px;
-  height: 96px;
+  width: 192px;
+  height: 192px;
   image-rendering: pixelated;
-  filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.4));
+  filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.3));
 }
 
 .card-sprite img.sprite.shiny {
-  filter: drop-shadow(0 0 8px gold) drop-shadow(2px 2px 4px rgba(0,0,0,0.4));
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0%, 100% { filter: drop-shadow(0 0 8px gold) drop-shadow(2px 2px 4px rgba(0,0,0,0.4)); }
-  50% { filter: drop-shadow(0 0 16px gold) drop-shadow(2px 2px 4px rgba(0,0,0,0.4)); }
+  filter: drop-shadow(0 0 12px gold);
 }
 
 .reveal-sprite {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 64px;
+  height: 128px;
   margin-bottom: 4px;
 }
 
 .reveal-sprite img.sprite-small {
-  width: 64px;
-  height: 64px;
+  width: 128px;
+  height: 128px;
   image-rendering: pixelated;
 }
 
 .reveal-sprite img.sprite-small.shiny {
-  filter: drop-shadow(0 0 6px gold);
-  animation: shimmer 2s infinite;
+  filter: drop-shadow(0 0 8px gold);
+}
+
+/* Rules Engine View */
+.rules-status {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 12px;
+  border: 1px solid #00ff88;
+  background: rgba(0, 20, 10, 0.8);
+}
+
+.rules-status-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.rules-status-item.active .status-value {
+  color: #ffd700;
+  text-shadow: 0 0 8px #ffd700;
+}
+
+.status-label {
+  color: #888;
+  font-size: 14px;
+}
+
+.status-value {
+  color: #00ff88;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.rules-category {
+  margin-bottom: 24px;
+}
+
+.category-header {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 12px;
+  padding: 8px 0;
+  border-bottom: 2px solid;
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+.rule-card {
+  background: rgba(0, 20, 10, 0.8);
+  border: 1px solid #333;
+  padding: 12px;
+  transition: all 0.2s ease;
+}
+
+.rule-card.active {
+  background: rgba(0, 40, 20, 0.9);
+}
+
+.rule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.rule-name {
+  font-weight: bold;
+  font-size: 16px;
+  color: #fff;
+}
+
+.rule-priority {
+  font-size: 12px;
+  font-family: 'VT323', monospace;
+}
+
+.rule-description {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+.rule-details {
+  font-size: 13px;
+}
+
+.rule-condition,
+.rule-effect {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.detail-label {
+  color: #00aa66;
+  font-weight: bold;
+  min-width: 40px;
+}
+
+.detail-value {
+  color: #ccc;
+}
+
+.rule-active-indicator {
+  margin-top: 8px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 8px;
+  animation: terminalBlink 1s infinite;
 }

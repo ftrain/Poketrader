@@ -1107,12 +1107,16 @@ body {
 /* Startup Modal - Path Selection */
 .startup-modal {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  overflow-y: auto;
+  align-items: flex-start;
+  padding: 20px;
 }
 
 .startup-content {
   max-width: 800px;
   text-align: center;
   padding: 24px;
+  margin: auto;
 }
 
 .startup-title {

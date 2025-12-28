@@ -54,7 +54,22 @@ export interface MarketEvent {
   lesson: string;
 }
 
-export type UpgradeEffect = 'clickPower' | 'discount' | 'passive' | 'sellBonus' | 'capacity';
+export type UpgradeEffect =
+  | 'clickPower'      // Multiply click earnings
+  | 'discount'        // Reduce purchase prices
+  | 'passive'         // Add passive income per second
+  | 'sellBonus'       // Increase sell prices
+  | 'capacity'        // Add collection slots
+  | 'marketSize'      // More cards in market
+  | 'packDiscount'    // Discount on pack purchases
+  | 'critChance'      // Increase critical hit chance
+  | 'comboDecay'      // Slower combo decay (more time between clicks)
+  | 'bulkBonus'       // Bonus when buying/selling multiple
+  | 'eventDuration'   // Market events last longer
+  | 'refreshDiscount' // Cheaper market refreshes
+  | 'rareChance';     // Better odds in packs
+
+export type UpgradeCategory = 'basics' | 'grading' | 'retail' | 'media' | 'events' | 'wholesale' | 'empire';
 
 export interface Upgrade {
   id: number;
@@ -64,6 +79,9 @@ export interface Upgrade {
   value: number;
   description: string;
   lesson: string;
+  category: UpgradeCategory;
+  icon: string;
+  requires?: number[];  // IDs of required upgrades
 }
 
 export type AchievementEffect = 'capacity' | 'marketSpeed' | 'discount' | 'sellBonus' | 'clickPower' | 'priceInsight';

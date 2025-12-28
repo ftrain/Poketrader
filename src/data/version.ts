@@ -1,4 +1,4 @@
-export const VERSION = '3.0.0';
+export const VERSION = '3.1.0';
 
 export interface ReleaseNote {
   version: string;
@@ -8,19 +8,27 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '3.1.0',
+    date: '2025-12-28',
+    changes: [
+      'MAJOR: 35+ business upgrades across 7 categories (Basics → Empire)',
+      'Build your card empire: stores, expos, streaming, wholesale, franchises',
+      'Upgrade prerequisites create meaningful progression paths',
+      'New mechanics: market size, pack discounts, crit bonuses, event duration',
+      'Compact UI: smaller header, tighter grids, less intrusive notifications',
+      'Removed buy/sell popups for smoother gameplay',
+      'Fixed achievement card visibility (no more transparency)'
+    ]
+  },
+  {
     version: '3.0.0',
     date: '2025-12-28',
     changes: [
-      'MAJOR: Classic Pokemon theme with warm cream colors and Pokédex red header',
-      'MAJOR: Click combo system with up to 50x multiplier and critical hits',
-      'MAJOR: Realistic pack economics - packs are now unprofitable (like real TCG)',
+      'Classic Pokemon theme with warm cream colors and Pokédex red header',
+      'Click combo system with up to 50x multiplier and critical hits',
+      'Realistic pack economics - packs are now unprofitable (like real TCG)',
       'Added 15+ Pokemon lore rules (evolution chains, legendary trios, etc.)',
-      'Added evolution chain tracking data for all Pokemon families',
-      'Pokéball-shaped clicker button with satisfying visual feedback',
-      'Combo progress bar and tier system (low → medium → high → max)',
-      'Critical hit chance increases with combo level (5-15%)',
-      'Fixed card prices for realistic house edge on packs',
-      'Dragon type corner now properly documented (2 cards due to rarity)'
+      'Pokéball-shaped clicker button with satisfying visual feedback'
     ]
   },
   {

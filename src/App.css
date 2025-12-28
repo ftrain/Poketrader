@@ -20,27 +20,26 @@ body {
   padding: 0;
 }
 
-/* Pokemon Header - Pokédex Red */
+/* Pokemon Header - Compact Pokédex Red */
 .terminal-header {
   background: linear-gradient(135deg, #e53935 0%, #c62828 100%);
-  padding: 16px 20px;
+  padding: 8px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 .terminal-title {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 800;
   color: #fff;
-  text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
-  letter-spacing: 1px;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
 }
 
 .terminal-subtitle {
-  font-size: 14px;
-  color: rgba(255,255,255,0.85);
+  font-size: 12px;
+  color: rgba(255,255,255,0.9);
   font-weight: 600;
 }
 
@@ -81,12 +80,12 @@ body {
   100% { background-position: 200% center; }
 }
 
-/* Stats Grid - Pokemon Card Style */
+/* Stats Grid - Compact */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-  margin: 16px 0;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 8px 0;
 }
 
 .stats-grid.compact {
@@ -99,30 +98,23 @@ body {
 
 .stat-card {
   background: #fff;
-  border-radius: 12px;
-  padding: 14px;
+  border-radius: 8px;
+  padding: 8px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   border: 2px solid #f0ebe0;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .stat-label {
-  font-size: 11px;
+  font-size: 10px;
   color: #636e72;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
   font-weight: 700;
-  margin-bottom: 4px;
 }
 
 .stat-value {
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 800;
   color: #2d3436;
 }
@@ -178,30 +170,30 @@ body {
 .clicker-button {
   position: relative;
   background: linear-gradient(180deg, #fff 0%, #fff 48%, #2d3436 48%, #2d3436 52%, #e53935 52%, #e53935 100%);
-  border: 4px solid #2d3436;
+  border: 3px solid #2d3436;
   border-radius: 50%;
-  width: 160px;
-  height: 160px;
-  margin: 20px auto;
+  width: 100px;
+  height: 100px;
+  margin: 12px auto;
   cursor: pointer;
   user-select: none;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2), inset 0 -4px 0 rgba(0,0,0,0.1);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
   transition: transform 0.1s, box-shadow 0.1s;
 }
 
 .clicker-button::before {
   content: '';
   position: absolute;
-  width: 40px;
-  height: 40px;
+  width: 24px;
+  height: 24px;
   background: #fff;
-  border: 4px solid #2d3436;
+  border: 3px solid #2d3436;
   border-radius: 50%;
-  box-shadow: 0 0 0 8px #fff, 0 0 0 12px #2d3436;
+  box-shadow: 0 0 0 5px #fff, 0 0 0 8px #2d3436;
 }
 
 .clicker-button:hover {
@@ -263,16 +255,16 @@ body {
 /* Combo Display */
 .combo-display {
   position: absolute;
-  top: -50px;
+  top: -35px;
   left: 50%;
   transform: translateX(-50%);
   background: linear-gradient(135deg, #ff6b35 0%, #e53935 100%);
-  padding: 8px 16px;
-  border-radius: 20px;
+  padding: 4px 10px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.4);
+  gap: 4px;
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.4);
   animation: comboPulse 0.5s ease-out;
   z-index: 50;
 }
@@ -306,38 +298,38 @@ body {
 }
 
 .combo-count {
-  font-size: 24px;
+  font-size: 16px;
   font-weight: 800;
   color: #fff;
-  text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
 }
 
 .combo-label {
-  font-size: 12px;
+  font-size: 9px;
   font-weight: 800;
   color: rgba(255,255,255,0.9);
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 .combo-bonus {
-  font-size: 14px;
+  font-size: 10px;
   font-weight: 800;
   color: #fff;
   background: rgba(0,0,0,0.2);
-  padding: 2px 8px;
-  border-radius: 10px;
+  padding: 1px 5px;
+  border-radius: 6px;
 }
 
 /* Combo Progress Bar */
 .combo-bar {
   position: absolute;
-  bottom: -20px;
+  bottom: -12px;
   left: 50%;
   transform: translateX(-50%);
-  width: 120px;
-  height: 6px;
+  width: 80px;
+  height: 4px;
   background: rgba(0,0,0,0.2);
-  border-radius: 3px;
+  border-radius: 2px;
   overflow: hidden;
 }
 
@@ -449,8 +441,8 @@ body {
 /* Card Grid */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
 }
 
 /* Card Display - Pokemon Card Style */
@@ -683,63 +675,99 @@ body {
   border-left: 4px solid #ffc107;
 }
 
+/* Upgrade Categories */
+.upgrade-category {
+  margin-bottom: 20px;
+}
+
+.upgrade-category .category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 8px 12px;
+  background: #fff;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  border-left: 4px solid;
+}
+
+.category-progress {
+  font-size: 12px;
+  color: #636e72;
+  font-weight: 600;
+}
+
 /* Upgrade Grid */
 .upgrade-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+.upgrade-grid.compact {
+  gap: 8px;
 }
 
 .upgrade-card {
   background: #fff;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  border: 3px solid #e8e0d0;
-  transition: transform 0.2s;
-}
-
-.upgrade-card:hover {
-  transform: translateY(-2px);
+  border-radius: 10px;
+  padding: 12px;
+  border: 2px solid #e8e0d0;
 }
 
 .upgrade-card.owned {
-  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  background: #ecfdf5;
   border-color: #10b981;
 }
 
-.upgrade-card.owned::before {
-  content: '✓ OWNED';
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 800;
-  color: #10b981;
-  margin-bottom: 8px;
-  letter-spacing: 0.5px;
+.upgrade-card.locked {
+  background: #f9fafb;
+  border-color: #d1d5db;
 }
 
 .upgrade-header {
   display: flex;
-  justify-content: space-between;
+  gap: 10px;
   align-items: flex-start;
+}
+
+.upgrade-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.upgrade-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .upgrade-name {
   font-weight: 700;
-  font-size: 16px;
+  font-size: 14px;
   color: #2d3436;
 }
 
 .upgrade-description {
-  font-size: 13px;
+  font-size: 12px;
   color: #636e72;
-  margin-top: 6px;
+  margin-top: 2px;
 }
 
 .upgrade-cost {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 800;
-  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.upgrade-requires {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 8px;
+  padding: 6px 8px;
+  background: #f3f4f6;
+  border-radius: 6px;
 }
 
 /* Achievement Grid */
@@ -750,20 +778,16 @@ body {
 }
 
 .achievement-card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 14px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  border: 3px solid #e8e0d0;
-  opacity: 0.5;
-  transition: all 0.3s;
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 12px;
+  border: 2px solid #d1d5db;
 }
 
 .achievement-card.unlocked {
   background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
   border-color: #fbbf24;
-  opacity: 1;
-  box-shadow: 0 4px 16px rgba(251, 191, 36, 0.2);
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);
 }
 
 .achievement-card.unlocked::before {
@@ -1301,32 +1325,40 @@ body {
 /* Responsive */
 @media (max-width: 600px) {
   .clicker-button {
-    width: 140px;
-    height: 140px;
+    width: 80px;
+    height: 80px;
   }
 
   .clicker-button::before {
-    width: 32px;
-    height: 32px;
-    box-shadow: 0 0 0 6px #fff, 0 0 0 10px #2d3436;
+    width: 20px;
+    height: 20px;
+    box-shadow: 0 0 0 4px #fff, 0 0 0 6px #2d3436;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .card-sprite {
-    height: 140px;
+    height: 120px;
   }
 
   .card-sprite img.sprite {
-    width: 140px;
-    height: 140px;
+    width: 120px;
+    height: 120px;
   }
 
   .stat-value {
-    font-size: 18px;
+    font-size: 14px;
   }
 
   .nav-button {
-    font-size: 11px;
-    padding: 8px 6px;
-    min-width: 60px;
+    font-size: 10px;
+    padding: 6px 4px;
+    min-width: 50px;
+  }
+
+  .upgrade-grid {
+    grid-template-columns: 1fr;
   }
 }

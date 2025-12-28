@@ -1,6 +1,7 @@
-import { UPGRADES } from '../data';
+import { UPGRADES, UPGRADE_CATEGORIES, canPurchaseUpgrade } from '../data';
 import { Button } from '../components';
 import { formatMoney } from '../utils/format';
+import type { UpgradeCategory } from '../types';
 
 interface UpgradesViewProps {
   money: number;
@@ -8,51 +9,83 @@ interface UpgradesViewProps {
   onBuyUpgrade: (upgradeId: number) => void;
 }
 
+const CATEGORY_ORDER: UpgradeCategory[] = ['basics', 'grading', 'retail', 'media', 'events', 'wholesale', 'empire'];
+
 export function UpgradesView({ money, ownedUpgrades, onBuyUpgrade }: UpgradesViewProps) {
   return (
     <div className="view">
-      <h2>Upgrades & Skills</h2>
-      <p className="view-subtitle">Each upgrade teaches a real economics principle!</p>
+      <h2>Build Your Card Empire</h2>
+      <p className="view-subtitle">Each upgrade teaches real business principles</p>
 
-      <div className="upgrade-grid">
-        {UPGRADES.map(upgrade => {
-          const owned = ownedUpgrades.includes(upgrade.id);
-          const canAfford = money >= upgrade.cost;
+      {CATEGORY_ORDER.map(category => {
+        const categoryData = UPGRADE_CATEGORIES[category];
+        const upgrades = UPGRADES.filter(u => u.category === category);
+        const ownedInCategory = upgrades.filter(u => ownedUpgrades.includes(u.id)).length;
 
-          return (
+        return (
+          <div key={category} className="upgrade-category">
             <div
-              key={upgrade.id}
-              className={`upgrade-card ${owned ? 'owned' : ''}`}
-              style={{
-                border: `2px solid ${owned ? '#4caf50' : canAfford ? '#667eea' : '#555'}`,
-              }}
+              className="category-header"
+              style={{ borderColor: categoryData.color }}
             >
-              <div className="upgrade-header">
-                <div>
-                  <div className="upgrade-name">{upgrade.name}</div>
-                  <div className="upgrade-description">{upgrade.description}</div>
-                </div>
-                <div
-                  className="upgrade-cost"
-                  style={{ color: owned ? '#4caf50' : canAfford ? '#ffd700' : '#888' }}
-                >
-                  {owned ? '✓' : formatMoney(upgrade.cost)}
-                </div>
-              </div>
-
-              {!owned && (
-                <Button
-                  onClick={() => onBuyUpgrade(upgrade.id)}
-                  disabled={!canAfford}
-                  fullWidth
-                >
-                  {canAfford ? '📖 Purchase & Learn' : '🔒 Insufficient Funds'}
-                </Button>
-              )}
+              <span>{categoryData.icon} {categoryData.name}</span>
+              <span className="category-progress">{ownedInCategory}/{upgrades.length}</span>
             </div>
-          );
-        })}
-      </div>
+
+            <div className="upgrade-grid compact">
+              {upgrades.map(upgrade => {
+                const owned = ownedUpgrades.includes(upgrade.id);
+                const canAfford = money >= upgrade.cost;
+                const meetsReqs = canPurchaseUpgrade(upgrade.id, ownedUpgrades);
+                const locked = !meetsReqs && !owned;
+
+                return (
+                  <div
+                    key={upgrade.id}
+                    className={`upgrade-card ${owned ? 'owned' : ''} ${locked ? 'locked' : ''}`}
+                    style={{
+                      borderColor: owned ? '#10b981' : locked ? '#9ca3af' : canAfford ? categoryData.color : '#d1d5db',
+                    }}
+                  >
+                    <div className="upgrade-header">
+                      <span className="upgrade-icon">{upgrade.icon}</span>
+                      <div className="upgrade-info">
+                        <div className="upgrade-name">{upgrade.name}</div>
+                        <div className="upgrade-description">{upgrade.description}</div>
+                      </div>
+                      <div
+                        className="upgrade-cost"
+                        style={{ color: owned ? '#10b981' : canAfford ? '#f59e0b' : '#9ca3af' }}
+                      >
+                        {owned ? '✓' : formatMoney(upgrade.cost)}
+                      </div>
+                    </div>
+
+                    {locked && upgrade.requires && (
+                      <div className="upgrade-requires">
+                        Requires: {upgrade.requires.map(reqId => {
+                          const req = UPGRADES.find(u => u.id === reqId);
+                          return req ? req.name : '';
+                        }).join(', ')}
+                      </div>
+                    )}
+
+                    {!owned && !locked && (
+                      <Button
+                        onClick={() => onBuyUpgrade(upgrade.id)}
+                        disabled={!canAfford}
+                        fullWidth
+                      >
+                        {canAfford ? 'Purchase' : 'Need ' + formatMoney(upgrade.cost)}
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

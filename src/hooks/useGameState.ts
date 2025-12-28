@@ -40,6 +40,9 @@ export function useGameState() {
   const [discount, setDiscount] = useState(1);
   const [sellBonus, setSellBonus] = useState(1);
   const [capacity, setCapacity] = useState(20);
+  const [marketSize, setMarketSize] = useState(8);
+  const [packDiscount, setPackDiscount] = useState(1);
+  const [critBonus, setCritBonus] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showLesson, setShowLesson] = useState<string | null>(null);
   const [clickEffects, setClickEffects] = useState<ClickEffect[]>([]);
@@ -62,10 +65,12 @@ export function useGameState() {
   const currentEventRef = useRef(currentEvent);
   const eventTimerRef = useRef(eventTimer);
   const passiveIncomeRef = useRef(passiveIncome);
+  const critBonusRef = useRef(critBonus);
 
   useEffect(() => { currentEventRef.current = currentEvent; }, [currentEvent]);
   useEffect(() => { eventTimerRef.current = eventTimer; }, [eventTimer]);
   useEffect(() => { passiveIncomeRef.current = passiveIncome; }, [passiveIncome]);
+  useEffect(() => { critBonusRef.current = critBonus; }, [critBonus]);
 
   const calculatePrice = useCallback((card: Card, event: MarketEvent | null): number => {
     let price = card.basePrice;
@@ -97,7 +102,7 @@ export function useGameState() {
   const refreshMarket = useCallback(() => {
     const available = [...CARD_DATABASE]
       .sort(() => Math.random() - 0.5)
-      .slice(0, 8)
+      .slice(0, marketSize)
       .map(card => ({
         ...card,
         currentPrice: calculatePrice(card, currentEventRef.current),
@@ -105,7 +110,7 @@ export function useGameState() {
         priceHistory: [] as number[]
       }));
     setMarket(available);
-  }, [calculatePrice]);
+  }, [calculatePrice, marketSize]);
 
   // Update longest hold time
   useEffect(() => {
@@ -222,8 +227,8 @@ export function useGameState() {
       setComboMultiplier(1);
     }, 1500);
 
-    // Critical hit chance (5% base, +0.5% per combo level, max 15%)
-    const critChance = Math.min(0.05 + (newCombo * 0.005), 0.15);
+    // Critical hit chance (5% base, +0.5% per combo level, +critBonus from upgrades, max 30%)
+    const critChance = Math.min(0.05 + (newCombo * 0.005) + critBonusRef.current, 0.30);
     const isCritical = Math.random() < critChance;
 
     // Calculate final earnings
@@ -252,19 +257,7 @@ export function useGameState() {
     }]);
     setTimeout(() => setClickEffects(prev => prev.filter(ef => ef.id !== id)), 1200);
 
-    // Combo milestone notifications
-    if (newCombo === 10) {
-      addNotification("COMBO x10! Keep clicking!", 'achievement');
-    } else if (newCombo === 25) {
-      addNotification("COMBO x25! You're on fire!", 'achievement');
-    } else if (newCombo === 50) {
-      addNotification("MAX COMBO x50! INCREDIBLE!", 'achievement');
-    }
-
-    if (isCritical) {
-      addNotification(`CRITICAL HIT! +$${totalEarned}`, 'profit');
-    }
-  }, [clickPower, comboCount, addNotification]);
+  }, [clickPower, comboCount]);
 
   const buyCard = useCallback((card: MarketCard) => {
     const price = Math.round(card.currentPrice * discount * 100) / 100;
@@ -277,9 +270,8 @@ export function useGameState() {
         holdTime: 0,
         collectionId: Date.now() + Math.random()
       }]);
-      addNotification(`Bought ${card.name} for $${price.toFixed(2)}`, 'purchase');
     }
-  }, [money, collection.length, capacity, discount, gameTime, addNotification]);
+  }, [money, collection.length, capacity, discount, gameTime]);
 
   const sellCard = useCallback((card: CollectionCard) => {
     const sellPrice = Math.round(card.currentPrice * sellBonus * 100) / 100;
@@ -289,12 +281,17 @@ export function useGameState() {
     setTotalProfit(p => p + profit);
     setTotalSold(s => s + 1);
     setCollection(prev => prev.filter(c => c.collectionId !== card.collectionId));
-    addNotification(`Sold ${card.name} for $${sellPrice.toFixed(2)} (${profit >= 0 ? '+' : ''}$${profit.toFixed(2)})`, profit >= 0 ? 'profit' : 'loss');
-  }, [sellBonus, addNotification]);
+  }, [sellBonus]);
 
   const buyUpgrade = useCallback((upgradeId: number) => {
     const upgrade = UPGRADES.find(u => u.id === upgradeId);
     if (!upgrade || money < upgrade.cost || upgrades.includes(upgrade.id)) return;
+
+    // Check requirements
+    if (upgrade.requires) {
+      const hasAllReqs = upgrade.requires.every(reqId => upgrades.includes(reqId));
+      if (!hasAllReqs) return;
+    }
 
     setMoney(m => m - upgrade.cost);
     setUpgrades(prev => [...prev, upgrade.id]);
@@ -305,9 +302,13 @@ export function useGameState() {
       case 'passive': setPassiveIncome(p => p + upgrade.value); break;
       case 'sellBonus': setSellBonus(b => b * upgrade.value); break;
       case 'capacity': setCapacity(c => c + upgrade.value); break;
+      case 'marketSize': setMarketSize(s => s + upgrade.value); break;
+      case 'packDiscount': setPackDiscount(d => d * upgrade.value); break;
+      case 'critChance': setCritBonus(b => b + upgrade.value); break;
+      // eventDuration, bulkBonus, refreshDiscount, rareChance handled elsewhere or not yet implemented
     }
     setShowLesson(upgrade.lesson);
-    addNotification(`Purchased upgrade: ${upgrade.name}`, 'upgrade');
+    addNotification(`${upgrade.icon} ${upgrade.name}`, 'upgrade');
   }, [money, upgrades, addNotification]);
 
   const pullCardFromPack = useCallback((packType: PackType): Card => {
@@ -332,13 +333,14 @@ export function useGameState() {
   }, []);
 
   const openPack = useCallback((packType: PackType) => {
-    if (money < packType.price) return;
+    const actualPrice = Math.round(packType.price * packDiscount);
+    if (money < actualPrice) return;
     if (collection.length >= capacity) {
       addNotification("Storage full! Sell some cards first.", 'warning');
       return;
     }
 
-    setMoney(m => m - packType.price);
+    setMoney(m => m - actualPrice);
     setIsOpeningPack(true);
     setRevealedCards([]);
 
@@ -384,7 +386,7 @@ export function useGameState() {
 
       setPacksOpened(p => p + 1);
       setPackStats(prev => ({
-        spent: prev.spent + packType.price,
+        spent: prev.spent + actualPrice,
         totalValue: prev.totalValue + totalValue,
         bestPull: (!prev.bestPull || (bestPull && bestPull.basePrice > prev.bestPull.basePrice))
           ? bestPull
@@ -398,12 +400,8 @@ export function useGameState() {
       if (cardsToAdd.length < pulledCards.length) {
         addNotification(`Only ${cardsToAdd.length}/${pulledCards.length} cards added - storage full!`, 'warning');
       }
-
-      pulledCards
-        .filter(c => ['secret-rare', 'legendary', 'chase'].includes(c.rarity))
-        .forEach(c => addNotification(`Amazing pull: ${c.name}!`, 'pack'));
     }, pulledCards.length * 400 + 500);
-  }, [money, collection.length, capacity, gameTime, calculatePrice, pullCardFromPack, addNotification]);
+  }, [money, collection.length, capacity, gameTime, calculatePrice, pullCardFromPack, addNotification, packDiscount]);
 
   const closePackResults = useCallback(() => {
     setIsOpeningPack(false);

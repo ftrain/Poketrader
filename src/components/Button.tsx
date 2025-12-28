@@ -10,9 +10,9 @@ interface ButtonProps {
 }
 
 const VARIANTS = {
-  primary: 'linear-gradient(135deg, #667eea, #764ba2)',
-  success: 'linear-gradient(135deg, #4caf50, #2e7d32)',
-  secondary: 'rgba(255,255,255,0.2)',
+  primary: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+  success: 'linear-gradient(135deg, #22c55e, #16a34a)',
+  secondary: 'linear-gradient(135deg, #475569, #334155)',
 };
 
 export function Button({

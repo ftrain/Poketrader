@@ -5,70 +5,108 @@ export const ACHIEVEMENTS: Achievement[] = [
     id: 1,
     name: "First Flip",
     condition: (s) => s.totalSold >= 1,
-    reward: 50,
-    description: "Sell your first card"
+    effect: 'capacity',
+    value: 2,
+    description: "Sell your first card",
+    benefit: "+2 card storage slots"
   },
   {
     id: 2,
     name: "Hoarder",
     condition: (s) => s.collection.length >= 10,
-    reward: 200,
-    description: "Own 10 cards"
+    effect: 'capacity',
+    value: 5,
+    description: "Own 10 cards at once",
+    benefit: "+5 card storage slots"
   },
   {
     id: 3,
     name: "Thousandaire",
     condition: (s) => s.money >= 1000,
-    reward: 500,
-    description: "Reach $1,000"
+    effect: 'discount',
+    value: 0.95,
+    description: "Reach $1,000 balance",
+    benefit: "5% discount on purchases"
   },
   {
     id: 4,
     name: "Rare Hunter",
     condition: (s) => s.collection.some(c => c.rarity === 'rare'),
-    reward: 300,
-    description: "Own a rare card"
+    effect: 'priceInsight',
+    value: 1,
+    description: "Own a rare card",
+    benefit: "See price volatility indicator"
   },
   {
     id: 5,
     name: "Diamond Hands",
     condition: (s) => s.longestHold >= 120,
-    reward: 1000,
-    description: "Hold a card for 2 minutes"
+    effect: 'sellBonus',
+    value: 1.05,
+    description: "Hold a card for 2 minutes",
+    benefit: "+5% sell bonus"
   },
   {
     id: 6,
     name: "Profit Master",
     condition: (s) => s.totalProfit >= 5000,
-    reward: 2000,
-    description: "Make $5,000 in profit"
+    effect: 'discount',
+    value: 0.90,
+    description: "Make $5,000 in total profit",
+    benefit: "10% discount on purchases"
   },
   {
     id: 7,
     name: "Legendary Collector",
     condition: (s) => s.collection.some(c => c.rarity === 'legendary'),
-    reward: 10000,
-    description: "Own a legendary card"
+    effect: 'capacity',
+    value: 10,
+    description: "Own a legendary card",
+    benefit: "+10 card storage slots"
   },
   {
     id: 8,
     name: "Pack Rat",
     condition: (s) => s.packsOpened >= 10,
-    reward: 500,
-    description: "Open 10 packs"
+    effect: 'capacity',
+    value: 3,
+    description: "Open 10 packs",
+    benefit: "+3 card storage slots"
   },
   {
     id: 9,
     name: "Secret Hunter",
     condition: (s) => s.collection.some(c => c.rarity === 'secret-rare'),
-    reward: 3000,
-    description: "Pull a secret rare"
+    effect: 'sellBonus',
+    value: 1.10,
+    description: "Pull a secret rare from a pack",
+    benefit: "+10% sell bonus"
   },
   {
     id: 10,
     name: "Chase Dream",
     condition: (s) => s.collection.some(c => c.rarity === 'chase'),
-    reward: 25000,
-    description: "Pull a chase card"
+    effect: 'capacity',
+    value: 20,
+    description: "Pull a chase card from a pack",
+    benefit: "+20 card storage slots"
+  },
+  {
+    id: 11,
+    name: "Speed Trader",
+    condition: (s) => s.totalSold >= 25,
+    effect: 'marketSpeed',
+    value: 1,
+    description: "Sell 25 cards total",
+    benefit: "Faster market refresh"
+  },
+  {
+    id: 12,
+    name: "Click Master",
+    condition: (s) => s.money >= 500,
+    effect: 'clickPower',
+    value: 2,
+    description: "Reach $500 from clicking",
+    benefit: "2x click power"
   },
 ];

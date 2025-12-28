@@ -11,13 +11,22 @@ export const RARITY_COLORS: Record<Rarity, string> = {
 };
 
 export const TYPE_COLORS: Record<CardType, string> = {
-  electric: "#f9d71c",
-  fire: "#fd7d24",
-  grass: "#9bcc50",
-  water: "#4592c4",
-  normal: "#a4acaf",
-  ghost: "#7b62a3",
-  dragon: "#7038f8",
-  psychic: "#f366b9",
-  dark: "#707070"
+  normal: "#A8A878",
+  fire: "#F08030",
+  water: "#6890F0",
+  electric: "#F8D030",
+  grass: "#78C850",
+  ice: "#98D8D8",
+  fighting: "#C03028",
+  poison: "#A040A0",
+  ground: "#E0C068",
+  flying: "#A890F0",
+  psychic: "#F85888",
+  bug: "#A8B820",
+  rock: "#B8A038",
+  ghost: "#705898",
+  dragon: "#7038F8",
+  dark: "#705848",
+  steel: "#B8B8D0",
+  fairy: "#EE99AC"
 };

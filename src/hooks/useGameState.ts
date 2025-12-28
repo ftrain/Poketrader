@@ -141,15 +141,31 @@ export function useGameState() {
     return () => clearInterval(interval);
   }, [calculatePrice, addNotification]);
 
-  // Check achievements
+  // Check achievements - apply utility benefits instead of money
   useEffect(() => {
     const state = { money, collection, totalSold, totalProfit, longestHold, packsOpened, packStats };
     ACHIEVEMENTS.forEach(ach => {
       if (!achievements.includes(ach.id) && ach.condition(state)) {
         setAchievements(prev => [...prev, ach.id]);
-        setMoney(m => m + ach.reward);
-        setTotalEarned(t => t + ach.reward);
-        addNotification(`🏆 Achievement: ${ach.name}! +$${ach.reward}`);
+
+        // Apply the achievement effect
+        switch (ach.effect) {
+          case 'capacity':
+            setCapacity(c => c + ach.value);
+            break;
+          case 'discount':
+            setDiscount(d => d * ach.value);
+            break;
+          case 'sellBonus':
+            setSellBonus(b => b * ach.value);
+            break;
+          case 'clickPower':
+            setClickPower(p => p * ach.value);
+            break;
+          // marketSpeed and priceInsight are handled in UI
+        }
+
+        addNotification(`🏆 Achievement: ${ach.name}! ${ach.benefit}`);
       }
     });
   }, [money, collection, totalSold, totalProfit, longestHold, packsOpened, packStats, achievements, addNotification]);

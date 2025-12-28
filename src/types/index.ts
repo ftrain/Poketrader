@@ -1,6 +1,6 @@
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'ultra-rare' | 'secret-rare' | 'legendary' | 'chase';
 
-export type CardType = 'electric' | 'fire' | 'grass' | 'water' | 'normal' | 'ghost' | 'dragon' | 'psychic' | 'dark';
+export type CardType = 'electric' | 'fire' | 'grass' | 'water' | 'normal' | 'ghost' | 'dragon' | 'psychic' | 'dark' | 'fighting' | 'poison' | 'ground' | 'flying' | 'bug' | 'rock' | 'ice' | 'steel' | 'fairy';
 
 export interface Card {
   id: number;
@@ -12,6 +12,9 @@ export interface Card {
   shiny?: boolean;
   type: CardType;
   packExclusive?: boolean;
+  hp: number;
+  attack: number;
+  defense: number;
 }
 
 export interface MarketCard extends Card {
@@ -63,12 +66,16 @@ export interface Upgrade {
   lesson: string;
 }
 
+export type AchievementEffect = 'capacity' | 'marketSpeed' | 'discount' | 'sellBonus' | 'clickPower' | 'priceInsight';
+
 export interface Achievement {
   id: number;
   name: string;
   condition: (state: GameStats) => boolean;
-  reward: number;
+  effect: AchievementEffect;
+  value: number;
   description: string;
+  benefit: string;
 }
 
 export interface GameStats {

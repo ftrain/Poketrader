@@ -1,173 +1,348 @@
 import type { Card, CardType } from '../types';
 
-// Pokemon type data (spriteId -> type mapping for common Pokemon)
+// Pokemon type data (spriteId -> type mapping)
 const POKEMON_TYPES: Record<number, CardType> = {
-  1: 'grass', 2: 'grass', 3: 'grass',  // Bulbasaur line
-  4: 'fire', 5: 'fire', 6: 'fire',     // Charmander line
-  7: 'water', 8: 'water', 9: 'water',  // Squirtle line
-  25: 'electric', 26: 'electric',       // Pikachu line
-  35: 'normal', 36: 'normal',           // Clefairy line
-  37: 'fire', 38: 'fire',               // Vulpix line
-  39: 'normal', 40: 'normal',           // Jigglypuff line
-  52: 'normal', 53: 'normal',           // Meowth line
-  54: 'water', 55: 'water',             // Psyduck line
-  58: 'fire', 59: 'fire',               // Growlithe line
-  63: 'psychic', 64: 'psychic', 65: 'psychic', // Abra line
-  74: 'normal', 75: 'normal', 76: 'normal',    // Geodude line
-  77: 'fire', 78: 'fire',               // Ponyta line
-  92: 'ghost', 93: 'ghost', 94: 'ghost', // Gastly line
-  95: 'normal',                          // Onix
-  123: 'normal',                         // Scyther
-  129: 'water', 130: 'water',           // Magikarp line
-  131: 'water',                          // Lapras
-  133: 'normal',                         // Eevee
-  134: 'water', 135: 'electric', 136: 'fire', // Eeveelutions
-  143: 'normal',                         // Snorlax
-  144: 'water', 145: 'electric', 146: 'fire', // Legendary birds
-  147: 'dragon', 148: 'dragon', 149: 'dragon', // Dratini line
-  150: 'psychic', 151: 'psychic',       // Mewtwo, Mew
-  152: 'grass', 155: 'fire', 158: 'water', // Gen 2 starters
-  172: 'electric',                       // Pichu
-  175: 'normal',                         // Togepi
-  179: 'electric', 180: 'electric', 181: 'electric', // Mareep line
-  196: 'psychic', 197: 'dark',          // Espeon, Umbreon
-  212: 'normal',                         // Scizor
-  243: 'electric', 244: 'fire', 245: 'water', // Legendary beasts
-  248: 'dark',                           // Tyranitar
-  249: 'psychic', 250: 'fire',          // Lugia, Ho-Oh
-  251: 'psychic',                        // Celebi
-  252: 'grass', 255: 'fire', 258: 'water', // Gen 3 starters
-  280: 'psychic', 281: 'psychic', 282: 'psychic', // Ralts line
-  302: 'ghost',                          // Sableye
-  304: 'normal', 305: 'normal', 306: 'normal', // Aron line
-  359: 'dark',                           // Absol
-  373: 'dragon',                         // Salamence
-  376: 'psychic',                        // Metagross
-  380: 'dragon', 381: 'dragon',         // Latias, Latios
-  384: 'dragon',                         // Rayquaza
-  385: 'psychic',                        // Jirachi
-  386: 'psychic',                        // Deoxys
-  393: 'water', 390: 'fire', 387: 'grass', // Gen 4 starters
-  403: 'electric', 404: 'electric', 405: 'electric', // Shinx line
-  443: 'dragon', 444: 'dragon', 445: 'dragon', // Gible line
-  448: 'normal',                         // Lucario
-  470: 'grass', 471: 'water',           // Leafeon, Glaceon
-  483: 'dragon', 484: 'dragon',         // Dialga, Palkia
-  487: 'ghost',                          // Giratina
-  491: 'dark',                           // Darkrai
-  493: 'normal',                         // Arceus
-  700: 'normal',                         // Sylveon
-  718: 'dragon',                         // Zygarde
-  778: 'ghost',                          // Mimikyu
-  809: 'normal',                         // Melmetal
-  888: 'normal', 889: 'normal',         // Zacian, Zamazenta
-  890: 'dragon',                         // Eternatus
+  1: 'grass', 2: 'grass', 3: 'grass',
+  4: 'fire', 5: 'fire', 6: 'fire',
+  7: 'water', 8: 'water', 9: 'water',
+  10: 'bug', 11: 'bug', 12: 'bug',
+  13: 'bug', 14: 'bug', 15: 'bug',
+  16: 'flying', 17: 'flying', 18: 'flying',
+  19: 'normal', 20: 'normal',
+  21: 'flying', 22: 'flying',
+  23: 'poison', 24: 'poison',
+  25: 'electric', 26: 'electric',
+  27: 'ground', 28: 'ground',
+  29: 'poison', 30: 'poison', 31: 'poison',
+  32: 'poison', 33: 'poison', 34: 'poison',
+  35: 'fairy', 36: 'fairy',
+  37: 'fire', 38: 'fire',
+  39: 'fairy', 40: 'fairy',
+  41: 'poison', 42: 'poison',
+  43: 'grass', 44: 'grass', 45: 'grass',
+  46: 'bug', 47: 'bug',
+  48: 'bug', 49: 'bug',
+  50: 'ground', 51: 'ground',
+  52: 'normal', 53: 'normal',
+  54: 'water', 55: 'water',
+  56: 'fighting', 57: 'fighting',
+  58: 'fire', 59: 'fire',
+  60: 'water', 61: 'water', 62: 'water',
+  63: 'psychic', 64: 'psychic', 65: 'psychic',
+  66: 'fighting', 67: 'fighting', 68: 'fighting',
+  69: 'grass', 70: 'grass', 71: 'grass',
+  72: 'water', 73: 'water',
+  74: 'rock', 75: 'rock', 76: 'rock',
+  77: 'fire', 78: 'fire',
+  79: 'water', 80: 'water',
+  81: 'electric', 82: 'electric',
+  84: 'flying', 85: 'flying',
+  86: 'water', 87: 'water',
+  88: 'poison', 89: 'poison',
+  90: 'water', 91: 'water',
+  92: 'ghost', 93: 'ghost', 94: 'ghost',
+  96: 'psychic', 97: 'psychic',
+  98: 'water', 99: 'water',
+  100: 'electric', 101: 'electric',
+  102: 'grass', 103: 'grass',
+  104: 'ground', 105: 'ground',
+  106: 'fighting', 107: 'fighting',
+  108: 'normal',
+  109: 'poison', 110: 'poison',
+  111: 'rock', 112: 'rock',
+  113: 'normal',
+  114: 'grass',
+  115: 'normal',
+  116: 'water', 117: 'water',
+  118: 'water', 119: 'water',
+  120: 'water', 121: 'water',
+  122: 'psychic',
+  123: 'bug',
+  124: 'ice',
+  125: 'electric',
+  126: 'fire',
+  127: 'bug',
+  128: 'normal',
+  129: 'water', 130: 'water',
+  131: 'water',
+  132: 'normal',
+  133: 'normal',
+  134: 'water', 135: 'electric', 136: 'fire',
+  137: 'normal',
+  139: 'rock',
+  141: 'rock',
+  143: 'normal',
+  144: 'ice', 145: 'electric', 146: 'fire',
+  147: 'dragon', 148: 'dragon', 149: 'dragon',
+  150: 'psychic', 151: 'psychic',
+  152: 'grass', 153: 'grass', 154: 'grass',
+  155: 'fire', 156: 'fire', 157: 'fire',
+  158: 'water', 159: 'water', 160: 'water',
+  161: 'normal', 162: 'normal',
+  163: 'flying', 164: 'flying',
+  165: 'bug', 166: 'bug',
+  167: 'bug', 168: 'bug',
+  169: 'poison',
+  175: 'fairy', 176: 'fairy',
+  179: 'electric', 180: 'electric', 181: 'electric',
+  183: 'water', 184: 'water',
+  185: 'rock',
+  186: 'water',
+  187: 'grass', 188: 'grass', 189: 'grass',
+  194: 'water', 195: 'water',
+  196: 'psychic', 197: 'dark',
+  198: 'dark',
+  199: 'water',
+  200: 'ghost',
+  203: 'psychic',
+  205: 'bug',
+  208: 'steel',
+  209: 'fairy', 210: 'fairy',
+  212: 'bug',
+  214: 'bug',
+  215: 'dark',
+  216: 'normal', 217: 'normal',
+  220: 'ice', 221: 'ice',
+  229: 'dark',
+  230: 'dragon',
+  231: 'ground', 232: 'ground',
+  233: 'normal',
+  237: 'fighting',
+  241: 'normal',
+  242: 'normal',
+  243: 'electric', 244: 'fire', 245: 'water',
+  246: 'rock', 247: 'rock', 248: 'rock',
+  249: 'psychic', 250: 'fire', 251: 'psychic',
+  252: 'grass', 253: 'grass', 254: 'grass',
+  255: 'fire', 256: 'fire', 257: 'fire',
+  258: 'water', 259: 'water', 260: 'water',
+  261: 'dark', 262: 'dark',
+  263: 'normal', 264: 'normal',
+  280: 'psychic', 281: 'psychic', 282: 'psychic',
+  304: 'steel', 305: 'steel', 306: 'steel',
+  328: 'ground', 329: 'ground', 330: 'ground',
+  333: 'flying', 334: 'dragon',
+  349: 'water', 350: 'water',
+  353: 'ghost', 354: 'ghost',
+  355: 'ghost', 356: 'ghost',
+  359: 'dark',
+  361: 'ice', 362: 'ice',
+  371: 'dragon', 372: 'dragon', 373: 'dragon',
+  374: 'steel', 375: 'steel', 376: 'steel',
+  377: 'rock', 378: 'ice', 379: 'steel',
+  380: 'dragon', 381: 'dragon',
+  382: 'water', 383: 'ground', 384: 'dragon',
+  385: 'steel', 386: 'psychic',
+  468: 'fairy',
+  483: 'steel', 484: 'water', 487: 'ghost',
+  491: 'dark', 493: 'normal',
+  643: 'dragon', 644: 'dragon', 646: 'dragon',
+  716: 'fairy', 717: 'dark', 718: 'dragon',
 };
 
-// Get type for a Pokemon, default to normal
 function getType(spriteId: number): CardType {
   return POKEMON_TYPES[spriteId] || 'normal';
 }
 
-// Expanded card database with more Pokemon
+// Comprehensive Pokemon database with stats
 export const CARD_DATABASE: Card[] = [
-  // Common cards (base starters and popular Pokemon)
-  { id: 1, name: "Bulbasaur", rarity: "common", basePrice: 6, img: "🌿", spriteId: 1, type: getType(1) },
-  { id: 2, name: "Charmander", rarity: "common", basePrice: 8, img: "🔥", spriteId: 4, type: getType(4) },
-  { id: 3, name: "Squirtle", rarity: "common", basePrice: 7, img: "💧", spriteId: 7, type: getType(7) },
-  { id: 4, name: "Pikachu", rarity: "common", basePrice: 10, img: "⚡", spriteId: 25, type: getType(25) },
-  { id: 5, name: "Jigglypuff", rarity: "common", basePrice: 4, img: "🎤", spriteId: 39, type: getType(39) },
-  { id: 6, name: "Meowth", rarity: "common", basePrice: 5, img: "🐱", spriteId: 52, type: getType(52) },
-  { id: 7, name: "Psyduck", rarity: "common", basePrice: 6, img: "🦆", spriteId: 54, type: getType(54) },
-  { id: 8, name: "Growlithe", rarity: "common", basePrice: 9, img: "🐕", spriteId: 58, type: getType(58) },
-  { id: 9, name: "Geodude", rarity: "common", basePrice: 4, img: "🪨", spriteId: 74, type: getType(74) },
-  { id: 10, name: "Ponyta", rarity: "common", basePrice: 8, img: "🐴", spriteId: 77, type: getType(77) },
-  { id: 11, name: "Magikarp", rarity: "common", basePrice: 2, img: "🐟", spriteId: 129, type: getType(129) },
-  { id: 12, name: "Pichu", rarity: "common", basePrice: 7, img: "⚡", spriteId: 172, type: getType(172) },
-  { id: 13, name: "Togepi", rarity: "common", basePrice: 8, img: "🥚", spriteId: 175, type: getType(175) },
-  { id: 14, name: "Mareep", rarity: "common", basePrice: 6, img: "🐑", spriteId: 179, type: getType(179) },
-  { id: 15, name: "Treecko", rarity: "common", basePrice: 7, img: "🌿", spriteId: 252, type: getType(252) },
-  { id: 16, name: "Torchic", rarity: "common", basePrice: 8, img: "🐤", spriteId: 255, type: getType(255) },
-  { id: 17, name: "Mudkip", rarity: "common", basePrice: 7, img: "💧", spriteId: 258, type: getType(258) },
-  { id: 18, name: "Shinx", rarity: "common", basePrice: 6, img: "⚡", spriteId: 403, type: getType(403) },
+  // === COMMON TIER ($2-20) ===
+  { id: 1, name: "Bulbasaur", rarity: "common", basePrice: 8, img: "🌿", spriteId: 1, type: getType(1), hp: 45, attack: 49, defense: 49 },
+  { id: 2, name: "Charmander", rarity: "common", basePrice: 10, img: "🔥", spriteId: 4, type: getType(4), hp: 39, attack: 52, defense: 43 },
+  { id: 3, name: "Squirtle", rarity: "common", basePrice: 9, img: "💧", spriteId: 7, type: getType(7), hp: 44, attack: 48, defense: 65 },
+  { id: 4, name: "Caterpie", rarity: "common", basePrice: 3, img: "🐛", spriteId: 10, type: getType(10), hp: 45, attack: 30, defense: 35 },
+  { id: 5, name: "Weedle", rarity: "common", basePrice: 3, img: "🐛", spriteId: 13, type: getType(13), hp: 40, attack: 35, defense: 30 },
+  { id: 6, name: "Pidgey", rarity: "common", basePrice: 4, img: "🐦", spriteId: 16, type: getType(16), hp: 40, attack: 45, defense: 40 },
+  { id: 7, name: "Rattata", rarity: "common", basePrice: 3, img: "🐀", spriteId: 19, type: getType(19), hp: 30, attack: 56, defense: 35 },
+  { id: 8, name: "Spearow", rarity: "common", basePrice: 4, img: "🐦", spriteId: 21, type: getType(21), hp: 40, attack: 60, defense: 30 },
+  { id: 9, name: "Ekans", rarity: "common", basePrice: 5, img: "🐍", spriteId: 23, type: getType(23), hp: 35, attack: 60, defense: 44 },
+  { id: 10, name: "Pikachu", rarity: "common", basePrice: 15, img: "⚡", spriteId: 25, type: getType(25), hp: 35, attack: 55, defense: 40 },
+  { id: 11, name: "Sandshrew", rarity: "common", basePrice: 6, img: "🦔", spriteId: 27, type: getType(27), hp: 50, attack: 75, defense: 85 },
+  { id: 12, name: "Nidoran♀", rarity: "common", basePrice: 5, img: "🐰", spriteId: 29, type: getType(29), hp: 55, attack: 47, defense: 52 },
+  { id: 13, name: "Nidoran♂", rarity: "common", basePrice: 5, img: "🐰", spriteId: 32, type: getType(32), hp: 46, attack: 57, defense: 40 },
+  { id: 14, name: "Clefairy", rarity: "common", basePrice: 12, img: "🌙", spriteId: 35, type: getType(35), hp: 70, attack: 45, defense: 48 },
+  { id: 15, name: "Vulpix", rarity: "common", basePrice: 11, img: "🦊", spriteId: 37, type: getType(37), hp: 38, attack: 41, defense: 40 },
+  { id: 16, name: "Jigglypuff", rarity: "common", basePrice: 10, img: "🎤", spriteId: 39, type: getType(39), hp: 115, attack: 45, defense: 20 },
+  { id: 17, name: "Zubat", rarity: "common", basePrice: 4, img: "🦇", spriteId: 41, type: getType(41), hp: 40, attack: 45, defense: 35 },
+  { id: 18, name: "Oddish", rarity: "common", basePrice: 5, img: "🌱", spriteId: 43, type: getType(43), hp: 45, attack: 50, defense: 55 },
+  { id: 19, name: "Diglett", rarity: "common", basePrice: 6, img: "🕳️", spriteId: 50, type: getType(50), hp: 10, attack: 55, defense: 25 },
+  { id: 20, name: "Meowth", rarity: "common", basePrice: 8, img: "🐱", spriteId: 52, type: getType(52), hp: 40, attack: 45, defense: 35 },
+  { id: 21, name: "Psyduck", rarity: "common", basePrice: 9, img: "🦆", spriteId: 54, type: getType(54), hp: 50, attack: 52, defense: 48 },
+  { id: 22, name: "Mankey", rarity: "common", basePrice: 6, img: "🐵", spriteId: 56, type: getType(56), hp: 40, attack: 80, defense: 35 },
+  { id: 23, name: "Growlithe", rarity: "common", basePrice: 14, img: "🐕", spriteId: 58, type: getType(58), hp: 55, attack: 70, defense: 45 },
+  { id: 24, name: "Poliwag", rarity: "common", basePrice: 6, img: "🌀", spriteId: 60, type: getType(60), hp: 40, attack: 50, defense: 40 },
+  { id: 25, name: "Abra", rarity: "common", basePrice: 12, img: "🔮", spriteId: 63, type: getType(63), hp: 25, attack: 20, defense: 15 },
+  { id: 26, name: "Machop", rarity: "common", basePrice: 7, img: "💪", spriteId: 66, type: getType(66), hp: 70, attack: 80, defense: 50 },
+  { id: 27, name: "Bellsprout", rarity: "common", basePrice: 5, img: "🌿", spriteId: 69, type: getType(69), hp: 50, attack: 75, defense: 35 },
+  { id: 28, name: "Geodude", rarity: "common", basePrice: 6, img: "🪨", spriteId: 74, type: getType(74), hp: 40, attack: 80, defense: 100 },
+  { id: 29, name: "Ponyta", rarity: "common", basePrice: 11, img: "🐴", spriteId: 77, type: getType(77), hp: 50, attack: 85, defense: 55 },
+  { id: 30, name: "Slowpoke", rarity: "common", basePrice: 8, img: "🦥", spriteId: 79, type: getType(79), hp: 90, attack: 65, defense: 65 },
+  { id: 31, name: "Magnemite", rarity: "common", basePrice: 9, img: "🧲", spriteId: 81, type: getType(81), hp: 25, attack: 35, defense: 70 },
+  { id: 32, name: "Gastly", rarity: "common", basePrice: 10, img: "👻", spriteId: 92, type: getType(92), hp: 30, attack: 35, defense: 30 },
+  { id: 33, name: "Cubone", rarity: "common", basePrice: 9, img: "💀", spriteId: 104, type: getType(104), hp: 50, attack: 50, defense: 95 },
+  { id: 34, name: "Koffing", rarity: "common", basePrice: 6, img: "☠️", spriteId: 109, type: getType(109), hp: 40, attack: 65, defense: 95 },
+  { id: 35, name: "Rhyhorn", rarity: "common", basePrice: 10, img: "🦏", spriteId: 111, type: getType(111), hp: 80, attack: 85, defense: 95 },
+  { id: 36, name: "Horsea", rarity: "common", basePrice: 7, img: "🐴", spriteId: 116, type: getType(116), hp: 30, attack: 40, defense: 70 },
+  { id: 37, name: "Staryu", rarity: "common", basePrice: 8, img: "⭐", spriteId: 120, type: getType(120), hp: 30, attack: 45, defense: 55 },
+  { id: 38, name: "Magikarp", rarity: "common", basePrice: 2, img: "🐟", spriteId: 129, type: getType(129), hp: 20, attack: 10, defense: 55 },
+  { id: 39, name: "Eevee", rarity: "common", basePrice: 18, img: "⭐", spriteId: 133, type: getType(133), hp: 55, attack: 55, defense: 50 },
+  { id: 40, name: "Ditto", rarity: "common", basePrice: 15, img: "🫠", spriteId: 132, type: getType(132), hp: 48, attack: 48, defense: 48 },
+  // Gen 2 commons
+  { id: 41, name: "Chikorita", rarity: "common", basePrice: 9, img: "🌿", spriteId: 152, type: getType(152), hp: 45, attack: 49, defense: 65 },
+  { id: 42, name: "Cyndaquil", rarity: "common", basePrice: 11, img: "🔥", spriteId: 155, type: getType(155), hp: 39, attack: 52, defense: 43 },
+  { id: 43, name: "Totodile", rarity: "common", basePrice: 10, img: "💧", spriteId: 158, type: getType(158), hp: 50, attack: 65, defense: 64 },
+  { id: 44, name: "Sentret", rarity: "common", basePrice: 3, img: "🐿️", spriteId: 161, type: getType(161), hp: 35, attack: 46, defense: 34 },
+  { id: 45, name: "Togepi", rarity: "common", basePrice: 16, img: "🥚", spriteId: 175, type: getType(175), hp: 35, attack: 20, defense: 65 },
+  { id: 46, name: "Mareep", rarity: "common", basePrice: 10, img: "🐑", spriteId: 179, type: getType(179), hp: 55, attack: 40, defense: 40 },
+  { id: 47, name: "Marill", rarity: "common", basePrice: 9, img: "🐭", spriteId: 183, type: getType(183), hp: 70, attack: 20, defense: 50 },
+  { id: 48, name: "Wooper", rarity: "common", basePrice: 7, img: "🐟", spriteId: 194, type: getType(194), hp: 55, attack: 45, defense: 45 },
+  { id: 49, name: "Murkrow", rarity: "common", basePrice: 12, img: "🐦‍⬛", spriteId: 198, type: getType(198), hp: 60, attack: 85, defense: 42 },
+  { id: 50, name: "Larvitar", rarity: "common", basePrice: 18, img: "🦖", spriteId: 246, type: getType(246), hp: 50, attack: 64, defense: 50 },
+  // Gen 3 commons
+  { id: 51, name: "Treecko", rarity: "common", basePrice: 10, img: "🌿", spriteId: 252, type: getType(252), hp: 40, attack: 45, defense: 35 },
+  { id: 52, name: "Torchic", rarity: "common", basePrice: 12, img: "🐤", spriteId: 255, type: getType(255), hp: 45, attack: 60, defense: 40 },
+  { id: 53, name: "Mudkip", rarity: "common", basePrice: 14, img: "💧", spriteId: 258, type: getType(258), hp: 50, attack: 70, defense: 50 },
+  { id: 54, name: "Poochyena", rarity: "common", basePrice: 4, img: "🐺", spriteId: 261, type: getType(261), hp: 35, attack: 55, defense: 35 },
+  { id: 55, name: "Ralts", rarity: "common", basePrice: 15, img: "🔮", spriteId: 280, type: getType(280), hp: 28, attack: 25, defense: 25 },
+  { id: 56, name: "Aron", rarity: "common", basePrice: 11, img: "⚙️", spriteId: 304, type: getType(304), hp: 50, attack: 70, defense: 100 },
+  { id: 57, name: "Trapinch", rarity: "common", basePrice: 12, img: "🐜", spriteId: 328, type: getType(328), hp: 45, attack: 100, defense: 45 },
+  { id: 58, name: "Swablu", rarity: "common", basePrice: 10, img: "☁️", spriteId: 333, type: getType(333), hp: 45, attack: 40, defense: 60 },
+  { id: 59, name: "Feebas", rarity: "common", basePrice: 8, img: "🐟", spriteId: 349, type: getType(349), hp: 20, attack: 15, defense: 20 },
+  { id: 60, name: "Bagon", rarity: "common", basePrice: 16, img: "🐉", spriteId: 371, type: getType(371), hp: 45, attack: 75, defense: 60 },
+  { id: 61, name: "Beldum", rarity: "common", basePrice: 17, img: "🤖", spriteId: 374, type: getType(374), hp: 40, attack: 55, defense: 80 },
 
-  // Uncommon cards (evolved forms and fan favorites)
-  { id: 19, name: "Ivysaur", rarity: "uncommon", basePrice: 20, img: "🌿", spriteId: 2, type: getType(2) },
-  { id: 20, name: "Charmeleon", rarity: "uncommon", basePrice: 25, img: "🔥", spriteId: 5, type: getType(5) },
-  { id: 21, name: "Wartortle", rarity: "uncommon", basePrice: 22, img: "💧", spriteId: 8, type: getType(8) },
-  { id: 22, name: "Raichu", rarity: "uncommon", basePrice: 35, img: "⚡", spriteId: 26, type: getType(26) },
-  { id: 23, name: "Vulpix", rarity: "uncommon", basePrice: 28, img: "🦊", spriteId: 37, type: getType(37) },
-  { id: 24, name: "Clefairy", rarity: "uncommon", basePrice: 18, img: "🌙", spriteId: 35, type: getType(35) },
-  { id: 25, name: "Eevee", rarity: "uncommon", basePrice: 30, img: "⭐", spriteId: 133, type: getType(133) },
-  { id: 26, name: "Haunter", rarity: "uncommon", basePrice: 32, img: "👻", spriteId: 93, type: getType(93) },
-  { id: 27, name: "Kadabra", rarity: "uncommon", basePrice: 35, img: "🔮", spriteId: 64, type: getType(64) },
-  { id: 28, name: "Arcanine", rarity: "uncommon", basePrice: 45, img: "🐕", spriteId: 59, type: getType(59) },
-  { id: 29, name: "Scyther", rarity: "uncommon", basePrice: 40, img: "🦗", spriteId: 123, type: getType(123) },
-  { id: 30, name: "Ralts", rarity: "uncommon", basePrice: 25, img: "🔮", spriteId: 280, type: getType(280) },
-  { id: 31, name: "Aron", rarity: "uncommon", basePrice: 22, img: "⚙️", spriteId: 304, type: getType(304) },
-  { id: 32, name: "Gible", rarity: "uncommon", basePrice: 35, img: "🦈", spriteId: 443, type: getType(443) },
+  // === UNCOMMON TIER ($20-80) ===
+  { id: 62, name: "Ivysaur", rarity: "uncommon", basePrice: 28, img: "🌿", spriteId: 2, type: getType(2), hp: 60, attack: 62, defense: 63 },
+  { id: 63, name: "Charmeleon", rarity: "uncommon", basePrice: 35, img: "🔥", spriteId: 5, type: getType(5), hp: 58, attack: 64, defense: 58 },
+  { id: 64, name: "Wartortle", rarity: "uncommon", basePrice: 30, img: "💧", spriteId: 8, type: getType(8), hp: 59, attack: 63, defense: 80 },
+  { id: 65, name: "Raichu", rarity: "uncommon", basePrice: 45, img: "⚡", spriteId: 26, type: getType(26), hp: 60, attack: 90, defense: 55 },
+  { id: 66, name: "Clefable", rarity: "uncommon", basePrice: 42, img: "🌙", spriteId: 36, type: getType(36), hp: 95, attack: 70, defense: 73 },
+  { id: 67, name: "Ninetales", rarity: "uncommon", basePrice: 55, img: "🦊", spriteId: 38, type: getType(38), hp: 73, attack: 76, defense: 75 },
+  { id: 68, name: "Arcanine", rarity: "uncommon", basePrice: 65, img: "🐕", spriteId: 59, type: getType(59), hp: 90, attack: 110, defense: 80 },
+  { id: 69, name: "Kadabra", rarity: "uncommon", basePrice: 45, img: "🔮", spriteId: 64, type: getType(64), hp: 40, attack: 35, defense: 30 },
+  { id: 70, name: "Machoke", rarity: "uncommon", basePrice: 35, img: "💪", spriteId: 67, type: getType(67), hp: 80, attack: 100, defense: 70 },
+  { id: 71, name: "Graveler", rarity: "uncommon", basePrice: 30, img: "🪨", spriteId: 75, type: getType(75), hp: 55, attack: 95, defense: 115 },
+  { id: 72, name: "Rapidash", rarity: "uncommon", basePrice: 48, img: "🐴", spriteId: 78, type: getType(78), hp: 65, attack: 100, defense: 70 },
+  { id: 73, name: "Slowbro", rarity: "uncommon", basePrice: 52, img: "🦥", spriteId: 80, type: getType(80), hp: 95, attack: 75, defense: 110 },
+  { id: 74, name: "Magneton", rarity: "uncommon", basePrice: 40, img: "🧲", spriteId: 82, type: getType(82), hp: 50, attack: 60, defense: 95 },
+  { id: 75, name: "Haunter", rarity: "uncommon", basePrice: 42, img: "👻", spriteId: 93, type: getType(93), hp: 45, attack: 50, defense: 45 },
+  { id: 76, name: "Kingler", rarity: "uncommon", basePrice: 35, img: "🦀", spriteId: 99, type: getType(99), hp: 55, attack: 130, defense: 115 },
+  { id: 77, name: "Rhydon", rarity: "uncommon", basePrice: 58, img: "🦏", spriteId: 112, type: getType(112), hp: 105, attack: 130, defense: 120 },
+  { id: 78, name: "Chansey", rarity: "uncommon", basePrice: 60, img: "🥚", spriteId: 113, type: getType(113), hp: 250, attack: 5, defense: 5 },
+  { id: 79, name: "Scyther", rarity: "uncommon", basePrice: 62, img: "🦗", spriteId: 123, type: getType(123), hp: 70, attack: 110, defense: 80 },
+  { id: 80, name: "Electabuzz", rarity: "uncommon", basePrice: 55, img: "⚡", spriteId: 125, type: getType(125), hp: 65, attack: 83, defense: 57 },
+  { id: 81, name: "Magmar", rarity: "uncommon", basePrice: 52, img: "🔥", spriteId: 126, type: getType(126), hp: 65, attack: 95, defense: 57 },
+  { id: 82, name: "Snorlax", rarity: "uncommon", basePrice: 78, img: "😴", spriteId: 143, type: getType(143), hp: 160, attack: 110, defense: 65 },
+  { id: 83, name: "Vaporeon", rarity: "uncommon", basePrice: 70, img: "💧", spriteId: 134, type: getType(134), hp: 130, attack: 65, defense: 60 },
+  { id: 84, name: "Jolteon", rarity: "uncommon", basePrice: 72, img: "⚡", spriteId: 135, type: getType(135), hp: 65, attack: 65, defense: 60 },
+  { id: 85, name: "Flareon", rarity: "uncommon", basePrice: 70, img: "🔥", spriteId: 136, type: getType(136), hp: 65, attack: 130, defense: 60 },
+  { id: 86, name: "Dragonair", rarity: "uncommon", basePrice: 65, img: "🐉", spriteId: 148, type: getType(148), hp: 61, attack: 84, defense: 65 },
+  // Gen 2 uncommons
+  { id: 87, name: "Bayleef", rarity: "uncommon", basePrice: 30, img: "🌿", spriteId: 153, type: getType(153), hp: 60, attack: 62, defense: 80 },
+  { id: 88, name: "Quilava", rarity: "uncommon", basePrice: 35, img: "🔥", spriteId: 156, type: getType(156), hp: 58, attack: 64, defense: 58 },
+  { id: 89, name: "Croconaw", rarity: "uncommon", basePrice: 32, img: "💧", spriteId: 159, type: getType(159), hp: 65, attack: 80, defense: 80 },
+  { id: 90, name: "Crobat", rarity: "uncommon", basePrice: 55, img: "🦇", spriteId: 169, type: getType(169), hp: 85, attack: 90, defense: 80 },
+  { id: 91, name: "Togetic", rarity: "uncommon", basePrice: 48, img: "🧚", spriteId: 176, type: getType(176), hp: 55, attack: 40, defense: 85 },
+  { id: 92, name: "Ampharos", rarity: "uncommon", basePrice: 58, img: "⚡", spriteId: 181, type: getType(181), hp: 90, attack: 75, defense: 85 },
+  { id: 93, name: "Espeon", rarity: "uncommon", basePrice: 75, img: "☀️", spriteId: 196, type: getType(196), hp: 65, attack: 65, defense: 60 },
+  { id: 94, name: "Umbreon", rarity: "uncommon", basePrice: 80, img: "🌙", spriteId: 197, type: getType(197), hp: 95, attack: 65, defense: 110 },
+  { id: 95, name: "Scizor", rarity: "uncommon", basePrice: 72, img: "✂️", spriteId: 212, type: getType(212), hp: 70, attack: 130, defense: 100 },
+  { id: 96, name: "Heracross", rarity: "uncommon", basePrice: 65, img: "🪲", spriteId: 214, type: getType(214), hp: 80, attack: 125, defense: 75 },
+  { id: 97, name: "Houndoom", rarity: "uncommon", basePrice: 58, img: "🐕", spriteId: 229, type: getType(229), hp: 75, attack: 90, defense: 50 },
+  { id: 98, name: "Kingdra", rarity: "uncommon", basePrice: 68, img: "🐉", spriteId: 230, type: getType(230), hp: 75, attack: 95, defense: 95 },
+  { id: 99, name: "Pupitar", rarity: "uncommon", basePrice: 45, img: "🦖", spriteId: 247, type: getType(247), hp: 70, attack: 84, defense: 70 },
 
-  // Rare cards (final evolutions and popular Pokemon)
-  { id: 33, name: "Venusaur", rarity: "rare", basePrice: 80, img: "🌿", spriteId: 3, type: getType(3) },
-  { id: 34, name: "Blastoise", rarity: "rare", basePrice: 85, img: "💧", spriteId: 9, type: getType(9) },
-  { id: 35, name: "Gengar", rarity: "rare", basePrice: 95, img: "👻", spriteId: 94, type: getType(94) },
-  { id: 36, name: "Alakazam", rarity: "rare", basePrice: 90, img: "🔮", spriteId: 65, type: getType(65) },
-  { id: 37, name: "Ninetales", rarity: "rare", basePrice: 75, img: "🦊", spriteId: 38, type: getType(38) },
-  { id: 38, name: "Dragonite", rarity: "rare", basePrice: 150, img: "🐉", spriteId: 149, type: getType(149) },
-  { id: 39, name: "Lapras", rarity: "rare", basePrice: 100, img: "🦕", spriteId: 131, type: getType(131) },
-  { id: 40, name: "Snorlax", rarity: "rare", basePrice: 110, img: "😴", spriteId: 143, type: getType(143) },
-  { id: 41, name: "Gyarados", rarity: "rare", basePrice: 120, img: "🐉", spriteId: 130, type: getType(130) },
-  { id: 42, name: "Umbreon", rarity: "rare", basePrice: 140, img: "🌙", spriteId: 197, type: getType(197) },
-  { id: 43, name: "Espeon", rarity: "rare", basePrice: 130, img: "☀️", spriteId: 196, type: getType(196) },
-  { id: 44, name: "Tyranitar", rarity: "rare", basePrice: 160, img: "🦖", spriteId: 248, type: getType(248) },
-  { id: 45, name: "Gardevoir", rarity: "rare", basePrice: 125, img: "💃", spriteId: 282, type: getType(282) },
-  { id: 46, name: "Absol", rarity: "rare", basePrice: 115, img: "🌑", spriteId: 359, type: getType(359) },
-  { id: 47, name: "Salamence", rarity: "rare", basePrice: 145, img: "🐉", spriteId: 373, type: getType(373) },
-  { id: 48, name: "Metagross", rarity: "rare", basePrice: 155, img: "🤖", spriteId: 376, type: getType(376) },
-  { id: 49, name: "Lucario", rarity: "rare", basePrice: 135, img: "🐺", spriteId: 448, type: getType(448) },
-  { id: 50, name: "Garchomp", rarity: "rare", basePrice: 165, img: "🦈", spriteId: 445, type: getType(445) },
-  { id: 51, name: "Mimikyu", rarity: "rare", basePrice: 120, img: "👻", spriteId: 778, type: getType(778) },
+  // === RARE TIER ($85-250) ===
+  { id: 100, name: "Venusaur", rarity: "rare", basePrice: 120, img: "🌿", spriteId: 3, type: getType(3), hp: 80, attack: 82, defense: 83 },
+  { id: 101, name: "Blastoise", rarity: "rare", basePrice: 135, img: "💧", spriteId: 9, type: getType(9), hp: 79, attack: 83, defense: 100 },
+  { id: 102, name: "Pidgeot", rarity: "rare", basePrice: 100, img: "🦅", spriteId: 18, type: getType(18), hp: 83, attack: 80, defense: 75 },
+  { id: 103, name: "Nidoqueen", rarity: "rare", basePrice: 110, img: "👑", spriteId: 31, type: getType(31), hp: 90, attack: 92, defense: 87 },
+  { id: 104, name: "Nidoking", rarity: "rare", basePrice: 115, img: "👑", spriteId: 34, type: getType(34), hp: 81, attack: 102, defense: 77 },
+  { id: 105, name: "Alakazam", rarity: "rare", basePrice: 150, img: "🔮", spriteId: 65, type: getType(65), hp: 55, attack: 50, defense: 45 },
+  { id: 106, name: "Machamp", rarity: "rare", basePrice: 130, img: "💪", spriteId: 68, type: getType(68), hp: 90, attack: 130, defense: 80 },
+  { id: 107, name: "Golem", rarity: "rare", basePrice: 110, img: "🪨", spriteId: 76, type: getType(76), hp: 80, attack: 120, defense: 130 },
+  { id: 108, name: "Gengar", rarity: "rare", basePrice: 165, img: "👻", spriteId: 94, type: getType(94), hp: 60, attack: 65, defense: 60 },
+  { id: 109, name: "Gyarados", rarity: "rare", basePrice: 175, img: "🐉", spriteId: 130, type: getType(130), hp: 95, attack: 125, defense: 79 },
+  { id: 110, name: "Lapras", rarity: "rare", basePrice: 160, img: "🦕", spriteId: 131, type: getType(131), hp: 130, attack: 85, defense: 80 },
+  { id: 111, name: "Aerodactyl", rarity: "rare", basePrice: 140, img: "🦖", spriteId: 142, type: 'rock', hp: 80, attack: 105, defense: 65 },
+  { id: 112, name: "Dragonite", rarity: "rare", basePrice: 220, img: "🐉", spriteId: 149, type: getType(149), hp: 91, attack: 134, defense: 95 },
+  // Gen 2 rares
+  { id: 113, name: "Meganium", rarity: "rare", basePrice: 115, img: "🌿", spriteId: 154, type: getType(154), hp: 80, attack: 82, defense: 100 },
+  { id: 114, name: "Typhlosion", rarity: "rare", basePrice: 140, img: "🔥", spriteId: 157, type: getType(157), hp: 78, attack: 84, defense: 78 },
+  { id: 115, name: "Feraligatr", rarity: "rare", basePrice: 135, img: "💧", spriteId: 160, type: getType(160), hp: 85, attack: 105, defense: 100 },
+  { id: 116, name: "Togekiss", rarity: "rare", basePrice: 145, img: "🧚", spriteId: 468, type: getType(468), hp: 85, attack: 50, defense: 95 },
+  { id: 117, name: "Steelix", rarity: "rare", basePrice: 130, img: "⚙️", spriteId: 208, type: getType(208), hp: 75, attack: 85, defense: 200 },
+  { id: 118, name: "Tyranitar", rarity: "rare", basePrice: 195, img: "🦖", spriteId: 248, type: getType(248), hp: 100, attack: 134, defense: 110 },
+  // Gen 3 rares
+  { id: 119, name: "Sceptile", rarity: "rare", basePrice: 125, img: "🌿", spriteId: 254, type: getType(254), hp: 70, attack: 85, defense: 65 },
+  { id: 120, name: "Blaziken", rarity: "rare", basePrice: 155, img: "🔥", spriteId: 257, type: getType(257), hp: 80, attack: 120, defense: 70 },
+  { id: 121, name: "Swampert", rarity: "rare", basePrice: 145, img: "💧", spriteId: 260, type: getType(260), hp: 100, attack: 110, defense: 90 },
+  { id: 122, name: "Gardevoir", rarity: "rare", basePrice: 165, img: "💃", spriteId: 282, type: getType(282), hp: 68, attack: 65, defense: 65 },
+  { id: 123, name: "Aggron", rarity: "rare", basePrice: 130, img: "⚙️", spriteId: 306, type: getType(306), hp: 70, attack: 110, defense: 180 },
+  { id: 124, name: "Flygon", rarity: "rare", basePrice: 140, img: "🐉", spriteId: 330, type: getType(330), hp: 80, attack: 100, defense: 80 },
+  { id: 125, name: "Altaria", rarity: "rare", basePrice: 110, img: "☁️", spriteId: 334, type: getType(334), hp: 75, attack: 70, defense: 90 },
+  { id: 126, name: "Milotic", rarity: "rare", basePrice: 175, img: "🐍", spriteId: 350, type: getType(350), hp: 95, attack: 60, defense: 79 },
+  { id: 127, name: "Absol", rarity: "rare", basePrice: 135, img: "🌑", spriteId: 359, type: getType(359), hp: 65, attack: 130, defense: 60 },
+  { id: 128, name: "Salamence", rarity: "rare", basePrice: 200, img: "🐉", spriteId: 373, type: getType(373), hp: 95, attack: 135, defense: 80 },
+  { id: 129, name: "Metagross", rarity: "rare", basePrice: 210, img: "🤖", spriteId: 376, type: getType(376), hp: 80, attack: 135, defense: 130 },
 
-  // Ultra-rare cards (legendaries and pseudo-legendaries)
-  { id: 52, name: "Charizard", rarity: "ultra-rare", basePrice: 400, img: "🔥", spriteId: 6, type: getType(6) },
-  { id: 53, name: "Mewtwo", rarity: "ultra-rare", basePrice: 350, img: "🔮", spriteId: 150, type: getType(150) },
-  { id: 54, name: "Mew", rarity: "ultra-rare", basePrice: 380, img: "💫", spriteId: 151, type: getType(151) },
-  { id: 55, name: "Lugia", rarity: "ultra-rare", basePrice: 320, img: "🌊", spriteId: 249, type: getType(249) },
-  { id: 56, name: "Ho-Oh", rarity: "ultra-rare", basePrice: 310, img: "🌈", spriteId: 250, type: getType(250) },
-  { id: 57, name: "Rayquaza", rarity: "ultra-rare", basePrice: 450, img: "🌪️", spriteId: 384, type: getType(384) },
-  { id: 58, name: "Dialga", rarity: "ultra-rare", basePrice: 340, img: "💎", spriteId: 483, type: getType(483) },
-  { id: 59, name: "Palkia", rarity: "ultra-rare", basePrice: 330, img: "💜", spriteId: 484, type: getType(484) },
-  { id: 60, name: "Giratina", rarity: "ultra-rare", basePrice: 360, img: "👻", spriteId: 487, type: getType(487) },
-  { id: 61, name: "Darkrai", rarity: "ultra-rare", basePrice: 300, img: "🌑", spriteId: 491, type: getType(491) },
-  { id: 62, name: "Zygarde", rarity: "ultra-rare", basePrice: 280, img: "🐍", spriteId: 718, type: getType(718) },
-  { id: 63, name: "Eternatus", rarity: "ultra-rare", basePrice: 290, img: "☠️", spriteId: 890, type: getType(890) },
+  // === ULTRA-RARE TIER ($300-700) ===
+  { id: 130, name: "Charizard", rarity: "ultra-rare", basePrice: 450, img: "🔥", spriteId: 6, type: getType(6), hp: 78, attack: 84, defense: 78 },
+  { id: 131, name: "Mew", rarity: "ultra-rare", basePrice: 380, img: "💫", spriteId: 151, type: getType(151), hp: 100, attack: 100, defense: 100 },
+  { id: 132, name: "Articuno", rarity: "ultra-rare", basePrice: 320, img: "❄️", spriteId: 144, type: getType(144), hp: 90, attack: 85, defense: 100 },
+  { id: 133, name: "Zapdos", rarity: "ultra-rare", basePrice: 340, img: "⚡", spriteId: 145, type: getType(145), hp: 90, attack: 90, defense: 85 },
+  { id: 134, name: "Moltres", rarity: "ultra-rare", basePrice: 330, img: "🔥", spriteId: 146, type: getType(146), hp: 90, attack: 100, defense: 90 },
+  { id: 135, name: "Mewtwo", rarity: "ultra-rare", basePrice: 520, img: "🔮", spriteId: 150, type: getType(150), hp: 106, attack: 110, defense: 90 },
+  { id: 136, name: "Raikou", rarity: "ultra-rare", basePrice: 350, img: "⚡", spriteId: 243, type: getType(243), hp: 90, attack: 85, defense: 75 },
+  { id: 137, name: "Entei", rarity: "ultra-rare", basePrice: 345, img: "🔥", spriteId: 244, type: getType(244), hp: 115, attack: 115, defense: 85 },
+  { id: 138, name: "Suicune", rarity: "ultra-rare", basePrice: 360, img: "💧", spriteId: 245, type: getType(245), hp: 100, attack: 75, defense: 115 },
+  { id: 139, name: "Lugia", rarity: "ultra-rare", basePrice: 480, img: "🌊", spriteId: 249, type: getType(249), hp: 106, attack: 90, defense: 130 },
+  { id: 140, name: "Ho-Oh", rarity: "ultra-rare", basePrice: 470, img: "🌈", spriteId: 250, type: getType(250), hp: 106, attack: 130, defense: 90 },
+  { id: 141, name: "Celebi", rarity: "ultra-rare", basePrice: 400, img: "🌿", spriteId: 251, type: getType(251), hp: 100, attack: 100, defense: 100 },
+  { id: 142, name: "Latias", rarity: "ultra-rare", basePrice: 380, img: "❤️", spriteId: 380, type: getType(380), hp: 80, attack: 80, defense: 90 },
+  { id: 143, name: "Latios", rarity: "ultra-rare", basePrice: 390, img: "💙", spriteId: 381, type: getType(381), hp: 80, attack: 90, defense: 80 },
+  { id: 144, name: "Kyogre", rarity: "ultra-rare", basePrice: 500, img: "🌊", spriteId: 382, type: getType(382), hp: 100, attack: 100, defense: 90 },
+  { id: 145, name: "Groudon", rarity: "ultra-rare", basePrice: 495, img: "🌋", spriteId: 383, type: getType(383), hp: 100, attack: 150, defense: 140 },
+  { id: 146, name: "Rayquaza", rarity: "ultra-rare", basePrice: 550, img: "🌪️", spriteId: 384, type: getType(384), hp: 105, attack: 150, defense: 90 },
+  { id: 147, name: "Jirachi", rarity: "ultra-rare", basePrice: 420, img: "⭐", spriteId: 385, type: getType(385), hp: 100, attack: 100, defense: 100 },
+  { id: 148, name: "Deoxys", rarity: "ultra-rare", basePrice: 440, img: "👽", spriteId: 386, type: getType(386), hp: 50, attack: 150, defense: 50 },
+  { id: 149, name: "Dialga", rarity: "ultra-rare", basePrice: 520, img: "💎", spriteId: 483, type: getType(483), hp: 100, attack: 120, defense: 120 },
+  { id: 150, name: "Palkia", rarity: "ultra-rare", basePrice: 510, img: "💜", spriteId: 484, type: getType(484), hp: 90, attack: 120, defense: 100 },
+  { id: 151, name: "Giratina", rarity: "ultra-rare", basePrice: 530, img: "👻", spriteId: 487, type: getType(487), hp: 150, attack: 100, defense: 120 },
+  { id: 152, name: "Darkrai", rarity: "ultra-rare", basePrice: 460, img: "🌑", spriteId: 491, type: getType(491), hp: 70, attack: 90, defense: 90 },
+  { id: 153, name: "Arceus", rarity: "ultra-rare", basePrice: 600, img: "👑", spriteId: 493, type: getType(493), hp: 120, attack: 120, defense: 120 },
+  { id: 154, name: "Reshiram", rarity: "ultra-rare", basePrice: 480, img: "🔥", spriteId: 643, type: getType(643), hp: 100, attack: 120, defense: 100 },
+  { id: 155, name: "Zekrom", rarity: "ultra-rare", basePrice: 485, img: "⚡", spriteId: 644, type: getType(644), hp: 100, attack: 150, defense: 120 },
+  { id: 156, name: "Kyurem", rarity: "ultra-rare", basePrice: 470, img: "❄️", spriteId: 646, type: getType(646), hp: 125, attack: 130, defense: 90 },
+  { id: 157, name: "Xerneas", rarity: "ultra-rare", basePrice: 450, img: "🦌", spriteId: 716, type: getType(716), hp: 126, attack: 131, defense: 95 },
+  { id: 158, name: "Yveltal", rarity: "ultra-rare", basePrice: 455, img: "🦅", spriteId: 717, type: getType(717), hp: 126, attack: 131, defense: 95 },
 
-  // Legendary cards (iconic and extremely rare)
-  { id: 64, name: "1st Ed Charizard", rarity: "legendary", basePrice: 5000, img: "✨", spriteId: 6, shiny: true, type: getType(6) },
-  { id: 65, name: "Gold Star Pikachu", rarity: "legendary", basePrice: 3000, img: "⭐", spriteId: 25, shiny: true, type: getType(25) },
-  { id: 66, name: "Shining Mewtwo", rarity: "legendary", basePrice: 4000, img: "✨", spriteId: 150, shiny: true, type: getType(150) },
-  { id: 67, name: "Crystal Lugia", rarity: "legendary", basePrice: 3500, img: "💎", spriteId: 249, shiny: true, type: getType(249) },
-  { id: 68, name: "Arceus", rarity: "legendary", basePrice: 4500, img: "👑", spriteId: 493, type: getType(493) },
-  { id: 69, name: "Zacian", rarity: "legendary", basePrice: 2800, img: "⚔️", spriteId: 888, type: getType(888) },
-  { id: 70, name: "Zamazenta", rarity: "legendary", basePrice: 2700, img: "🛡️", spriteId: 889, type: getType(889) },
+  // === LEGENDARY TIER ($2000-5000) ===
+  { id: 159, name: "1st Ed Charizard", rarity: "legendary", basePrice: 4500, img: "✨", spriteId: 6, shiny: true, type: getType(6), hp: 120, attack: 100, defense: 80 },
+  { id: 160, name: "Gold Star Pikachu", rarity: "legendary", basePrice: 3200, img: "⭐", spriteId: 25, shiny: true, type: getType(25), hp: 50, attack: 60, defense: 45 },
+  { id: 161, name: "Crystal Lugia", rarity: "legendary", basePrice: 3500, img: "💎", spriteId: 249, shiny: true, type: getType(249), hp: 120, attack: 90, defense: 130 },
+  { id: 162, name: "Shining Mewtwo", rarity: "legendary", basePrice: 2200, img: "✨", spriteId: 150, shiny: true, type: getType(150), hp: 70, attack: 90, defense: 60 },
+  { id: 163, name: "Gold Star Rayquaza", rarity: "legendary", basePrice: 4200, img: "⭐", spriteId: 384, shiny: true, type: getType(384), hp: 120, attack: 150, defense: 90 },
 ];
 
-// Pack-exclusive cards (shiny variants and special arts)
+// Pack-exclusive cards
 export const PACK_EXCLUSIVE_CARDS: Card[] = [
-  { id: 101, name: "Shiny Charizard VMAX", rarity: "secret-rare", basePrice: 800, img: "🌟", spriteId: 6, shiny: true, type: getType(6), packExclusive: true },
-  { id: 102, name: "Rainbow Pikachu", rarity: "secret-rare", basePrice: 650, img: "🌈", spriteId: 25, shiny: true, type: getType(25), packExclusive: true },
-  { id: 103, name: "Alt Art Umbreon", rarity: "secret-rare", basePrice: 1200, img: "🎨", spriteId: 197, shiny: true, type: getType(197), packExclusive: true },
-  { id: 104, name: "Gold Mew", rarity: "secret-rare", basePrice: 900, img: "🥇", spriteId: 151, shiny: true, type: getType(151), packExclusive: true },
-  { id: 105, name: "Shiny Rayquaza", rarity: "secret-rare", basePrice: 1100, img: "🌟", spriteId: 384, shiny: true, type: getType(384), packExclusive: true },
-  { id: 106, name: "Full Art Gengar", rarity: "secret-rare", basePrice: 750, img: "🎨", spriteId: 94, shiny: true, type: getType(94), packExclusive: true },
-  { id: 107, name: "Gold Arceus", rarity: "secret-rare", basePrice: 1400, img: "👑", spriteId: 493, shiny: true, type: getType(493), packExclusive: true },
-  { id: 108, name: "Shiny Metagross", rarity: "secret-rare", basePrice: 850, img: "🤖", spriteId: 376, shiny: true, type: getType(376), packExclusive: true },
+  // SECRET RARES ($700-1500)
+  { id: 201, name: "Shiny Charizard VMAX", rarity: "secret-rare", basePrice: 1200, img: "🌟", spriteId: 6, shiny: true, type: getType(6), packExclusive: true, hp: 330, attack: 170, defense: 100 },
+  { id: 202, name: "Rainbow Pikachu VMAX", rarity: "secret-rare", basePrice: 850, img: "🌈", spriteId: 25, shiny: true, type: getType(25), packExclusive: true, hp: 310, attack: 120, defense: 80 },
+  { id: 203, name: "Alt Art Umbreon VMAX", rarity: "secret-rare", basePrice: 1100, img: "🎨", spriteId: 197, shiny: true, type: getType(197), packExclusive: true, hp: 320, attack: 160, defense: 130 },
+  { id: 204, name: "Gold Mew", rarity: "secret-rare", basePrice: 900, img: "🥇", spriteId: 151, shiny: true, type: getType(151), packExclusive: true, hp: 180, attack: 120, defense: 100 },
+  { id: 205, name: "Shiny Rayquaza VMAX", rarity: "secret-rare", basePrice: 1300, img: "🌟", spriteId: 384, shiny: true, type: getType(384), packExclusive: true, hp: 340, attack: 180, defense: 95 },
+  { id: 206, name: "Full Art Gengar VMAX", rarity: "secret-rare", basePrice: 1000, img: "🎨", spriteId: 94, shiny: true, type: getType(94), packExclusive: true, hp: 320, attack: 170, defense: 70 },
+  { id: 207, name: "Gold Arceus VSTAR", rarity: "secret-rare", basePrice: 1150, img: "👑", spriteId: 493, shiny: true, type: getType(493), packExclusive: true, hp: 280, attack: 200, defense: 120 },
+  { id: 208, name: "Shiny Metagross", rarity: "secret-rare", basePrice: 870, img: "🤖", spriteId: 376, shiny: true, type: getType(376), packExclusive: true, hp: 330, attack: 165, defense: 140 },
 
-  // Chase cards (extremely rare)
-  { id: 109, name: "Moonbreon", rarity: "chase", basePrice: 2500, img: "🌑", spriteId: 197, shiny: true, type: getType(197), packExclusive: true },
-  { id: 110, name: "Illustrator Pikachu", rarity: "chase", basePrice: 8000, img: "🎴", spriteId: 25, shiny: true, type: getType(25), packExclusive: true },
-  { id: 111, name: "Trophy Charizard", rarity: "chase", basePrice: 10000, img: "🏆", spriteId: 6, shiny: true, type: getType(6), packExclusive: true },
-  { id: 112, name: "Promo Mew", rarity: "chase", basePrice: 6000, img: "🎁", spriteId: 151, shiny: true, type: getType(151), packExclusive: true },
+  // CHASE CARDS ($6000-15000)
+  { id: 209, name: "Moonbreon", rarity: "chase", basePrice: 8500, img: "🌑", spriteId: 197, shiny: true, type: getType(197), packExclusive: true, hp: 140, attack: 100, defense: 140 },
+  { id: 210, name: "Illustrator Pikachu", rarity: "chase", basePrice: 12000, img: "🎴", spriteId: 25, shiny: true, type: getType(25), packExclusive: true, hp: 60, attack: 55, defense: 40 },
+  { id: 211, name: "Trophy Pikachu No. 1", rarity: "chase", basePrice: 15000, img: "🏆", spriteId: 25, shiny: true, type: getType(25), packExclusive: true, hp: 80, attack: 60, defense: 50 },
+  { id: 212, name: "1999 Super Secret Battle", rarity: "chase", basePrice: 11000, img: "🎁", spriteId: 150, shiny: true, type: getType(150), packExclusive: true, hp: 100, attack: 120, defense: 80 },
+  { id: 213, name: "Trophy Charizard", rarity: "chase", basePrice: 10000, img: "🏆", spriteId: 6, shiny: true, type: getType(6), packExclusive: true, hp: 150, attack: 130, defense: 90 },
 ];
 
 export const ALL_PULLABLE_CARDS: Card[] = [...CARD_DATABASE, ...PACK_EXCLUSIVE_CARDS];

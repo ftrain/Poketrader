@@ -44,7 +44,7 @@ export function LessonsView({ unlockedAchievements }: LessonsViewProps) {
               <div className="achievement-icon">{unlocked ? '🏆' : '🔒'}</div>
               <div className="achievement-name">{ach.name}</div>
               <div className="achievement-description">{ach.description}</div>
-              <div className="achievement-reward">Reward: ${ach.reward}</div>
+              <div className="achievement-reward">{ach.benefit}</div>
             </div>
           );
         })}

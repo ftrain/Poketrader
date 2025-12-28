@@ -1,9 +1,19 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { App } from './App';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { GameHubPage } from './pages/GameHubPage';
+import { PoketraderPage } from './pages/PoketraderPage';
+import { PaperclipsPage } from './pages/PaperclipsPage';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <HashRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/hub" replace />} />
+        <Route path="/hub" element={<GameHubPage />} />
+        <Route path="/poketrader" element={<PoketraderPage />} />
+        <Route path="/paperclips" element={<PaperclipsPage />} />
+      </Routes>
+    </HashRouter>
   </StrictMode>
 );

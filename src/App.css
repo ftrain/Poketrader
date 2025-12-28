@@ -2846,3 +2846,32 @@ body {
   font-weight: 700;
   font-size: 13px;
 }
+
+/* Back to Hub Button */
+.back-to-hub {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.4);
+  color: #333;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 100;
+  transition: all 0.2s;
+}
+
+.back-to-hub:hover {
+  background: rgba(255,255,255,0.4);
+  border-color: rgba(255,255,255,0.6);
+}
+
+/* Save indicator in game hub */
+.save-indicator {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 8px;
+}

@@ -7,9 +7,10 @@
 import type { CSSProperties } from 'react';
 import { useState, useCallback } from 'react';
 import { PaperclipsGame } from './PaperclipsGame';
+import { ThriftQueenGame } from './ThriftQueenGame';
 import './GameHub.css';
 
-type GameId = 'hub' | 'paperclips' | 'poketrader';
+type GameId = 'hub' | 'paperclips' | 'poketrader' | 'thriftqueen';
 
 interface GameInfo {
   id: GameId;
@@ -26,6 +27,13 @@ const GAMES: GameInfo[] = [
     description: 'Pokemon card trading simulator',
     icon: '🎴',
     color: '#f59e0b'
+  },
+  {
+    id: 'thriftqueen',
+    name: 'Thrift Queen 👑',
+    description: 'Build a vintage fashion empire!',
+    icon: '👗',
+    color: '#ff69b4'
   },
   {
     id: 'paperclips',
@@ -65,6 +73,10 @@ export function GameHub({ onSelectPoketrader }: GameHubProps) {
         <PaperclipsGame />
       </div>
     );
+  }
+
+  if (currentGame === 'thriftqueen') {
+    return <ThriftQueenGame onNavigateToHub={handleBack} />;
   }
 
   // Game selection hub

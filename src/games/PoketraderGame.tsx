@@ -705,6 +705,11 @@ export function PoketraderGame({ onNavigateToHub }: PoketraderGameProps) {
     setIsOpeningPack(true);
     game.playerAction('recordPackOpen');
 
+    // Reveal cards one by one with animation
+    pulledCards.forEach((card, index) => {
+      setTimeout(() => setRevealedCards(prev => [...prev, card]), index * 400);
+    });
+
     const totalValue = pulledCards.reduce((sum, c) => sum + c.currentPrice, 0);
     const bestPull = pulledCards.reduce((best, c) =>
       c.basePrice > (best?.basePrice || 0) ? c : best, packStats.bestPull as typeof pulledCards[0] | null);

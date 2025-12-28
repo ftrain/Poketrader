@@ -1,4 +1,4 @@
-export const VERSION = '3.1.0';
+export const VERSION = '3.2.0';
 
 export interface ReleaseNote {
   version: string;
@@ -7,6 +7,20 @@ export interface ReleaseNote {
 }
 
 export const RELEASE_NOTES: ReleaseNote[] = [
+  {
+    version: '3.2.0',
+    date: '2025-12-28',
+    changes: [
+      'ARCHITECTURE: Pure entity-based state management',
+      'All cards (market, collection, grading, graded) stored as engine entities',
+      'React now purely renders from engine state - no local card state',
+      'Entity actions: modifyEntity, removeEntity, forEachEntity',
+      'Entity queries: entityCount, entitySum, entityProp, entityFirst, entityHas',
+      'Entity conditions for filtering (eq, lt, gt, and, or, not, hasProperty)',
+      'Entities persist in save/load automatically',
+      'Appraisers now stored as entities with level/experience tracking'
+    ]
+  },
   {
     version: '3.1.0',
     date: '2025-12-28',

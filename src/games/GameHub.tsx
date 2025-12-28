@@ -4,7 +4,8 @@
  * Allows switching between different games running on the same engine.
  */
 
-import React, { useState, useCallback } from 'react';
+import type { CSSProperties } from 'react';
+import { useState, useCallback } from 'react';
 import { PaperclipsGame } from './PaperclipsGame';
 import './GameHub.css';
 
@@ -80,7 +81,7 @@ export function GameHub({ onSelectPoketrader }: GameHubProps) {
             key={game.id}
             className="game-card"
             onClick={() => handleSelectGame(game.id)}
-            style={{ '--game-color': game.color } as React.CSSProperties}
+            style={{ '--game-color': game.color } as CSSProperties}
           >
             <span className="game-icon">{game.icon}</span>
             <h2 className="game-name">{game.name}</h2>

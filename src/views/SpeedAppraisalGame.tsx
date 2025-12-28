@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import type { Card, Appraiser, CardType } from '../types';
 import { CARD_DATABASE, getSpriteUrl } from '../data';
 import { formatMoney } from '../utils/format';
@@ -32,6 +32,19 @@ export function SpeedAppraisalGame({
   const [userOrder, setUserOrder] = useState<number[]>([]); // Card IDs in user's order
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const [specialtyType, setSpecialtyType] = useState<CardType>('electric');
+
+  // Refs to track latest state for timer callback
+  const cardsRef = useRef<Card[]>([]);
+  const userOrderRef = useRef<number[]>([]);
+
+  // Keep refs updated
+  useEffect(() => {
+    cardsRef.current = cards;
+  }, [cards]);
+
+  useEffect(() => {
+    userOrderRef.current = userOrder;
+  }, [userOrder]);
 
   // Generate random cards for the game
   const generateCards = useCallback(() => {
@@ -83,10 +96,16 @@ export function SpeedAppraisalGame({
     return () => clearInterval(timer);
   }, [gameState]);
 
-  // Check if order is correct (high to low)
+  // Check if order is correct (LOW to HIGH - least valuable first)
   const checkWin = useCallback(() => {
-    const correctOrder = [...cards].sort((a, b) => b.basePrice - a.basePrice).map(c => c.id);
-    const isCorrect = userOrder.every((id, i) => id === correctOrder[i]);
+    // Use refs to get latest values, avoiding stale closure in timer
+    const currentCards = cardsRef.current;
+    const currentUserOrder = userOrderRef.current;
+
+    // Correct order is LOW to HIGH (least valuable at top, most valuable at bottom)
+    const correctOrder = [...currentCards].sort((a, b) => a.basePrice - b.basePrice).map(c => c.id);
+    const isCorrect = currentUserOrder.length === correctOrder.length &&
+      currentUserOrder.every((id, i) => id === correctOrder[i]);
 
     if (isCorrect) {
       setGameState('won');
@@ -94,7 +113,7 @@ export function SpeedAppraisalGame({
     } else {
       setGameState('lost');
     }
-  }, [cards, userOrder, onWinGame, specialtyType]);
+  }, [onWinGame, specialtyType]);
 
   // Submit early
   const handleSubmit = useCallback(() => {
@@ -150,7 +169,7 @@ export function SpeedAppraisalGame({
       <div className="view-header">
         <h2>⚡ Speed Appraisal</h2>
         <p className="view-description">
-          Sort cards by value (HIGH to LOW) to hire expert appraisers!
+          Sort cards by value (LEAST to MOST valuable) to hire expert appraisers!
         </p>
       </div>
 
@@ -173,7 +192,7 @@ export function SpeedAppraisalGame({
             <h3>How to Play</h3>
             <ul>
               <li>🃏 You'll see {CARDS_TO_SORT} Pokemon cards</li>
-              <li>📊 Drag them in order from HIGHEST to LOWEST value</li>
+              <li>📊 Drag them in order from LEAST to MOST valuable</li>
               <li>⏱️ You have {GAME_DURATION} seconds</li>
               <li>✅ Get it right to hire a new appraiser!</li>
               <li>💰 Entry fee: $50</li>
@@ -198,7 +217,7 @@ export function SpeedAppraisalGame({
           </div>
 
           <div className="sort-instruction">
-            Drag to sort: <strong>HIGHEST</strong> value at TOP ↑
+            Drag to sort: <strong>LOWEST</strong> value at TOP ↑, <strong>HIGHEST</strong> at BOTTOM ↓
           </div>
 
           <div className="card-sort-list">
@@ -253,9 +272,9 @@ export function SpeedAppraisalGame({
         <div className="game-result won">
           <div className="result-icon">🎉</div>
           <h3>Perfect Appraisal!</h3>
-          <p>You correctly sorted all cards by value!</p>
+          <p>You correctly sorted all cards from least to most valuable!</p>
           <div className="correct-order">
-            {[...cards].sort((a, b) => b.basePrice - a.basePrice).map((card, i) => (
+            {[...cards].sort((a, b) => a.basePrice - b.basePrice).map((card, i) => (
               <div key={card.id} className="correct-card">
                 <span className="correct-rank">{i + 1}.</span>
                 <span className="correct-name">{card.name}</span>
@@ -277,9 +296,9 @@ export function SpeedAppraisalGame({
         <div className="game-result lost">
           <div className="result-icon">😅</div>
           <h3>Not Quite!</h3>
-          <p>The correct order was:</p>
+          <p>The correct order (least to most valuable) was:</p>
           <div className="correct-order">
-            {[...cards].sort((a, b) => b.basePrice - a.basePrice).map((card, i) => (
+            {[...cards].sort((a, b) => a.basePrice - b.basePrice).map((card, i) => (
               <div key={card.id} className="correct-card">
                 <span className="correct-rank">{i + 1}.</span>
                 <span className="correct-name">{card.name}</span>

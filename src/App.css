@@ -44,7 +44,7 @@ body {
 }
 
 /* Main Content Padding */
-.app > *:not(.terminal-header):not(.notifications-container):not(.modal-backdrop) {
+.app > *:not(.terminal-header):not(.console-container):not(.modal-backdrop) {
   padding-left: 16px;
   padding-right: 16px;
 }
@@ -885,7 +885,7 @@ body {
 
 .modal-backdrop.pack-opening {
   flex-direction: column;
-  background: radial-gradient(circle at center, rgba(59, 130, 246, 0.3) 0%, rgba(0, 0, 0, 0.9) 100%);
+  background: radial-gradient(circle at center, #1e3a5f 0%, #0a0a15 100%);
 }
 
 .modal-content {
@@ -1014,64 +1014,94 @@ body {
   color: #10b981;
 }
 
-/* Notifications - Pokemon Message Style */
-.notifications-container {
+/* Console Log - Expandable Message Bar */
+.console-container {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #1a1a2e;
   z-index: 999;
-}
-
-.notification {
-  background: #fff;
-  border-radius: 16px;
-  padding: 14px 18px;
-  animation: slideIn 0.3s ease-out;
-  max-width: 320px;
-  font-size: 14px;
-  color: #2d3436;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-  border-left: 5px solid #3b82f6;
-}
-
-.notification::before {
-  content: none;
-}
-
-.notification.pokemon-voice {
-  border-left-color: #fbbf24;
-  background: linear-gradient(135deg, #fefce8 0%, #fff 100%);
-}
-
-.notification .pokemon-speaker {
-  font-weight: 800;
-  color: #d97706;
-  display: block;
+  font-family: 'Courier New', monospace;
   font-size: 12px;
-  margin-bottom: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-.notification .pokemon-message {
-  font-style: italic;
-  color: #4b5563;
-}
-
-.pokemon-advisor-header {
+.console-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 6px;
+  gap: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  background: #16213e;
+  border-top: 1px solid #0f3460;
 }
 
-.advisor-sprite {
-  width: 36px;
-  height: 36px;
+.console-header:hover {
+  background: #1a2a4e;
+}
+
+.console-indicator {
+  color: #10b981;
+  font-size: 10px;
+}
+
+.console-latest {
+  flex: 1;
+  color: #e8e8e8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.console-count {
+  background: #3b82f6;
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.console-toggle {
+  color: #636e72;
+  font-size: 10px;
+}
+
+.console-sprite {
+  width: 20px;
+  height: 20px;
   image-rendering: pixelated;
+}
+
+.console-log {
+  max-height: 150px;
+  overflow-y: auto;
+  background: #1a1a2e;
+  border-top: 1px solid #0f3460;
+}
+
+.console-entry {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-bottom: 1px solid #0f3460;
+  color: #a8a8a8;
+}
+
+.console-entry:hover {
+  background: #16213e;
+}
+
+.console-message {
+  flex: 1;
+}
+
+.console-message strong {
+  color: #fbbf24;
 }
 
 /* Sprite Styles - 3x Size */

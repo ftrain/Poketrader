@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Notification } from '../types';
 import { getSpriteUrl } from '../data';
 
@@ -6,31 +7,53 @@ interface NotificationsProps {
 }
 
 export function Notifications({ notifications }: NotificationsProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  if (notifications.length === 0) return null;
+
+  const latestNotification = notifications[notifications.length - 1];
+  const messageCount = notifications.length;
+
   return (
-    <div className="notifications-container">
-      {notifications.map(n => (
-        <div
-          key={n.id}
-          className={`notification ${n.advisor ? 'pokemon-voice' : ''}`}
-          style={n.advisor ? { borderColor: n.advisor.color } : undefined}
-        >
-          {n.advisor && (
-            <div className="pokemon-advisor-header">
-              <img
-                src={getSpriteUrl(n.advisor.spriteId)}
-                alt={n.advisor.name}
-                className="advisor-sprite"
-              />
-              <span className="pokemon-speaker" style={{ color: n.advisor.color }}>
-                {n.advisor.name} says:
+    <div className={`console-container ${isExpanded ? 'expanded' : ''}`}>
+      <div
+        className="console-header"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <span className="console-indicator">▶</span>
+        <span className="console-latest">
+          {latestNotification.advisor && (
+            <img
+              src={getSpriteUrl(latestNotification.advisor.spriteId)}
+              alt=""
+              className="console-sprite"
+            />
+          )}
+          {latestNotification.message}
+        </span>
+        <span className="console-count">{messageCount}</span>
+        <span className="console-toggle">{isExpanded ? '▼' : '▲'}</span>
+      </div>
+
+      {isExpanded && (
+        <div className="console-log">
+          {[...notifications].reverse().map(n => (
+            <div key={n.id} className="console-entry">
+              {n.advisor && (
+                <img
+                  src={getSpriteUrl(n.advisor.spriteId)}
+                  alt=""
+                  className="console-sprite"
+                />
+              )}
+              <span className="console-message" style={n.advisor ? { color: n.advisor.color } : undefined}>
+                {n.advisor && <strong>{n.advisor.name}: </strong>}
+                {n.message}
               </span>
             </div>
-          )}
-          <span className={n.advisor ? 'pokemon-message' : ''} style={n.advisor ? { color: n.advisor.color } : undefined}>
-            {n.message}
-          </span>
+          ))}
         </div>
-      ))}
+      )}
     </div>
   );
 }

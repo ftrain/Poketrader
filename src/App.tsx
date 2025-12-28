@@ -123,6 +123,8 @@ export function App() {
       <Navigation
         currentView={game.view}
         onViewChange={game.setView}
+        showGrading={game.totalSold >= 5 || game.collection.some(c => c.currentPrice >= 50)}
+        showGame={game.totalSold >= 3}
       />
 
       {/* Views */}

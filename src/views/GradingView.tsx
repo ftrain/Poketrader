@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { CollectionCard, GradingSubmission, GradedCard } from '../types';
-import { RARITY_COLORS, TYPE_COLORS, getSpriteUrl } from '../data';
+import { CONDITION_LABELS } from '../types';
+import { getSpriteUrl } from '../data';
 import { Button } from '../components';
 import { formatMoney } from '../utils/format';
 
@@ -14,8 +15,9 @@ interface GradingViewProps {
   onCollectGradedCard: (submission: GradingSubmission) => void;
 }
 
+const MIN_VALUE_FOR_GRADING = 50; // Only cards worth $50+ can be graded
 const GRADING_COST_BASE = 25;
-const GRADING_TIME = 30; // seconds
+const GRADING_TIME = 30;
 
 export function GradingView({
   collection,
@@ -26,88 +28,86 @@ export function GradingView({
   onSubmitForGrading,
   onCollectGradedCard
 }: GradingViewProps) {
-  const [selectedTab, setSelectedTab] = useState<'submit' | 'pending' | 'graded'>('submit');
+  const [tab, setTab] = useState<'submit' | 'pending' | 'graded'>('submit');
 
   const getGradingCost = (card: CollectionCard) => {
-    // Cost scales with card value
     return Math.max(GRADING_COST_BASE, Math.round(card.currentPrice * 0.1));
   };
 
+  // Filter cards eligible for grading (worth $50+)
+  const eligibleCards = collection.filter(c => c.currentPrice >= MIN_VALUE_FOR_GRADING);
   const readyToCollect = gradingQueue.filter(g => gameTime >= g.returnTime);
   const stillPending = gradingQueue.filter(g => gameTime < g.returnTime);
 
   return (
-    <div className="view">
-      <h2>🔍 Card Grading Service</h2>
-      <p className="view-subtitle">Submit cards for professional grading - beware of forgeries!</p>
+    <div className="grading-view">
+      <div className="grading-header">
+        <h2>Card Grading</h2>
+        <p>Professional authentication for valuable cards ($50+)</p>
+      </div>
 
-      {/* Notification for ready cards */}
+      {/* Alert for ready cards */}
       {readyToCollect.length > 0 && (
-        <div className="grading-alert">
-          📬 {readyToCollect.length} card{readyToCollect.length > 1 ? 's' : ''} ready to collect!
+        <div className="grading-ready-alert">
+          {readyToCollect.length} card{readyToCollect.length > 1 ? 's' : ''} ready!
         </div>
       )}
 
-      {/* Tab Navigation */}
+      {/* Tabs */}
       <div className="grading-tabs">
         <button
-          className={`grading-tab ${selectedTab === 'submit' ? 'active' : ''}`}
-          onClick={() => setSelectedTab('submit')}
+          className={`grading-tab ${tab === 'submit' ? 'active' : ''}`}
+          onClick={() => setTab('submit')}
         >
-          Submit ({collection.length})
+          Submit ({eligibleCards.length})
         </button>
         <button
-          className={`grading-tab ${selectedTab === 'pending' ? 'active' : ''}`}
-          onClick={() => setSelectedTab('pending')}
+          className={`grading-tab ${tab === 'pending' ? 'active' : ''}`}
+          onClick={() => setTab('pending')}
         >
           Pending ({gradingQueue.length})
-          {readyToCollect.length > 0 && <span className="tab-badge">{readyToCollect.length}</span>}
         </button>
         <button
-          className={`grading-tab ${selectedTab === 'graded' ? 'active' : ''}`}
-          onClick={() => setSelectedTab('graded')}
+          className={`grading-tab ${tab === 'graded' ? 'active' : ''}`}
+          onClick={() => setTab('graded')}
         >
           Graded ({gradedCards.length})
         </button>
       </div>
 
       {/* Submit Tab */}
-      {selectedTab === 'submit' && (
-        <div className="grading-section">
-          {collection.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">📭</div>
-              <p>No cards to grade. Buy or open some packs first!</p>
+      {tab === 'submit' && (
+        <div className="grading-content">
+          {eligibleCards.length === 0 ? (
+            <div className="grading-empty">
+              <p>No cards eligible for grading.</p>
+              <p className="grading-hint">Cards must be worth at least {formatMoney(MIN_VALUE_FOR_GRADING)}</p>
             </div>
           ) : (
-            <div className="card-grid compact">
-              {collection.map(card => {
+            <div className="grading-list">
+              {eligibleCards.map(card => {
                 const cost = getGradingCost(card);
                 const canAfford = money >= cost;
-                const spriteUrl = getSpriteUrl(card.spriteId, card.shiny);
-
                 return (
-                  <div
-                    key={card.collectionId}
-                    className="grading-card"
-                    style={{
-                      borderColor: RARITY_COLORS[card.rarity],
-                      background: `linear-gradient(145deg, ${TYPE_COLORS[card.type]}15, ${TYPE_COLORS[card.type]}30)`
-                    }}
-                  >
-                    <div className="card-sprite small">
-                      <img src={spriteUrl} alt={card.name} className="sprite" />
-                    </div>
-                    <div className="grading-card-info">
-                      <div className="card-name">{card.name}</div>
-                      <div className="card-value">{formatMoney(card.currentPrice)}</div>
+                  <div key={card.collectionId} className="grading-item">
+                    <img
+                      src={getSpriteUrl(card.spriteId, card.shiny)}
+                      alt={card.name}
+                      className="grading-sprite"
+                    />
+                    <div className="grading-item-info">
+                      <span className="grading-item-name">{card.name}</span>
+                      <span className="grading-item-value">{formatMoney(card.currentPrice)}</span>
+                      {card.condition && (
+                        <span className="grading-item-condition">{CONDITION_LABELS[card.condition]}</span>
+                      )}
                     </div>
                     <Button
                       onClick={() => onSubmitForGrading(card)}
                       disabled={!canAfford}
                       variant="primary"
                     >
-                      Grade {formatMoney(cost)}
+                      {formatMoney(cost)}
                     </Button>
                   </div>
                 );
@@ -118,53 +118,46 @@ export function GradingView({
       )}
 
       {/* Pending Tab */}
-      {selectedTab === 'pending' && (
-        <div className="grading-section">
+      {tab === 'pending' && (
+        <div className="grading-content">
           {gradingQueue.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">📦</div>
-              <p>No cards being graded. Submit some cards!</p>
+            <div className="grading-empty">
+              <p>No cards being graded.</p>
             </div>
           ) : (
-            <div className="pending-list">
-              {/* Ready to collect first */}
-              {readyToCollect.map(submission => {
-                const spriteUrl = getSpriteUrl(submission.card.spriteId, submission.card.shiny);
-                return (
-                  <div key={submission.id} className="pending-card ready">
-                    <div className="envelope-icon">📬</div>
-                    <div className="card-sprite small">
-                      <img src={spriteUrl} alt={submission.card.name} className="sprite" />
-                    </div>
-                    <div className="pending-info">
-                      <div className="card-name">{submission.card.name}</div>
-                      <div className="ready-text">Ready to open!</div>
-                    </div>
-                    <Button onClick={() => onCollectGradedCard(submission)} variant="success">
-                      📧 Open Envelope
-                    </Button>
+            <div className="grading-list">
+              {readyToCollect.map(submission => (
+                <div key={submission.id} className="grading-item ready">
+                  <img
+                    src={getSpriteUrl(submission.card.spriteId, submission.card.shiny)}
+                    alt={submission.card.name}
+                    className="grading-sprite"
+                  />
+                  <div className="grading-item-info">
+                    <span className="grading-item-name">{submission.card.name}</span>
+                    <span className="grading-item-ready">Ready to open!</span>
                   </div>
-                );
-              })}
-
-              {/* Still pending */}
+                  <Button onClick={() => onCollectGradedCard(submission)} variant="success">
+                    Open
+                  </Button>
+                </div>
+              ))}
               {stillPending.map(submission => {
                 const timeLeft = Math.max(0, submission.returnTime - gameTime);
-                const spriteUrl = getSpriteUrl(submission.card.spriteId, submission.card.shiny);
                 const progress = ((GRADING_TIME - timeLeft) / GRADING_TIME) * 100;
-
                 return (
-                  <div key={submission.id} className="pending-card">
-                    <div className="envelope-icon pending">📨</div>
-                    <div className="card-sprite small">
-                      <img src={spriteUrl} alt={submission.card.name} className="sprite" />
-                    </div>
-                    <div className="pending-info">
-                      <div className="card-name">{submission.card.name}</div>
-                      <div className="time-left">⏱️ {timeLeft}s remaining</div>
-                      <div className="progress-bar">
-                        <div className="progress-fill" style={{ width: `${progress}%` }} />
+                  <div key={submission.id} className="grading-item pending">
+                    <img
+                      src={getSpriteUrl(submission.card.spriteId, submission.card.shiny)}
+                      alt={submission.card.name}
+                      className="grading-sprite"
+                    />
+                    <div className="grading-item-info">
+                      <span className="grading-item-name">{submission.card.name}</span>
+                      <div className="grading-progress">
+                        <div className="grading-progress-bar" style={{ width: `${progress}%` }} />
                       </div>
+                      <span className="grading-item-time">{timeLeft}s</span>
                     </div>
                   </div>
                 );
@@ -175,65 +168,54 @@ export function GradingView({
       )}
 
       {/* Graded Tab */}
-      {selectedTab === 'graded' && (
-        <div className="grading-section">
+      {tab === 'graded' && (
+        <div className="grading-content">
           {gradedCards.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">🏅</div>
-              <p>No graded cards yet. Submit cards for grading!</p>
+            <div className="grading-empty">
+              <p>No graded cards yet.</p>
             </div>
           ) : (
-            <div className="card-grid">
-              {gradedCards.map(card => {
-                const spriteUrl = getSpriteUrl(card.spriteId, card.shiny);
-                const gradedValue = card.currentPrice * card.gradeMultiplier;
-
-                return (
-                  <div
-                    key={card.collectionId}
-                    className={`graded-card ${card.isForgery ? 'forgery' : ''}`}
-                    style={{
-                      borderColor: card.isForgery ? '#ef4444' : '#fbbf24',
-                      background: card.isForgery
-                        ? 'linear-gradient(145deg, #fef2f2, #fee2e2)'
-                        : 'linear-gradient(145deg, #fffbeb, #fef3c7)'
-                    }}
-                  >
-                    <div className="grade-badge" style={{
-                      background: card.isForgery ? '#ef4444' : getGradeColor(card.grade)
-                    }}>
+            <div className="grading-list">
+              {gradedCards.map(card => (
+                <div
+                  key={card.collectionId}
+                  className={`grading-item graded ${card.isForgery ? 'forgery' : ''}`}
+                >
+                  <img
+                    src={getSpriteUrl(card.spriteId, card.shiny)}
+                    alt={card.name}
+                    className="grading-sprite"
+                  />
+                  <div className="grading-item-info">
+                    <span className="grading-item-name">{card.name}</span>
+                    <span className={`grading-grade ${card.isForgery ? 'forgery' : ''}`}>
                       {card.grade}
-                    </div>
-                    <div className="card-sprite">
-                      <img src={spriteUrl} alt={card.name} className={`sprite ${card.shiny ? 'shiny' : ''}`} />
-                    </div>
-                    <div className="card-name">{card.name}</div>
+                    </span>
+                  </div>
+                  <div className="grading-item-value">
                     {card.isForgery ? (
-                      <div className="forgery-warning">⚠️ WORTHLESS FORGERY</div>
+                      <span className="forgery-text">Worthless</span>
                     ) : (
-                      <div className="graded-value">
-                        <span className="multiplier">{card.gradeMultiplier}x</span>
-                        <span className="value">{formatMoney(gradedValue)}</span>
-                      </div>
+                      <span>{formatMoney(card.currentPrice * card.gradeMultiplier)}</span>
                     )}
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           )}
         </div>
       )}
+
+      {/* Info box */}
+      <div className="grading-info">
+        <strong>How grading works:</strong>
+        <ul>
+          <li>Submit cards worth $50+ for professional grading</li>
+          <li>Wait ~30 seconds for results</li>
+          <li>Higher grades multiply card value (up to 3x)</li>
+          <li>Warning: ~8% chance of forgery detection!</li>
+        </ul>
+      </div>
     </div>
   );
-}
-
-function getGradeColor(grade: string): string {
-  switch (grade) {
-    case 'PSA 10': return '#22c55e';
-    case 'PSA 9': return '#84cc16';
-    case 'PSA 8': return '#eab308';
-    case 'PSA 7': return '#f97316';
-    case 'PSA 6': return '#ef4444';
-    default: return '#6b7280';
-  }
 }

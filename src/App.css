@@ -45,19 +45,19 @@ body {
 }
 
 .reset-btn {
-  background: rgba(255,255,255,0.2);
-  border: none;
+  background: rgba(255,255,255,0.3);
+  border: 2px solid rgba(255,255,255,0.6);
   color: #fff;
   font-size: 18px;
-  padding: 4px 8px;
+  padding: 6px 10px;
   border-radius: 6px;
   cursor: pointer;
-  opacity: 0.7;
+  font-weight: bold;
 }
 
 .reset-btn:hover {
-  opacity: 1;
-  background: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.5);
+  border-color: #fff;
 }
 
 /* Main Content Padding */
@@ -583,13 +583,14 @@ body {
 
 /* Batch Controls */
 .batch-controls {
-  background: #f3f4f6;
+  background: #1e293b;
   border-radius: 12px;
   padding: 12px;
   margin-bottom: 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  border: 2px solid #334155;
 }
 
 .batch-selection {
@@ -600,8 +601,9 @@ body {
 }
 
 .batch-count {
-  font-weight: 600;
-  color: #4b5563;
+  font-weight: 700;
+  color: #e2e8f0;
+  font-size: 14px;
 }
 
 /* Select checkbox for batch mode */
@@ -2444,4 +2446,234 @@ body {
   color: #22c55e;
   font-size: 14px;
   font-weight: 600;
+}
+
+/* Condition Badge */
+.card-condition-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.condition-badge {
+  position: absolute;
+  top: 36px;
+  left: 8px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  color: #fff;
+}
+
+/* Cleaner Grading View */
+.grading-view {
+  padding: 16px;
+}
+
+.grading-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.grading-header h2 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  color: #1e293b;
+}
+
+.grading-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.grading-ready-alert {
+  background: #22c55e;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.grading-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.grading-tab {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.grading-tab.active {
+  background: #fff;
+  color: #1e293b;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.grading-content {
+  min-height: 200px;
+}
+
+.grading-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748b;
+}
+
+.grading-empty p {
+  margin: 0 0 8px;
+}
+
+.grading-hint {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.grading-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.grading-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.grading-item.ready {
+  border-color: #22c55e;
+  background: #f0fdf4;
+}
+
+.grading-item.pending {
+  opacity: 0.7;
+}
+
+.grading-item.graded {
+  border-color: #fbbf24;
+  background: #fffbeb;
+}
+
+.grading-item.forgery {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.grading-sprite {
+  width: 40px;
+  height: 40px;
+  image-rendering: pixelated;
+}
+
+.grading-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.grading-item-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #1e293b;
+}
+
+.grading-item-value {
+  font-size: 13px;
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.grading-item-condition {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.grading-item-ready {
+  color: #22c55e;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.grading-item-time {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.grading-progress {
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 4px 0;
+}
+
+.grading-progress-bar {
+  height: 100%;
+  background: #3b82f6;
+  transition: width 0.3s;
+}
+
+.grading-grade {
+  font-weight: 700;
+  font-size: 13px;
+  color: #22c55e;
+}
+
+.grading-grade.forgery {
+  color: #ef4444;
+}
+
+.forgery-text {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.grading-info {
+  margin-top: 20px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.grading-info strong {
+  color: #1e293b;
+}
+
+.grading-info ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.grading-info li {
+  margin-bottom: 4px;
 }

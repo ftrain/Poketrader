@@ -1,8 +1,18 @@
 import { useState, useMemo } from 'react';
 import type { CollectionCard } from '../types';
+import { CONDITION_LABELS } from '../types';
 import { RARITY_COLORS, TYPE_COLORS, getSpriteUrl } from '../data';
 import { Button } from '../components';
 import { formatMoney } from '../utils/format';
+
+const CONDITION_COLORS: Record<string, string> = {
+  'mint': '#22c55e',
+  'near-mint': '#84cc16',
+  'excellent': '#eab308',
+  'good': '#f97316',
+  'fair': '#ef4444',
+  'poor': '#6b7280'
+};
 
 interface CollectionViewProps {
   collection: CollectionCard[];
@@ -126,6 +136,14 @@ export function CollectionView({ collection, sellBonus, onSellCard, onBatchSell 
               )}
               {card.fromPack && (
                 <div className="pack-badge">📦 Pack</div>
+              )}
+              {card.condition && (
+                <div
+                  className="condition-badge"
+                  style={{ background: CONDITION_COLORS[card.condition] }}
+                >
+                  {CONDITION_LABELS[card.condition]}
+                </div>
               )}
               <div
                 className="profit-badge"

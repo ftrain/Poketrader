@@ -3,22 +3,24 @@ import type { ViewType } from '../types';
 interface NavigationProps {
   currentView: ViewType;
   onViewChange: (view: ViewType) => void;
+  showGrading?: boolean;
+  showGame?: boolean;
 }
 
-const TABS: { id: ViewType; label: string }[] = [
-  { id: 'market', label: 'Market' },
-  { id: 'packs', label: 'Packs' },
-  { id: 'collection', label: 'Cards' },
-  { id: 'grading', label: 'Grade' },
-  { id: 'appraisal', label: 'Game' },
-  { id: 'upgrades', label: 'Upgrades' },
-  { id: 'lessons', label: 'Learn' },
-];
+export function Navigation({ currentView, onViewChange, showGrading = false, showGame = false }: NavigationProps) {
+  const tabs: { id: ViewType; label: string; show: boolean }[] = [
+    { id: 'market', label: 'Market', show: true },
+    { id: 'packs', label: 'Packs', show: true },
+    { id: 'collection', label: 'Cards', show: true },
+    { id: 'grading', label: 'Grade', show: showGrading },
+    { id: 'appraisal', label: 'Game', show: showGame },
+    { id: 'upgrades', label: 'Upgrades', show: true },
+    { id: 'lessons', label: 'Learn', show: true },
+  ];
 
-export function Navigation({ currentView, onViewChange }: NavigationProps) {
   return (
     <div className="navigation">
-      {TABS.map(tab => (
+      {tabs.filter(t => t.show).map(tab => (
         <button
           key={tab.id}
           onClick={() => onViewChange(tab.id)}

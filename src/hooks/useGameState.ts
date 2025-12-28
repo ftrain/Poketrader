@@ -14,8 +14,10 @@ import type {
   GradedCard,
   GradeResult,
   Appraiser,
-  CardType
+  CardType,
+  CardCondition
 } from '../types';
+import { CONDITION_MULTIPLIERS } from '../types';
 import {
   CARD_DATABASE,
   ALL_PULLABLE_CARDS,
@@ -28,6 +30,17 @@ import type { MessageCategory } from '../data';
 
 const RARE_PLUS: Rarity[] = ['rare', 'ultra-rare', 'secret-rare', 'legendary', 'chase'];
 const ULTRA_RARE_PLUS: Rarity[] = ['ultra-rare', 'secret-rare', 'legendary', 'chase'];
+
+// Generate random card condition - better conditions are rarer
+function generateCondition(): CardCondition {
+  const roll = Math.random();
+  if (roll < 0.05) return 'mint';        // 5%
+  if (roll < 0.20) return 'near-mint';   // 15%
+  if (roll < 0.50) return 'excellent';   // 30%
+  if (roll < 0.75) return 'good';        // 25%
+  if (roll < 0.92) return 'fair';        // 17%
+  return 'poor';                          // 8%
+}
 
 export type StarterPath = 'solo' | 'partner' | 'investor' | null;
 
@@ -199,12 +212,17 @@ export function useGameState() {
     const available = [...CARD_DATABASE]
       .sort(() => Math.random() - 0.5)
       .slice(0, marketSize)
-      .map(card => ({
-        ...card,
-        currentPrice: calculatePrice(card, currentEventRef.current),
-        marketId: Date.now() + Math.random(),
-        priceHistory: [] as number[]
-      }));
+      .map(card => {
+        const condition = generateCondition();
+        const conditionMult = CONDITION_MULTIPLIERS[condition];
+        return {
+          ...card,
+          condition,
+          currentPrice: calculatePrice(card, currentEventRef.current) * conditionMult,
+          marketId: Date.now() + Math.random(),
+          priceHistory: [] as number[]
+        };
+      });
     setMarket(available);
   }, [calculatePrice, marketSize]);
 
@@ -700,9 +718,12 @@ export function useGameState() {
         }
       }
 
+      const condition = generateCondition();
+      const conditionMult = CONDITION_MULTIPLIERS[condition];
       pulledCards.push({
         ...card,
-        currentPrice: calculatePrice(card, currentEventRef.current),
+        condition,
+        currentPrice: calculatePrice(card, currentEventRef.current) * conditionMult,
         purchasePrice: 0,
         purchaseTime: gameTime,
         holdTime: 0,

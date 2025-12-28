@@ -1,4 +1,5 @@
 import type { Card, MarketCard, CollectionCard } from '../types';
+import { CONDITION_LABELS } from '../types';
 import { RARITY_COLORS, TYPE_COLORS, getSpriteUrl } from '../data';
 
 interface CardDisplayProps {
@@ -29,10 +30,20 @@ function renderMiniChart(history: number[]) {
 
 const HOLO_RARITIES = ['rare', 'ultra-rare', 'secret-rare', 'legendary', 'chase'];
 
+const CONDITION_COLORS: Record<string, string> = {
+  'mint': '#22c55e',
+  'near-mint': '#84cc16',
+  'excellent': '#eab308',
+  'good': '#f97316',
+  'fair': '#ef4444',
+  'poor': '#6b7280'
+};
+
 export function CardDisplay({ card, showPrice, discount = 1, priceHistory, children }: CardDisplayProps) {
   const currentPrice = 'currentPrice' in card ? card.currentPrice : card.basePrice;
   const spriteUrl = getSpriteUrl(card.spriteId, card.shiny);
   const isHolo = HOLO_RARITIES.includes(card.rarity);
+  const condition = 'condition' in card ? card.condition : null;
 
   return (
     <div
@@ -48,6 +59,14 @@ export function CardDisplay({ card, showPrice, discount = 1, priceHistory, child
       >
         {card.rarity}
       </div>
+      {condition && (
+        <div
+          className="card-condition-badge"
+          style={{ background: CONDITION_COLORS[condition] }}
+        >
+          {CONDITION_LABELS[condition]}
+        </div>
+      )}
       <div className="card-sprite">
         <img
           src={spriteUrl}

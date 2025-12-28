@@ -2,6 +2,27 @@ export type Rarity = 'common' | 'uncommon' | 'rare' | 'ultra-rare' | 'secret-rar
 
 export type CardType = 'electric' | 'fire' | 'grass' | 'water' | 'normal' | 'ghost' | 'dragon' | 'psychic' | 'dark' | 'fighting' | 'poison' | 'ground' | 'flying' | 'bug' | 'rock' | 'ice' | 'steel' | 'fairy';
 
+// Card condition affects value - assigned when card is acquired
+export type CardCondition = 'mint' | 'near-mint' | 'excellent' | 'good' | 'fair' | 'poor';
+
+export const CONDITION_MULTIPLIERS: Record<CardCondition, number> = {
+  'mint': 1.5,
+  'near-mint': 1.2,
+  'excellent': 1.0,
+  'good': 0.8,
+  'fair': 0.5,
+  'poor': 0.3
+};
+
+export const CONDITION_LABELS: Record<CardCondition, string> = {
+  'mint': 'MINT',
+  'near-mint': 'NM',
+  'excellent': 'EX',
+  'good': 'GD',
+  'fair': 'FR',
+  'poor': 'PR'
+};
+
 export interface Card {
   id: number;
   name: string;
@@ -22,6 +43,7 @@ export interface MarketCard extends Card {
   currentPrice: number;
   marketId: number;
   priceHistory: number[];
+  condition: CardCondition;
 }
 
 export interface CollectionCard extends Card {
@@ -31,6 +53,7 @@ export interface CollectionCard extends Card {
   holdTime: number;
   collectionId: number;
   fromPack?: string;
+  condition: CardCondition;
 }
 
 export interface PackType {

@@ -155,9 +155,9 @@ export function ClothingVisual({
   selected = false
 }: ClothingVisualProps) {
   const dimensions = {
-    small: { width: 60, height: 80 },
-    medium: { width: 100, height: 130 },
-    large: { width: 160, height: 200 }
+    small: { width: 80, height: 100 },
+    medium: { width: 120, height: 150 },
+    large: { width: 180, height: 220 }
   }[size];
 
   const typeVisual = TYPE_VISUALS[item.type];

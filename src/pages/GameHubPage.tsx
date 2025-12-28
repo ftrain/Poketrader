@@ -28,6 +28,14 @@ const GAMES: GameInfo[] = [
     path: '/poketrader'
   },
   {
+    id: 'thriftqueen',
+    name: 'Thrift Queen 👑',
+    description: 'Build a vintage fashion empire and defeat fast fashion! 👗💚',
+    icon: '👗',
+    color: '#ff69b4',
+    path: '/thriftqueen'
+  },
+  {
     id: 'paperclips',
     name: 'Universal Paperclips',
     description: 'Classic idle game - make paperclips, expand production',

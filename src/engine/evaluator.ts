@@ -229,9 +229,14 @@ export function formatValue(
  */
 export function formatCompact(num: number): string {
   const suffixes = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc'];
+
+  // Handle zero, NaN, or very small numbers
+  if (num === 0 || !isFinite(num)) return '0';
+
   const tier = Math.floor(Math.log10(Math.abs(num)) / 3);
 
-  if (tier === 0 || !isFinite(tier)) return num.toLocaleString();
+  // Handle numbers less than 1000 (tier 0 or negative)
+  if (tier <= 0) return num.toLocaleString(undefined, { maximumFractionDigits: 2 });
   if (tier >= suffixes.length) return num.toExponential(2);
 
   const scaled = num / Math.pow(10, tier * 3);

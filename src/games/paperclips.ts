@@ -163,6 +163,16 @@ export const paperclipsGame: GameDefinition = {
       ]
     },
 
+    // Clamp wire to 0 (prevent negative values)
+    {
+      id: 'clamp-wire',
+      timing: 'tick',
+      condition: { op: 'lt', left: { ref: 'wire' }, right: 0 },
+      actions: [
+        { action: 'set', target: 'wire', value: 0 }
+      ]
+    },
+
     // Auto-sell clips (based on demand)
     {
       id: 'auto-sell',

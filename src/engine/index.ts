@@ -94,6 +94,16 @@ export type { UseGameEngineReturn, UseGameEngineOptions } from './useGameEngine'
 export { GameRenderer, StatDisplay, ActionButton } from './GameRenderer';
 export type { GameRendererProps, CustomComponentProps } from './GameRenderer';
 
+// Multi-game infrastructure
+export { GameRegistry, getGlobalRegistry, resetGlobalRegistry } from './GameRegistry';
+export type { GameInfo, RegistrationResult } from './GameRegistry';
+
+export { SaveManager, getGlobalSaveManager, resetGlobalSaveManager } from './SaveManager';
+export type { SaveData, SaveSlotInfo, SaveManagerOptions } from './SaveManager';
+
+export { GameManager, getGlobalManager, resetGlobalManager } from './GameManager';
+export type { GameManagerEvents, GameManagerConfig, GameSession } from './GameManager';
+
 // Legacy Poketrader rules engine (for backwards compatibility)
 export { RulesEngine, rulesEngine, GAME_RULES } from './rules';
 export type { GameRule, RuleEngineState, RuleMatch } from './rules';

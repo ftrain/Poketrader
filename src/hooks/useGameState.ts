@@ -12,7 +12,9 @@ import type {
   Rarity,
   GradingSubmission,
   GradedCard,
-  GradeResult
+  GradeResult,
+  Appraiser,
+  CardType
 } from '../types';
 import {
   CARD_DATABASE,
@@ -133,6 +135,10 @@ export function useGameState() {
   const [envelopeCard, setEnvelopeCard] = useState<GradedCard | null>(null);
   let gradingIdCounter = useRef(savedGame?.gradingIdCounter ?? 1);
 
+  // Appraiser system state
+  const [appraisers, setAppraisers] = useState<Appraiser[]>(savedGame?.appraisers ?? []);
+  let appraiserIdCounter = useRef(savedGame?.appraiserIdCounter ?? 1);
+
   const currentEventRef = useRef(currentEvent);
   const eventTimerRef = useRef(eventTimer);
   const passiveIncomeRef = useRef(passiveIncome);
@@ -158,6 +164,9 @@ export function useGameState() {
   useEffect(() => { discountRef.current = discount; }, [discount]);
   useEffect(() => { debtRef.current = debt; }, [debt]);
   useEffect(() => { marketRef.current = market; }, [market]);
+
+  const appraisersRef = useRef(appraisers);
+  useEffect(() => { appraisersRef.current = appraisers; }, [appraisers]);
 
   const calculatePrice = useCallback((card: Card, event: MarketEvent | null): number => {
     let price = card.basePrice;
@@ -217,9 +226,12 @@ export function useGameState() {
       tick++;
       setGameTime((t: number) => t + 1);
 
-      if (passiveIncomeRef.current > 0) {
-        setMoney((m: number) => m + passiveIncomeRef.current);
-        setTotalEarned((t: number) => t + passiveIncomeRef.current);
+      // Calculate total passive income including appraisers
+      const appraiserEarnings = appraisersRef.current.reduce((sum, a) => sum + a.earnRate, 0);
+      const totalPassive = passiveIncomeRef.current + appraiserEarnings;
+      if (totalPassive > 0) {
+        setMoney((m: number) => m + totalPassive);
+        setTotalEarned((t: number) => t + totalPassive);
       }
 
       setMarket(prev => prev.map(card => ({
@@ -558,6 +570,59 @@ export function useGameState() {
     setEnvelopeCard(null);
   }, []);
 
+  // Appraiser system functions
+  const APPRAISAL_ENTRY_FEE = 50;
+  const APPRAISER_NAMES = [
+    'Prof. Elm', 'Bill', 'Celio', 'Lanette', 'Bebe',
+    'Hayley', 'Amanita', 'Cassius', 'Brigette', 'Lillie',
+    'Hop', 'Sonia', 'Jacq', 'Clavell', 'Arven'
+  ];
+
+  const startAppraisalGame = useCallback((): boolean => {
+    if (money < APPRAISAL_ENTRY_FEE) return false;
+    setMoney((m: number) => m - APPRAISAL_ENTRY_FEE);
+    return true;
+  }, [money]);
+
+  const winAppraisalGame = useCallback((specialty: CardType) => {
+    const usedNames = appraisers.map(a => a.name);
+    const availableNames = APPRAISER_NAMES.filter(n => !usedNames.includes(n));
+    const name = availableNames.length > 0
+      ? availableNames[Math.floor(Math.random() * availableNames.length)]
+      : `Appraiser #${appraiserIdCounter.current}`;
+
+    const newAppraiser: Appraiser = {
+      id: appraiserIdCounter.current++,
+      name,
+      level: 1,
+      experience: 0,
+      specialty,
+      earnRate: 0.5 // $0.50/sec base income
+    };
+
+    setAppraisers(prev => [...prev, newAppraiser]);
+    addNotification(`👔 Hired ${name} as ${specialty}-type appraiser!`, 'upgrade');
+  }, [appraisers, addNotification]);
+
+  const trainAppraiser = useCallback((appraiserId: number) => {
+    const appraiser = appraisers.find(a => a.id === appraiserId);
+    if (!appraiser) return;
+
+    const trainingCost = Math.round(100 * Math.pow(1.5, appraiser.level - 1));
+    if (money < trainingCost) return;
+
+    setMoney((m: number) => m - trainingCost);
+    setAppraisers(prev => prev.map(a =>
+      a.id === appraiserId
+        ? { ...a, level: a.level + 1, earnRate: a.earnRate * 1.4 }
+        : a
+    ));
+    addNotification(`📚 ${appraiser.name} trained to level ${appraiser.level + 1}!`, 'upgrade');
+  }, [appraisers, money, addNotification]);
+
+  // Calculate total appraiser income and add to passive income
+  const appraiserIncome = appraisers.reduce((sum, a) => sum + a.earnRate, 0);
+
   const buyUpgrade = useCallback((upgradeId: number) => {
     const upgrade = UPGRADES.find(u => u.id === upgradeId);
     if (!upgrade || money < upgrade.cost || upgrades.includes(upgrade.id)) return;
@@ -748,7 +813,9 @@ export function useGameState() {
         packStats,
         gradingQueue,
         gradedCards,
-        gradingIdCounter: gradingIdCounter.current
+        gradingIdCounter: gradingIdCounter.current,
+        appraisers,
+        appraiserIdCounter: appraiserIdCounter.current
       };
       try {
         localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
@@ -761,7 +828,7 @@ export function useGameState() {
     saveGame(); // Save immediately on state change
 
     return () => clearInterval(saveInterval);
-  }, [starterPath, debt, money, totalEarned, totalProfit, totalSold, collection, upgrades, achievements, clickPower, passiveIncome, discount, sellBonus, capacity, marketSize, packDiscount, critBonus, gameTime, longestHold, packsOpened, packStats, gradingQueue, gradedCards]);
+  }, [starterPath, debt, money, totalEarned, totalProfit, totalSold, collection, upgrades, achievements, clickPower, passiveIncome, discount, sellBonus, capacity, marketSize, packDiscount, critBonus, gameTime, longestHold, packsOpened, packStats, gradingQueue, gradedCards, appraisers]);
 
   const resetGame = useCallback(() => {
     localStorage.removeItem(SAVE_KEY);
@@ -812,6 +879,10 @@ export function useGameState() {
     gradedCards,
     envelopeCard,
 
+    // Appraiser system
+    appraisers,
+    appraiserIncome,
+
     // Actions
     setView,
     setShowLesson,
@@ -832,5 +903,10 @@ export function useGameState() {
     submitForGrading,
     collectGradedCard,
     closeEnvelopeModal,
+
+    // Appraiser actions
+    startAppraisalGame,
+    winAppraisalGame,
+    trainAppraiser,
   };
 }

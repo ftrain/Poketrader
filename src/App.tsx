@@ -17,7 +17,8 @@ import {
   LessonsView,
   PackOpeningModal,
   RulesView,
-  GradingView
+  GradingView,
+  SpeedAppraisalGame
 } from './views';
 import type { RuleEngineState } from './engine';
 import { formatMoney } from './utils';
@@ -166,6 +167,16 @@ export function App() {
           gameTime={game.gameTime}
           onSubmitForGrading={game.submitForGrading}
           onCollectGradedCard={game.collectGradedCard}
+        />
+      )}
+
+      {game.view === 'appraisal' && (
+        <SpeedAppraisalGame
+          money={game.money}
+          appraisers={game.appraisers}
+          onStartGame={game.startAppraisalGame}
+          onWinGame={game.winAppraisalGame}
+          onTrainAppraiser={game.trainAppraiser}
         />
       )}
 

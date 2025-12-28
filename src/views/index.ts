@@ -6,3 +6,4 @@ export { LessonsView } from './LessonsView';
 export { PackOpeningModal } from './PackOpeningModal';
 export { RulesView } from './RulesView';
 export { GradingView } from './GradingView';
+export { SpeedAppraisalGame } from './SpeedAppraisalGame';

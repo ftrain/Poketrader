@@ -133,7 +133,7 @@ export interface ClickEffect {
   comboLevel?: number;
 }
 
-export type ViewType = 'market' | 'packs' | 'collection' | 'upgrades' | 'lessons' | 'rules' | 'grading';
+export type ViewType = 'market' | 'packs' | 'collection' | 'upgrades' | 'lessons' | 'rules' | 'grading' | 'appraisal';
 
 // Grading system types
 export type GradeResult = 'PSA 10' | 'PSA 9' | 'PSA 8' | 'PSA 7' | 'PSA 6' | 'FORGERY';

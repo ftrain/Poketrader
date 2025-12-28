@@ -10,6 +10,7 @@ const TABS: { id: ViewType; label: string }[] = [
   { id: 'packs', label: 'Packs' },
   { id: 'collection', label: 'Cards' },
   { id: 'grading', label: 'Grade' },
+  { id: 'appraisal', label: 'Game' },
   { id: 'upgrades', label: 'Upgrades' },
   { id: 'lessons', label: 'Learn' },
 ];

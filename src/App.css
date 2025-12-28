@@ -375,30 +375,30 @@ body {
 /* Navigation - Pokemon Type Tabs */
 .navigation {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   margin: 16px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   background: #fff;
-  padding: 8px;
-  border-radius: 16px;
+  padding: 6px;
+  border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
 .nav-button {
   flex: 1;
-  min-width: 70px;
-  padding: 10px 12px;
+  padding: 8px 6px;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   background: transparent;
   color: #636e72;
   cursor: pointer;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 11px;
   font-family: inherit;
   transition: all 0.2s;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0;
+  white-space: nowrap;
 }
 
 .nav-button:hover {
@@ -1383,9 +1383,8 @@ body {
   }
 
   .nav-button {
-    font-size: 10px;
-    padding: 6px 4px;
-    min-width: 50px;
+    font-size: 9px;
+    padding: 6px 2px;
   }
 
   .upgrade-grid {

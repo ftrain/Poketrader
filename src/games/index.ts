@@ -10,4 +10,5 @@ export { poketraderGame } from './poketrader';
 
 // Game components
 export { PaperclipsGame } from './PaperclipsGame';
+export { PoketraderGame } from './PoketraderGame';
 export { GameHub } from './GameHub';

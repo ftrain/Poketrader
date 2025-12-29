@@ -185,6 +185,26 @@ export const evolutionGame: GameDefinition = {
     { id: 'trait_questioning', type: 'boolean', initial: false, description: 'Ask "why?"' },
 
     // ═══════════════════════════════════════════════════════════════
+    // 🔮 SYNTHESIZED TRAITS - Emergent from combinations
+    // ═══════════════════════════════════════════════════════════════
+    { id: 'trait_venom', type: 'boolean', initial: false, description: 'Chemical weapons' },
+    { id: 'trait_bioluminescence', type: 'boolean', initial: false, description: 'Living light' },
+    { id: 'trait_echolocation', type: 'boolean', initial: false, description: 'Sound-based vision' },
+    { id: 'trait_camouflage', type: 'boolean', initial: false, description: 'Hide in plain sight' },
+    { id: 'trait_regeneration', type: 'boolean', initial: false, description: 'Regrow lost parts' },
+    { id: 'trait_hivemind', type: 'boolean', initial: false, description: 'Collective intelligence' },
+    { id: 'trait_flight', type: 'boolean', initial: false, description: 'Conquer the sky' },
+    { id: 'trait_aquaticReturn', type: 'boolean', initial: false, description: 'Back to the sea' },
+    { id: 'trait_symbiosis', type: 'boolean', initial: false, description: 'Mutual benefit' },
+    { id: 'trait_agriculture', type: 'boolean', initial: false, description: 'Farming' },
+    { id: 'trait_fire', type: 'boolean', initial: false, description: 'Master of flames' },
+    { id: 'trait_cooking', type: 'boolean', initial: false, description: 'Transform food' },
+    { id: 'trait_art', type: 'boolean', initial: false, description: 'Create beauty' },
+    { id: 'trait_music', type: 'boolean', initial: false, description: 'Organized sound' },
+    { id: 'trait_writing', type: 'boolean', initial: false, description: 'Externalized memory' },
+    { id: 'trait_science', type: 'boolean', initial: false, description: 'Systematic inquiry' },
+
+    // ═══════════════════════════════════════════════════════════════
     // 🌋 ENVIRONMENTAL STATE
     // ═══════════════════════════════════════════════════════════════
     { id: 'oxygen', type: 'number', initial: 0, description: 'Atmospheric O2 %' },
@@ -2150,6 +2170,301 @@ export const evolutionGame: GameDefinition = {
         { action: 'set', target: 'trait_questioning', value: true },
         { action: 'add', target: 'theoriesAboutYou', value: 50 },
         { action: 'message', text: '❓ "Where do we come from? Why are we here? What made us?" They are asking about YOU. They will discover you. They will name you EVOLUTION.', type: 'success' }
+      ]
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🔮 TRAIT SYNTHESIS - Combine traits for emergent properties
+    // "The whole is greater than the sum of its parts" - Aristotle
+    // ═══════════════════════════════════════════════════════════════
+
+    // === EARLY SYNTHESES (Cambrian-era) ===
+    {
+      id: 'synthesis-venom',
+      name: '🧪 Synthesize: Venom',
+      description: '☠️ Metabolism + Predation → Chemical weapons',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_metabolism' },
+        { op: 'flag', flag: 'upgrade_predation' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_venom' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 40 }],
+      effects: [
+        { action: 'set', target: 'trait_venom', value: true },
+        { action: 'add', target: 'selectionPressure', value: 3 },
+        { action: 'add', target: 'suffering', value: 5 },
+        { action: 'message', text: '🧪 VENOM SYNTHESIZED! Fangs drip with death. Snakes, spiders, jellyfish - chemical warfare enters evolution...', type: 'success' }
+      ]
+    },
+    {
+      id: 'synthesis-camouflage',
+      name: '🎭 Synthesize: Camouflage',
+      description: '👁️ Eyes + Shell/Exoskeleton → Hide in plain sight',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_eyes' },
+        { op: 'or', conditions: [
+          { op: 'flag', flag: 'trait_shell' },
+          { op: 'flag', flag: 'trait_exoskeleton' }
+        ]},
+        { op: 'not', condition: { op: 'flag', flag: 'trait_camouflage' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 35 }],
+      effects: [
+        { action: 'set', target: 'trait_camouflage', value: true },
+        { action: 'add', target: 'beauty', value: 5 },
+        { action: 'message', text: '🎭 CAMOUFLAGE SYNTHESIZED! Octopi shift colors. Moths match bark. The art of invisibility...', type: 'success' }
+      ]
+    },
+    {
+      id: 'synthesis-bioluminescence',
+      name: '💡 Synthesize: Bioluminescence',
+      description: '✨ Metabolism + Deep ocean → Living light',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_metabolism' },
+        { op: 'gt', left: { ref: 'oceanCoverage' }, right: 50 },
+        { op: 'gt', left: { ref: 'species' }, right: 200 },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_bioluminescence' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 45 }],
+      effects: [
+        { action: 'set', target: 'trait_bioluminescence', value: true },
+        { action: 'add', target: 'beauty', value: 15 },
+        { action: 'add', target: 'wonder', value: 5 },
+        { action: 'message', text: '💡 BIOLUMINESCENCE SYNTHESIZED! Deep sea creatures glow. Fireflies flash. The ocean becomes a galaxy...', type: 'success' }
+      ]
+    },
+    {
+      id: 'synthesis-regeneration',
+      name: '🦎 Synthesize: Regeneration',
+      description: '🔄 Multicellularity + Cell Differentiation → Regrow limbs',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_multicellularity' },
+        { op: 'flag', flag: 'upgrade_cellDifferentiation' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_regeneration' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 50 }],
+      effects: [
+        { action: 'set', target: 'trait_regeneration', value: true },
+        { action: 'add', target: 'complexity', value: 10 },
+        { action: 'message', text: '🦎 REGENERATION SYNTHESIZED! Starfish regrow arms. Salamanders regrow limbs. Life refuses to stay broken...', type: 'success' }
+      ]
+    },
+    {
+      id: 'synthesis-symbiosis',
+      name: '🤝 Synthesize: Symbiosis',
+      description: '🌿 Photosynthesis + Animals → Mutual benefit',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_photosynthesis' },
+        { op: 'gt', left: { ref: 'animalia' }, right: 100 },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_symbiosis' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 55 }],
+      effects: [
+        { action: 'set', target: 'trait_symbiosis', value: true },
+        { action: 'add', target: 'geneticDiversity', value: 30 },
+        { action: 'add', target: 'biomass', value: 100 },
+        { action: 'message', text: '🤝 SYMBIOSIS SYNTHESIZED! Coral reefs bloom. Gut bacteria aid digestion. Flowers and bees dance together...', type: 'success' }
+      ]
+    },
+
+    // === VERTEBRATE SYNTHESES ===
+    {
+      id: 'synthesis-echolocation',
+      name: '🦇 Synthesize: Echolocation',
+      description: '🔊 Nerves + Warm Blood + Flight → Sound-based vision',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_nerves' },
+        { op: 'flag', flag: 'trait_warmblood' },
+        { op: 'flag', flag: 'trait_flight' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_echolocation' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 65 }],
+      effects: [
+        { action: 'set', target: 'trait_echolocation', value: true },
+        { action: 'add', target: 'complexity', value: 15 },
+        { action: 'message', text: '🦇 ECHOLOCATION SYNTHESIZED! Bats paint the world with sound. Dolphins see with sonar. Darkness is conquered...', type: 'success' }
+      ]
+    },
+    {
+      id: 'synthesis-flight',
+      name: '🦅 Synthesize: Flight',
+      description: '🪶 Feathers + Bones + Warm Blood → Conquer the sky',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_feathers' },
+        { op: 'flag', flag: 'trait_bones' },
+        { op: 'flag', flag: 'trait_warmblood' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_flight' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 80 }],
+      effects: [
+        { action: 'set', target: 'trait_flight', value: true },
+        { action: 'set', target: 'upgrade_flight', value: true },
+        { action: 'add', target: 'beauty', value: 20 },
+        { action: 'add', target: 'wonder', value: 10 },
+        { action: 'message', text: '🦅 FLIGHT SYNTHESIZED! Wings beat against gravity. The sky belongs to life. Birds inherit the dreams of dinosaurs...', type: 'success' }
+      ]
+    },
+    {
+      id: 'synthesis-aquatic-return',
+      name: '🐋 Synthesize: Return to Sea',
+      description: '🌊 Lungs + Warm Blood + Large Body → Back to the ocean',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_lungs' },
+        { op: 'flag', flag: 'trait_warmblood' },
+        { op: 'flag', flag: 'trait_placenta' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_aquaticReturn' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 85 }],
+      effects: [
+        { action: 'set', target: 'trait_aquaticReturn', value: true },
+        { action: 'add', target: 'species', value: 50 },
+        { action: 'add', target: 'wonder', value: 15 },
+        { action: 'message', text: '🐋 AQUATIC RETURN SYNTHESIZED! Whales breach. Dolphins dance. Seals hunt. Land mammals remember the sea...', type: 'success' }
+      ]
+    },
+
+    // === SOCIAL SYNTHESES ===
+    {
+      id: 'synthesis-hivemind',
+      name: '🐝 Synthesize: Hive Mind',
+      description: '🧠 Social Behavior + Exoskeleton → Collective intelligence',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'upgrade_socialBehavior' },
+        { op: 'flag', flag: 'trait_exoskeleton' },
+        { op: 'gt', left: { ref: 'insects' }, right: 1000 },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_hivemind' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 70 }],
+      effects: [
+        { action: 'set', target: 'trait_hivemind', value: true },
+        { action: 'add', target: 'complexity', value: 25 },
+        { action: 'message', text: '🐝 HIVE MIND SYNTHESIZED! Ant colonies think as one. Bee hives make collective decisions. The superorganism emerges...', type: 'success' }
+      ]
+    },
+
+    // === HUMAN SYNTHESES ===
+    {
+      id: 'synthesis-fire',
+      name: '🔥 Synthesize: Fire Mastery',
+      description: '💪 Tool Use + Large Brain → Control of flames',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'upgrade_toolUse' },
+        { op: 'flag', flag: 'trait_largebrain' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_fire' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 100 }],
+      effects: [
+        { action: 'set', target: 'trait_fire', value: true },
+        { action: 'set', target: 'upgrade_fire', value: true },
+        { action: 'add', target: 'complexity', value: 30 },
+        { action: 'message', text: '🔥 FIRE MASTERED! Darkness retreats. Predators flee. Cooking becomes possible. Everything changes...', type: 'success' }
+      ]
+    },
+    {
+      id: 'synthesis-cooking',
+      name: '🍖 Synthesize: Cooking',
+      description: '🔥 Fire + Social Behavior → Transform food',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_fire' },
+        { op: 'flag', flag: 'upgrade_socialBehavior' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_cooking' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 80 }],
+      effects: [
+        { action: 'set', target: 'trait_cooking', value: true },
+        { action: 'add', target: 'complexity', value: 40 },
+        { action: 'message', text: '🍖 COOKING SYNTHESIZED! Food becomes digestible. Brains can grow larger. The campfire becomes a hearth...', type: 'success' }
+      ]
+    },
+    {
+      id: 'synthesis-art',
+      name: '🎨 Synthesize: Art',
+      description: '✨ Abstract Thought + Beauty → Create meaning',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'upgrade_abstractThought' },
+        { op: 'gt', left: { ref: 'beauty' }, right: 50 },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_art' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 120 }],
+      effects: [
+        { action: 'set', target: 'trait_art', value: true },
+        { action: 'add', target: 'beauty', value: 100 },
+        { action: 'add', target: 'wonder', value: 50 },
+        { action: 'message', text: '🎨 ART SYNTHESIZED! Cave paintings appear. Sculptures emerge. Music fills the air. Beauty becomes intentional...', type: 'success' }
+      ]
+    },
+    {
+      id: 'synthesis-music',
+      name: '🎵 Synthesize: Music',
+      description: '🎶 Language + Art → Organized sound',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_language' },
+        { op: 'flag', flag: 'trait_art' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_music' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 90 }],
+      effects: [
+        { action: 'set', target: 'trait_music', value: true },
+        { action: 'add', target: 'beauty', value: 50 },
+        { action: 'add', target: 'wonder', value: 30 },
+        { action: 'message', text: '🎵 MUSIC SYNTHESIZED! Rhythms pulse. Melodies soar. Harmony emerges. The universe learns to sing...', type: 'success' }
+      ]
+    },
+    {
+      id: 'synthesis-agriculture',
+      name: '🌾 Synthesize: Agriculture',
+      description: '🌱 Tool Use + Plant Knowledge → Farming',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'upgrade_toolUse' },
+        { op: 'gt', left: { ref: 'angiosperms' }, right: 500 },
+        { op: 'flag', flag: 'trait_largebrain' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_agriculture' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 150 }],
+      effects: [
+        { action: 'set', target: 'trait_agriculture', value: true },
+        { action: 'set', target: 'upgrade_agriculture', value: true },
+        { action: 'add', target: 'biomass', value: 500 },
+        { action: 'add', target: 'complexity', value: 50 },
+        { action: 'message', text: '🌾 AGRICULTURE SYNTHESIZED! Seeds are planted. Harvests are gathered. Civilization becomes possible...', type: 'success' }
+      ]
+    },
+    {
+      id: 'synthesis-writing',
+      name: '📜 Synthesize: Writing',
+      description: '✍️ Language + Tool Use + Abstract Thought → External memory',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_language' },
+        { op: 'flag', flag: 'upgrade_toolUse' },
+        { op: 'flag', flag: 'upgrade_abstractThought' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_writing' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 180 }],
+      effects: [
+        { action: 'set', target: 'trait_writing', value: true },
+        { action: 'set', target: 'upgrade_writing', value: true },
+        { action: 'add', target: 'theoriesAboutYou', value: 20 },
+        { action: 'add', target: 'complexity', value: 80 },
+        { action: 'message', text: '📜 WRITING SYNTHESIZED! Thoughts escape the skull. Knowledge outlives the thinker. History begins...', type: 'success' }
+      ]
+    },
+    {
+      id: 'synthesis-science',
+      name: '🔬 Synthesize: Science',
+      description: '🧪 Writing + Abstract Thought + Questions → Systematic inquiry',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_writing' },
+        { op: 'flag', flag: 'upgrade_abstractThought' },
+        { op: 'flag', flag: 'trait_questioning' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_science' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 250 }],
+      effects: [
+        { action: 'set', target: 'trait_science', value: true },
+        { action: 'set', target: 'upgrade_science', value: true },
+        { action: 'add', target: 'theoriesAboutYou', value: 100 },
+        { action: 'add', target: 'wonder', value: 100 },
+        { action: 'message', text: '🔬 SCIENCE SYNTHESIZED! Hypothesis. Experiment. Theory. They finally have a method to understand YOU...', type: 'success' }
       ]
     }
   ],

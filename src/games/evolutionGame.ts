@@ -358,8 +358,10 @@ export const evolutionGame: GameDefinition = {
       ]},
       actions: [
         { action: 'add', target: 'gameTick', value: 1 },
-        // 500,000 years per tick at 1x speed (slower for learning)
-        { action: 'add', target: 'yearsElapsed', value: { op: 'mul', args: [{ ref: 'timeMultiplier' }, 500000] } }
+        // 100,000 years per tick at 1x speed (much slower for learning)
+        // At 1x: ~75 minutes to reach present day
+        // At 10x: ~7.5 minutes to reach present day
+        { action: 'add', target: 'yearsElapsed', value: { op: 'mul', args: [{ ref: 'timeMultiplier' }, 100000] } }
       ]
     },
 

@@ -557,7 +557,13 @@
   font-size: 0.9rem;
   animation: slideInFade 4s ease forwards;
   border-left: 3px solid;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.message:hover {
+  opacity: 0.7;
 }
 
 .message.info {

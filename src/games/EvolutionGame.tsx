@@ -539,7 +539,11 @@ export function EvolutionGame({ onNavigateToHub }: EvolutionGameProps) {
       {/* Messages */}
       <div className="messages-container">
         {visibleMessages.map((msg) => (
-          <div key={msg.id} className={`message ${msg.type}`}>
+          <div
+            key={msg.id}
+            className={`message ${msg.type}`}
+            onClick={() => setVisibleMessages(prev => prev.filter(m => m.id !== msg.id))}
+          >
             {msg.text}
           </div>
         ))}

@@ -245,11 +245,48 @@ export const evolutionGame: GameDefinition = {
     {
       id: 'time-passes',
       timing: 'tick',
-      condition: { op: 'flag', flag: 'hasStarted' },
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'hasStarted' },
+        { op: 'gt', left: { ref: 'timeMultiplier' }, right: 0 }
+      ]},
       actions: [
         { action: 'add', target: 'gameTick', value: 1 },
         { action: 'add', target: 'yearsElapsed', value: { op: 'mul', args: [{ ref: 'timeMultiplier' }, 1000000] } }
       ]
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🔒 VALUE CLAMPING - Prevent runaway values
+    // ═══════════════════════════════════════════════════════════════
+    {
+      id: 'clamp-time-multiplier-min',
+      timing: 'tick',
+      condition: { op: 'lt', left: { ref: 'timeMultiplier' }, right: 0.5 },
+      actions: [{ action: 'set', target: 'timeMultiplier', value: 0.5 }]
+    },
+    {
+      id: 'clamp-time-multiplier-max',
+      timing: 'tick',
+      condition: { op: 'gt', left: { ref: 'timeMultiplier' }, right: 10 },
+      actions: [{ action: 'set', target: 'timeMultiplier', value: 10 }]
+    },
+    {
+      id: 'clamp-mutation-energy',
+      timing: 'tick',
+      condition: { op: 'gt', left: { ref: 'mutationEnergy' }, right: { ref: 'maxMutationEnergy' } },
+      actions: [{ action: 'set', target: 'mutationEnergy', value: { ref: 'maxMutationEnergy' } }]
+    },
+    {
+      id: 'clamp-oxygen',
+      timing: 'tick',
+      condition: { op: 'gte', left: { ref: 'oxygen' }, right: 30 },
+      actions: [{ action: 'set', target: 'oxygen', value: 30 }]
+    },
+    {
+      id: 'clamp-temperature-min',
+      timing: 'tick',
+      condition: { op: 'lt', left: { ref: 'temperature' }, right: -50 },
+      actions: [{ action: 'set', target: 'temperature', value: -50 }]
     },
 
     // ═══════════════════════════════════════════════════════════════
@@ -292,11 +329,18 @@ export const evolutionGame: GameDefinition = {
       condition: { op: 'and', conditions: [
         { op: 'flag', flag: 'hasStarted' },
         { op: 'lt', left: { ref: 'volcanicActivity' }, right: 80 },
-        { op: 'lt', left: { ref: 'continents' }, right: 7 }
+        { op: 'lt', left: { ref: 'continents' }, right: 6.9 }
       ]},
       actions: [
         { action: 'add', target: 'continents', value: 0.005 }
       ]
+    },
+    // Cap continents at 7
+    {
+      id: 'clamp-continents',
+      timing: 'tick',
+      condition: { op: 'gte', left: { ref: 'continents' }, right: 7 },
+      actions: [{ action: 'set', target: 'continents', value: 7 }]
     },
 
     // ═══════════════════════════════════════════════════════════════

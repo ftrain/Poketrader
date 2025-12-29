@@ -133,7 +133,7 @@ describe('Evolution Game - Value Bounds', () => {
     expect(mutationEnergy).toBeLessThanOrEqual(maxMutationEnergy);
   });
 
-  test('oxygen stays capped near 30%', () => {
+  test('oxygen stays capped near 35%', () => {
     const engine = new GameEngine(evolutionGame);
     engine.start();
     engine.playerAction('startGame');
@@ -147,11 +147,11 @@ describe('Evolution Game - Value Bounds', () => {
       engine.tick();
     }
 
-    // Allow slight overshoot due to rule execution order (clamp fires, then photosynthesis adds)
-    // The important thing is it doesn't grow unbounded (was 374 million % before fix)
+    // The clamp rules now fire at the END of each tick, so values should be properly capped
+    // Max oxygen is capped at 35% (Carboniferous peak was ~35%)
     const oxygen = engine.getState<number>('oxygen')!;
-    expect(oxygen).toBeLessThanOrEqual(31); // Slight tolerance for tick order
-    expect(oxygen).toBeGreaterThanOrEqual(28); // Should be near cap
+    expect(oxygen).toBeLessThanOrEqual(36); // Slight tolerance
+    expect(oxygen).toBeGreaterThanOrEqual(30); // Should be near cap
   });
 
   test('temperature has minimum bound', () => {
@@ -420,7 +420,7 @@ describe('Evolution Game - Mass Simulation', () => {
       expect(timeMultiplier).toBeGreaterThanOrEqual(0.5);
       expect(timeMultiplier).toBeLessThanOrEqual(10);
       expect(mutationEnergy).toBeLessThanOrEqual(maxMutationEnergy);
-      expect(oxygen).toBeLessThanOrEqual(30);
+      expect(oxygen).toBeLessThanOrEqual(35);
       expect(temp).toBeGreaterThanOrEqual(-50);
       expect(years).toBeGreaterThanOrEqual(0);
     }

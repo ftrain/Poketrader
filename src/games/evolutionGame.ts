@@ -270,25 +270,6 @@ export const evolutionGame: GameDefinition = {
       condition: { op: 'gt', left: { ref: 'timeMultiplier' }, right: 10 },
       actions: [{ action: 'set', target: 'timeMultiplier', value: 10 }]
     },
-    {
-      id: 'clamp-mutation-energy',
-      timing: 'tick',
-      condition: { op: 'gt', left: { ref: 'mutationEnergy' }, right: { ref: 'maxMutationEnergy' } },
-      actions: [{ action: 'set', target: 'mutationEnergy', value: { ref: 'maxMutationEnergy' } }]
-    },
-    {
-      id: 'clamp-oxygen',
-      timing: 'tick',
-      condition: { op: 'gte', left: { ref: 'oxygen' }, right: 30 },
-      actions: [{ action: 'set', target: 'oxygen', value: 30 }]
-    },
-    {
-      id: 'clamp-temperature-min',
-      timing: 'tick',
-      condition: { op: 'lt', left: { ref: 'temperature' }, right: -50 },
-      actions: [{ action: 'set', target: 'temperature', value: -50 }]
-    },
-
     // ═══════════════════════════════════════════════════════════════
     // 🧬 MUTATION ENERGY REGENERATION
     // ═══════════════════════════════════════════════════════════════
@@ -338,13 +319,6 @@ export const evolutionGame: GameDefinition = {
       actions: [
         { action: 'add', target: 'continents', value: 0.005 }
       ]
-    },
-    // Cap continents at 7
-    {
-      id: 'clamp-continents',
-      timing: 'tick',
-      condition: { op: 'gte', left: { ref: 'continents' }, right: 7 },
-      actions: [{ action: 'set', target: 'continents', value: 7 }]
     },
 
     // ═══════════════════════════════════════════════════════════════
@@ -440,7 +414,11 @@ export const evolutionGame: GameDefinition = {
       timing: 'tick',
       condition: { op: 'flag', flag: 'trait_photosynthesis' },
       actions: [
-        { action: 'add', target: 'oxygen', value: { op: 'mul', args: [{ ref: 'prokaryotes' }, 0.00001] } },
+        // Much slower oxygen production - capped naturally by prokaryote growth
+        { action: 'add', target: 'oxygen', value: { op: 'min', args: [
+          { op: 'mul', args: [{ ref: 'prokaryotes' }, 0.0000001] },
+          0.1  // Max 0.1% per tick
+        ] } },
         { action: 'add', target: 'biomass', value: { op: 'mul', args: [{ ref: 'prokaryotes' }, 0.01] } }
       ]
     },
@@ -724,6 +702,46 @@ export const evolutionGame: GameDefinition = {
         { action: 'set', target: 'hasLost', value: true },
         { action: 'message', text: '💀 Life has ended. The experiment is over. The universe grows cold and silent. You fade...', type: 'error' }
       ]
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🔒 FINAL VALUE CLAMPING - Must be last to cap all production
+    // ═══════════════════════════════════════════════════════════════
+    {
+      id: 'final-clamp-oxygen',
+      timing: 'tick',
+      condition: { op: 'gt', left: { ref: 'oxygen' }, right: 35 },
+      actions: [{ action: 'set', target: 'oxygen', value: 35 }]
+    },
+    {
+      id: 'final-clamp-oxygen-min',
+      timing: 'tick',
+      condition: { op: 'lt', left: { ref: 'oxygen' }, right: 0 },
+      actions: [{ action: 'set', target: 'oxygen', value: 0 }]
+    },
+    {
+      id: 'final-clamp-temperature-max',
+      timing: 'tick',
+      condition: { op: 'gt', left: { ref: 'temperature' }, right: 150 },
+      actions: [{ action: 'set', target: 'temperature', value: 150 }]
+    },
+    {
+      id: 'final-clamp-temperature-min',
+      timing: 'tick',
+      condition: { op: 'lt', left: { ref: 'temperature' }, right: -50 },
+      actions: [{ action: 'set', target: 'temperature', value: -50 }]
+    },
+    {
+      id: 'final-clamp-continents',
+      timing: 'tick',
+      condition: { op: 'gt', left: { ref: 'continents' }, right: 7 },
+      actions: [{ action: 'set', target: 'continents', value: 7 }]
+    },
+    {
+      id: 'final-clamp-mutation-energy',
+      timing: 'tick',
+      condition: { op: 'gt', left: { ref: 'mutationEnergy' }, right: { ref: 'maxMutationEnergy' } },
+      actions: [{ action: 'set', target: 'mutationEnergy', value: { ref: 'maxMutationEnergy' } }]
     }
   ],
 

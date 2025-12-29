@@ -21,18 +21,38 @@ interface EvolutionGameProps {
   onNavigateToHub: () => void;
 }
 
-// Format billions of years
-function formatYears(years: number): string {
-  if (years >= 1000000000) {
-    return `${(years / 1000000000).toFixed(2)} Bya`;
+// Earth formed 4.5 billion years ago
+const EARTH_AGE = 4_500_000_000;
+
+// Format years ago (geological time) - decreases as game progresses
+function formatYearsAgo(yearsAgo: number): string {
+  if (yearsAgo <= 0) {
+    return 'Present Day';
   }
-  if (years >= 1000000) {
-    return `${(years / 1000000).toFixed(1)} Mya`;
+  if (yearsAgo >= 1_000_000_000) {
+    return `${(yearsAgo / 1_000_000_000).toFixed(2)} Bya`;
+  }
+  if (yearsAgo >= 1_000_000) {
+    return `${(yearsAgo / 1_000_000).toFixed(1)} Mya`;
+  }
+  if (yearsAgo >= 1000) {
+    return `${(yearsAgo / 1000).toFixed(0)}K ya`;
+  }
+  return `${Math.floor(yearsAgo)} ya`;
+}
+
+// Format elapsed time (for stats)
+function formatElapsed(years: number): string {
+  if (years >= 1_000_000_000) {
+    return `${(years / 1_000_000_000).toFixed(2)} billion years`;
+  }
+  if (years >= 1_000_000) {
+    return `${(years / 1_000_000).toFixed(1)} million years`;
   }
   if (years >= 1000) {
     return `${(years / 1000).toFixed(0)}K years`;
   }
-  return `${years} years`;
+  return `${Math.floor(years)} years`;
 }
 
 // Format large numbers
@@ -258,7 +278,7 @@ export function EvolutionGame({ onNavigateToHub }: EvolutionGameProps) {
           </p>
 
           <div className="final-stats">
-            <div>🕐 {formatYears(yearsElapsed)} elapsed</div>
+            <div>🕐 {formatElapsed(yearsElapsed)} elapsed</div>
             <div>🧬 {formatNumber(species)} species created</div>
             <div>💀 {massExtinctions} mass extinctions</div>
             <div>✨ {Math.floor(wonder)} wonder generated</div>
@@ -310,7 +330,7 @@ export function EvolutionGame({ onNavigateToHub }: EvolutionGameProps) {
           <span className="era-name">{eraData.name}</span>
         </div>
         <div className="time-display">
-          <span className="years">{formatYears(yearsElapsed)}</span>
+          <span className="years">{formatYearsAgo(EARTH_AGE - yearsElapsed)}</span>
           <span className="time-speed">×{timeMultiplier.toFixed(1)}</span>
         </div>
       </header>

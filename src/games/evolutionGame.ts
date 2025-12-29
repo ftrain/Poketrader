@@ -300,8 +300,12 @@ export const evolutionGame: GameDefinition = {
         { op: 'lt', left: { ref: 'mutationEnergy' }, right: { ref: 'maxMutationEnergy' } }
       ]},
       actions: [
-        // Base regeneration of 0.5 per tick + bonus from genetic diversity
-        { action: 'add', target: 'mutationEnergy', value: { op: 'add', args: [0.5, { op: 'mul', args: [{ ref: 'geneticDiversity' }, 0.02] }] } }
+        // Base regeneration of 0.5 per tick + small bonus from genetic diversity (capped via min)
+        // Max bonus: 0.002 * 500 = 1.0, so max total = 1.5 per tick = 15/sec
+        { action: 'add', target: 'mutationEnergy', value: { op: 'add', args: [
+          0.5,
+          { op: 'min', args: [{ op: 'mul', args: [{ ref: 'geneticDiversity' }, 0.002] }, 1.0] }
+        ] } }
       ]
     },
 
@@ -503,6 +507,18 @@ export const evolutionGame: GameDefinition = {
     // ═══════════════════════════════════════════════════════════════
     // 👁️ CAMBRIAN EXPLOSION
     // ═══════════════════════════════════════════════════════════════
+    // Early speciation when nerves/eyes first appear
+    {
+      id: 'early-speciation',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_nerves' },
+        { op: 'gt', left: { ref: 'multicellular' }, right: 100 }
+      ]},
+      actions: [
+        { action: 'add', target: 'species', value: 0.5 }
+      ]
+    },
     {
       id: 'cambrian-explosion',
       timing: 'tick',
@@ -985,7 +1001,7 @@ export const evolutionGame: GameDefinition = {
       trigger: { op: 'and', conditions: [
         { op: 'flag', flag: 'upgrade_predation' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_bones' } },
-        { op: 'gt', left: { ref: 'species' }, right: 100 }
+        { op: 'gt', left: { ref: 'species' }, right: 20 }
       ]},
       costs: [{ resource: 'mutationEnergy', amount: 80 }],
       effects: [

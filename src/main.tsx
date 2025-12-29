@@ -5,6 +5,7 @@ import { GameHubPage } from './pages/GameHubPage';
 import { PoketraderPage } from './pages/PoketraderPage';
 import { PaperclipsPage } from './pages/PaperclipsPage';
 import { ThriftQueenPage } from './pages/ThriftQueenPage';
+import { EvolutionPage } from './pages/EvolutionPage';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -14,6 +15,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/hub" element={<GameHubPage />} />
         <Route path="/poketrader" element={<PoketraderPage />} />
         <Route path="/thriftqueen" element={<ThriftQueenPage />} />
+        <Route path="/evolution" element={<EvolutionPage />} />
         <Route path="/paperclips" element={<PaperclipsPage />} />
       </Routes>
     </HashRouter>

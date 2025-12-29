@@ -36,6 +36,14 @@ const GAMES: GameInfo[] = [
     path: '/thriftqueen'
   },
   {
+    id: 'evolution',
+    name: 'I AM BECOME EVOLUTION',
+    description: 'You are not alive. You are why things live. Guide existence from chemistry to consciousness. 🧬',
+    icon: '🧬',
+    color: '#9370db',
+    path: '/evolution'
+  },
+  {
     id: 'paperclips',
     name: 'Universal Paperclips',
     description: 'Classic idle game - make paperclips, expand production',

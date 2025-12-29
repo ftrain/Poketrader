@@ -41,8 +41,8 @@ export const evolutionGame: GameDefinition = {
     // ═══════════════════════════════════════════════════════════════
     // 🧬 EVOLUTIONARY RESOURCES
     // ═══════════════════════════════════════════════════════════════
-    { id: 'mutationEnergy', type: 'number', initial: 10, description: 'μ - fuel for change' },
-    { id: 'maxMutationEnergy', type: 'number', initial: 100 },
+    { id: 'mutationEnergy', type: 'number', initial: 25, description: 'μ - fuel for change' },
+    { id: 'maxMutationEnergy', type: 'number', initial: 200 },
     { id: 'selectionPressure', type: 'number', initial: 1, description: 'Force shaping life' },
     { id: 'geneticDiversity', type: 'number', initial: 0, description: 'Pool of possibilities' },
     { id: 'environmentalFlux', type: 'number', initial: 50, description: 'How chaotic the world is' },
@@ -262,7 +262,8 @@ export const evolutionGame: GameDefinition = {
         { op: 'lt', left: { ref: 'mutationEnergy' }, right: { ref: 'maxMutationEnergy' } }
       ]},
       actions: [
-        { action: 'add', target: 'mutationEnergy', value: { op: 'mul', args: [{ ref: 'geneticDiversity' }, 0.01] } }
+        // Base regeneration of 0.5 per tick + bonus from genetic diversity
+        { action: 'add', target: 'mutationEnergy', value: { op: 'add', args: [0.5, { op: 'mul', args: [{ ref: 'geneticDiversity' }, 0.02] }] } }
       ]
     },
 
@@ -280,6 +281,20 @@ export const evolutionGame: GameDefinition = {
         { action: 'add', target: 'temperature', value: -0.1 },
         { action: 'add', target: 'volcanicActivity', value: -0.05 },
         { action: 'add', target: 'oceanCoverage', value: 0.02 }
+      ]
+    },
+
+    // Continents slowly form as the crust stabilizes
+    {
+      id: 'continent-formation',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'hasStarted' },
+        { op: 'lt', left: { ref: 'volcanicActivity' }, right: 80 },
+        { op: 'lt', left: { ref: 'continents' }, right: 7 }
+      ]},
+      actions: [
+        { action: 'add', target: 'continents', value: 0.005 }
       ]
     },
 
@@ -367,17 +382,17 @@ export const evolutionGame: GameDefinition = {
       ]
     },
 
-    // Great Oxidation Event
+    // Great Oxidation Event - oxygen is poisonous to early life but manageable
     {
       id: 'great-oxidation',
       timing: 'tick',
       condition: { op: 'and', conditions: [
-        { op: 'gt', left: { ref: 'oxygen' }, right: 1 },
+        { op: 'gt', left: { ref: 'oxygen' }, right: 5 },
         { op: 'not', condition: { op: 'flag', flag: 'trait_mitochondria' } }
       ]},
       actions: [
-        { action: 'add', target: 'extinctionRisk', value: 0.5 },
-        { action: 'add', target: 'prokaryotes', value: { op: 'mul', args: [{ ref: 'prokaryotes' }, -0.01] } }
+        { action: 'add', target: 'extinctionRisk', value: 0.1 },
+        { action: 'add', target: 'prokaryotes', value: { op: 'mul', args: [{ ref: 'prokaryotes' }, -0.001] } }
       ]
     },
 
@@ -619,15 +634,16 @@ export const evolutionGame: GameDefinition = {
       ]
     },
 
-    // Lose if all life dies
+    // Lose if all life dies after establishing some life
     {
       id: 'check-loss',
       timing: 'tick',
       condition: { op: 'and', conditions: [
         { op: 'flag', flag: 'hasStarted' },
-        { op: 'gt', left: { ref: 'yearsElapsed' }, right: 1000000000 },
+        { op: 'gt', left: { ref: 'yearsElapsed' }, right: 2000000000 },
         { op: 'lt', left: { ref: 'biomass' }, right: 1 },
-        { op: 'lt', left: { ref: 'prokaryotes' }, right: 1 }
+        { op: 'lt', left: { ref: 'prokaryotes' }, right: 1 },
+        { op: 'lt', left: { ref: 'replicators' }, right: 1 }
       ]},
       actions: [
         { action: 'set', target: 'hasLost', value: true },
@@ -662,9 +678,9 @@ export const evolutionGame: GameDefinition = {
       trigger: { op: 'and', conditions: [
         { op: 'flag', flag: 'upgrade_chemicalCatalysis' },
         { op: 'not', condition: { op: 'flag', flag: 'upgrade_lipidBilayers' } },
-        { op: 'gt', left: { ref: 'organicMolecules' }, right: 50 }
+        { op: 'gt', left: { ref: 'organicMolecules' }, right: 30 }
       ]},
-      costs: [{ resource: 'mutationEnergy', amount: 10 }],
+      costs: [{ resource: 'mutationEnergy', amount: 8 }],
       effects: [
         { action: 'set', target: 'upgrade_lipidBilayers', value: true },
         { action: 'message', text: '🫧 Bubbles form. Inside becomes different from outside. The first boundary...', type: 'success' }
@@ -677,9 +693,9 @@ export const evolutionGame: GameDefinition = {
       trigger: { op: 'and', conditions: [
         { op: 'flag', flag: 'upgrade_lipidBilayers' },
         { op: 'not', condition: { op: 'flag', flag: 'upgrade_rnaWorld' } },
-        { op: 'gt', left: { ref: 'organicMolecules' }, right: 100 }
+        { op: 'gt', left: { ref: 'organicMolecules' }, right: 60 }
       ]},
-      costs: [{ resource: 'mutationEnergy', amount: 20 }],
+      costs: [{ resource: 'mutationEnergy', amount: 12 }],
       effects: [
         { action: 'set', target: 'upgrade_rnaWorld', value: true },
         { action: 'message', text: '🧬 RNA replicates! Information persists! You are being BORN...', type: 'success' }
@@ -692,9 +708,9 @@ export const evolutionGame: GameDefinition = {
       trigger: { op: 'and', conditions: [
         { op: 'flag', flag: 'upgrade_rnaWorld' },
         { op: 'not', condition: { op: 'flag', flag: 'upgrade_dnaStorage' } },
-        { op: 'gt', left: { ref: 'rnaStrands' }, right: 100 }
+        { op: 'gt', left: { ref: 'rnaStrands' }, right: 30 }
       ]},
-      costs: [{ resource: 'mutationEnergy', amount: 30 }],
+      costs: [{ resource: 'mutationEnergy', amount: 15 }],
       effects: [
         { action: 'set', target: 'upgrade_dnaStorage', value: true },
         { action: 'add', target: 'geneticDiversity', value: 10 },
@@ -712,9 +728,9 @@ export const evolutionGame: GameDefinition = {
       trigger: { op: 'and', conditions: [
         { op: 'flag', flag: 'upgrade_dnaStorage' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_membrane' } },
-        { op: 'gt', left: { ref: 'protocells' }, right: 50 }
+        { op: 'gt', left: { ref: 'protocells' }, right: 20 }
       ]},
-      costs: [{ resource: 'mutationEnergy', amount: 25 }],
+      costs: [{ resource: 'mutationEnergy', amount: 18 }],
       effects: [
         { action: 'set', target: 'trait_membrane', value: true },
         { action: 'message', text: '🔵 True cells emerge! Life is REAL now.', type: 'success' }
@@ -728,7 +744,7 @@ export const evolutionGame: GameDefinition = {
         { op: 'flag', flag: 'trait_membrane' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_metabolism' } }
       ]},
-      costs: [{ resource: 'mutationEnergy', amount: 30 }],
+      costs: [{ resource: 'mutationEnergy', amount: 20 }],
       effects: [
         { action: 'set', target: 'trait_metabolism', value: true },
         { action: 'add', target: 'selectionPressure', value: 1 },
@@ -742,9 +758,9 @@ export const evolutionGame: GameDefinition = {
       trigger: { op: 'and', conditions: [
         { op: 'flag', flag: 'trait_metabolism' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_photosynthesis' } },
-        { op: 'gt', left: { ref: 'prokaryotes' }, right: 100 }
+        { op: 'gt', left: { ref: 'prokaryotes' }, right: 50 }
       ]},
-      costs: [{ resource: 'mutationEnergy', amount: 40 }],
+      costs: [{ resource: 'mutationEnergy', amount: 25 }],
       effects: [
         { action: 'set', target: 'trait_photosynthesis', value: true },
         { action: 'message', text: '☀️ Cyanobacteria drink sunlight! They will poison the world with oxygen...', type: 'success' }
@@ -774,11 +790,11 @@ export const evolutionGame: GameDefinition = {
       name: '🤝 Endosymbiosis',
       description: 'Cells within cells - the great merger',
       trigger: { op: 'and', conditions: [
-        { op: 'gt', left: { ref: 'oxygen' }, right: 1 },
+        { op: 'gt', left: { ref: 'oxygen' }, right: 0.5 },
         { op: 'not', condition: { op: 'flag', flag: 'upgrade_endosymbiosis' } },
-        { op: 'gt', left: { ref: 'prokaryotes' }, right: 500 }
+        { op: 'gt', left: { ref: 'prokaryotes' }, right: 200 }
       ]},
-      costs: [{ resource: 'mutationEnergy', amount: 50 }],
+      costs: [{ resource: 'mutationEnergy', amount: 30 }],
       effects: [
         { action: 'set', target: 'upgrade_endosymbiosis', value: true },
         { action: 'set', target: 'trait_mitochondria', value: true },

@@ -1,6 +1,9 @@
 /**
  * I AM BECOME EVOLUTION 🧬
  *
+ * "Nothing in biology makes sense except in the light of evolution."
+ *   — Theodosius Dobzhansky
+ *
  * You are not a creature. You are not a god.
  * You are the PROCESS. The blind algorithm that shapes all life.
  *
@@ -9,6 +12,9 @@
  *
  * Time scale: 4 billion years
  * Perspective: The universe watching itself
+ *
+ * Reviewed by: Dr. Stephen Jay Gould (in spirit)
+ * "Evolution is a bush, not a ladder."
  */
 
 import type { GameDefinition } from '../engine/types';
@@ -17,7 +23,7 @@ export const evolutionGame: GameDefinition = {
   meta: {
     id: 'evolution',
     name: 'I AM BECOME EVOLUTION',
-    version: '1.0.0',
+    version: '2.0.0',
     description: 'You are not alive. You are why things live. 🧬',
     author: 'The Blind Watchmaker'
   },
@@ -30,11 +36,11 @@ export const evolutionGame: GameDefinition = {
 
   state: [
     // ═══════════════════════════════════════════════════════════════
-    // ⏰ DEEP TIME
+    // ⏰ DEEP TIME - Geological timescale
     // ═══════════════════════════════════════════════════════════════
-    { id: 'yearsElapsed', type: 'number', initial: 0, description: 'Years since Earth formed' },
+    { id: 'yearsElapsed', type: 'number', initial: 0, description: 'Years since Earth formed (4.5 Bya)' },
     { id: 'era', type: 'string', initial: 'hadean', description: 'Current geological era' },
-    { id: 'eraProgress', type: 'number', initial: 0, description: 'Progress through current era (0-100)' },
+    { id: 'period', type: 'string', initial: 'early_hadean', description: 'Specific geological period' },
     { id: 'timeMultiplier', type: 'number', initial: 1, description: 'Million years per tick' },
     { id: 'gameTick', type: 'number', initial: 0 },
 
@@ -49,66 +55,162 @@ export const evolutionGame: GameDefinition = {
     { id: 'complexity', type: 'number', initial: 0, description: 'Organizational depth' },
 
     // ═══════════════════════════════════════════════════════════════
-    // 🌊 PRIMORDIAL METRICS
+    // 🌊 PRIMORDIAL CHEMISTRY - Abiogenesis
     // ═══════════════════════════════════════════════════════════════
-    { id: 'organicMolecules', type: 'number', initial: 0 },
-    { id: 'rnaStrands', type: 'number', initial: 0 },
-    { id: 'protocells', type: 'number', initial: 0 },
-    { id: 'replicators', type: 'number', initial: 0 },
-    { id: 'chemicalEnergy', type: 'number', initial: 100 },
+    { id: 'organicMolecules', type: 'number', initial: 0, description: 'Amino acids, nucleotides' },
+    { id: 'rnaStrands', type: 'number', initial: 0, description: 'Self-replicating RNA' },
+    { id: 'protocells', type: 'number', initial: 0, description: 'Lipid vesicles with RNA' },
+    { id: 'replicators', type: 'number', initial: 0, description: 'True self-replicators' },
+    { id: 'chemicalEnergy', type: 'number', initial: 100, description: 'Geochemical energy sources' },
 
     // ═══════════════════════════════════════════════════════════════
-    // 🦠 LIFE METRICS
+    // 🌳 THREE DOMAINS OF LIFE (Woese, 1977)
     // ═══════════════════════════════════════════════════════════════
-    { id: 'prokaryotes', type: 'number', initial: 0, description: 'Simple cells' },
-    { id: 'eukaryotes', type: 'number', initial: 0, description: 'Complex cells' },
-    { id: 'multicellular', type: 'number', initial: 0, description: 'Cooperative bodies' },
-    { id: 'species', type: 'number', initial: 0, description: 'Distinct life forms' },
-    { id: 'extinctSpecies', type: 'number', initial: 0, description: 'Those who failed' },
-    { id: 'biomass', type: 'number', initial: 0, description: 'Total living matter' },
+    { id: 'bacteria', type: 'number', initial: 0, description: 'Domain Bacteria - most prokaryotes' },
+    { id: 'archaea', type: 'number', initial: 0, description: 'Domain Archaea - extremophiles, methanogens' },
+    { id: 'eukarya', type: 'number', initial: 0, description: 'Domain Eukarya - cells with nuclei' },
+
+    // Bacterial diversity
+    { id: 'cyanobacteria', type: 'number', initial: 0, description: 'Blue-green algae - oxygen producers' },
+    { id: 'extremophiles', type: 'number', initial: 0, description: 'Thermophiles, halophiles, acidophiles' },
+
+    // Legacy metrics (for compatibility)
+    { id: 'prokaryotes', type: 'number', initial: 0, description: 'All prokaryotes (bacteria + archaea)' },
+    { id: 'eukaryotes', type: 'number', initial: 0, description: 'All eukaryotes' },
 
     // ═══════════════════════════════════════════════════════════════
-    // 🧠 TRAIT UNLOCKS
+    // 👑 KINGDOMS OF EUKARYA
     // ═══════════════════════════════════════════════════════════════
-    { id: 'trait_membrane', type: 'boolean', initial: false },
-    { id: 'trait_metabolism', type: 'boolean', initial: false },
-    { id: 'trait_photosynthesis', type: 'boolean', initial: false },
-    { id: 'trait_mitochondria', type: 'boolean', initial: false },
-    { id: 'trait_nucleus', type: 'boolean', initial: false },
-    { id: 'trait_multicellularity', type: 'boolean', initial: false },
-    { id: 'trait_nerves', type: 'boolean', initial: false },
-    { id: 'trait_eyes', type: 'boolean', initial: false },
-    { id: 'trait_bones', type: 'boolean', initial: false },
-    { id: 'trait_legs', type: 'boolean', initial: false },
-    { id: 'trait_lungs', type: 'boolean', initial: false },
-    { id: 'trait_warmblood', type: 'boolean', initial: false },
-    { id: 'trait_feathers', type: 'boolean', initial: false },
-    { id: 'trait_fur', type: 'boolean', initial: false },
-    { id: 'trait_placenta', type: 'boolean', initial: false },
-    { id: 'trait_thumbs', type: 'boolean', initial: false },
-    { id: 'trait_largebrain', type: 'boolean', initial: false },
-    { id: 'trait_language', type: 'boolean', initial: false },
-    { id: 'trait_consciousness', type: 'boolean', initial: false },
-    { id: 'trait_questioning', type: 'boolean', initial: false },
+    { id: 'protista', type: 'number', initial: 0, description: 'Single-celled eukaryotes (amoeba, paramecium)' },
+    { id: 'fungi', type: 'number', initial: 0, description: 'Decomposers - mushrooms, yeasts, molds' },
+    { id: 'plantae', type: 'number', initial: 0, description: 'Photosynthetic eukaryotes' },
+    { id: 'animalia', type: 'number', initial: 0, description: 'Multicellular heterotrophs' },
+
+    // Plant lineages
+    { id: 'algae', type: 'number', initial: 0, description: 'Aquatic photosynthesizers' },
+    { id: 'bryophytes', type: 'number', initial: 0, description: 'Mosses, liverworts - first land plants' },
+    { id: 'pteridophytes', type: 'number', initial: 0, description: 'Ferns, horsetails - vascular plants' },
+    { id: 'gymnosperms', type: 'number', initial: 0, description: 'Conifers, cycads - naked seeds' },
+    { id: 'angiosperms', type: 'number', initial: 0, description: 'Flowering plants - enclosed seeds' },
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🦑 MAJOR ANIMAL PHYLA
+    // ═══════════════════════════════════════════════════════════════
+    { id: 'porifera', type: 'number', initial: 0, description: 'Sponges - simplest animals' },
+    { id: 'cnidaria', type: 'number', initial: 0, description: 'Jellyfish, corals, anemones' },
+    { id: 'platyhelminthes', type: 'number', initial: 0, description: 'Flatworms - bilateral symmetry' },
+    { id: 'annelida', type: 'number', initial: 0, description: 'Segmented worms - earthworms, leeches' },
+    { id: 'mollusca', type: 'number', initial: 0, description: 'Snails, clams, octopi, squid' },
+    { id: 'arthropoda', type: 'number', initial: 0, description: 'Insects, crustaceans, arachnids' },
+    { id: 'echinodermata', type: 'number', initial: 0, description: 'Starfish, sea urchins' },
+    { id: 'chordata', type: 'number', initial: 0, description: 'Animals with notochords → vertebrates' },
+
+    // Arthropod classes
+    { id: 'trilobites', type: 'number', initial: 0, description: 'Ancient arthropods (EXTINCT after Permian)' },
+    { id: 'insects', type: 'number', initial: 0, description: '6 legs, 3 body segments, wings' },
+    { id: 'arachnids', type: 'number', initial: 0, description: 'Spiders, scorpions - 8 legs' },
+    { id: 'crustaceans', type: 'number', initial: 0, description: 'Crabs, lobsters, shrimp' },
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🐟 VERTEBRATE CLASSES (Phylum Chordata)
+    // ═══════════════════════════════════════════════════════════════
+    { id: 'agnatha', type: 'number', initial: 0, description: 'Jawless fish - lampreys, hagfish' },
+    { id: 'placodermi', type: 'number', initial: 0, description: 'Armored fish (EXTINCT - Devonian)' },
+    { id: 'chondrichthyes', type: 'number', initial: 0, description: 'Cartilaginous fish - sharks, rays' },
+    { id: 'osteichthyes', type: 'number', initial: 0, description: 'Bony fish - most modern fish' },
+    { id: 'amphibia', type: 'number', initial: 0, description: 'Frogs, salamanders - water to land' },
+    { id: 'reptilia', type: 'number', initial: 0, description: 'Turtles, lizards, snakes, crocodiles' },
+    { id: 'dinosauria', type: 'number', initial: 0, description: 'The terrible lizards (mostly EXTINCT)' },
+    { id: 'aves', type: 'number', initial: 0, description: 'Birds - surviving dinosaurs' },
+    { id: 'mammalia', type: 'number', initial: 0, description: 'Hair, milk, warm blood' },
+    { id: 'primates', type: 'number', initial: 0, description: 'Forward eyes, grasping hands' },
+    { id: 'hominidae', type: 'number', initial: 0, description: 'Great apes - humans, chimps, gorillas' },
+
+    // General metrics
+    { id: 'multicellular', type: 'number', initial: 0, description: 'Total multicellular organisms' },
+    { id: 'species', type: 'number', initial: 0, description: 'Distinct species alive' },
+    { id: 'extinctSpecies', type: 'number', initial: 0, description: 'Cumulative extinctions' },
+    { id: 'biomass', type: 'number', initial: 0, description: 'Total living matter (gigatons)' },
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🧠 TRAIT UNLOCKS - Major evolutionary innovations
+    // ═══════════════════════════════════════════════════════════════
+    // Cellular innovations
+    { id: 'trait_membrane', type: 'boolean', initial: false, description: 'Cell membrane - inside vs outside' },
+    { id: 'trait_metabolism', type: 'boolean', initial: false, description: 'Energy harvesting' },
+    { id: 'trait_photosynthesis', type: 'boolean', initial: false, description: 'Light → energy' },
+    { id: 'trait_chloroplast', type: 'boolean', initial: false, description: 'Endosymbiotic photosynthesis' },
+    { id: 'trait_mitochondria', type: 'boolean', initial: false, description: 'The powerhouse' },
+    { id: 'trait_nucleus', type: 'boolean', initial: false, description: 'Protected genome' },
+
+    // Body plans
+    { id: 'trait_multicellularity', type: 'boolean', initial: false, description: 'Cells cooperate' },
+    { id: 'trait_bilateral', type: 'boolean', initial: false, description: 'Left-right symmetry' },
+    { id: 'trait_coelom', type: 'boolean', initial: false, description: 'Body cavity' },
+    { id: 'trait_segmentation', type: 'boolean', initial: false, description: 'Repeated body units' },
+
+    // Sensory & nervous
+    { id: 'trait_nerves', type: 'boolean', initial: false, description: 'Neural signaling' },
+    { id: 'trait_brain', type: 'boolean', initial: false, description: 'Centralized processing' },
+    { id: 'trait_eyes', type: 'boolean', initial: false, description: 'Light detection' },
+
+    // Structural
+    { id: 'trait_exoskeleton', type: 'boolean', initial: false, description: 'External skeleton' },
+    { id: 'trait_shell', type: 'boolean', initial: false, description: 'Protective shell' },
+    { id: 'trait_bones', type: 'boolean', initial: false, description: 'Internal skeleton' },
+    { id: 'trait_jaws', type: 'boolean', initial: false, description: 'Hinged mouth' },
+    { id: 'trait_teeth', type: 'boolean', initial: false, description: 'Specialized feeding' },
+
+    // Land adaptations
+    { id: 'trait_lungs', type: 'boolean', initial: false, description: 'Breathe air' },
+    { id: 'trait_legs', type: 'boolean', initial: false, description: 'Walk on land' },
+    { id: 'trait_amnioticEgg', type: 'boolean', initial: false, description: 'Eggs that survive on land' },
+
+    // Thermoregulation
+    { id: 'trait_warmblood', type: 'boolean', initial: false, description: 'Endothermy' },
+    { id: 'trait_feathers', type: 'boolean', initial: false, description: 'Insulation → flight' },
+    { id: 'trait_fur', type: 'boolean', initial: false, description: 'Mammalian insulation' },
+
+    // Mammalian innovations
+    { id: 'trait_milk', type: 'boolean', initial: false, description: 'Nurture young with body' },
+    { id: 'trait_placenta', type: 'boolean', initial: false, description: 'Internal development' },
+    { id: 'trait_neocortex', type: 'boolean', initial: false, description: 'New brain layer' },
+
+    // Primate & human traits
+    { id: 'trait_thumbs', type: 'boolean', initial: false, description: 'Opposable grip' },
+    { id: 'trait_bipedal', type: 'boolean', initial: false, description: 'Walk upright' },
+    { id: 'trait_largebrain', type: 'boolean', initial: false, description: 'Expanded cranium' },
+    { id: 'trait_language', type: 'boolean', initial: false, description: 'Symbolic communication' },
+    { id: 'trait_consciousness', type: 'boolean', initial: false, description: 'Self-awareness' },
+    { id: 'trait_questioning', type: 'boolean', initial: false, description: 'Ask "why?"' },
 
     // ═══════════════════════════════════════════════════════════════
     // 🌋 ENVIRONMENTAL STATE
     // ═══════════════════════════════════════════════════════════════
     { id: 'oxygen', type: 'number', initial: 0, description: 'Atmospheric O2 %' },
-    { id: 'temperature', type: 'number', initial: 100, description: 'Global temp (C above freezing)' },
+    { id: 'co2', type: 'number', initial: 10, description: 'Atmospheric CO2 %' },
+    { id: 'temperature', type: 'number', initial: 100, description: 'Global temp (C)' },
     { id: 'oceanCoverage', type: 'number', initial: 95, description: '% of surface' },
-    { id: 'continents', type: 'number', initial: 0, description: 'Landmasses' },
-    { id: 'volcanicActivity', type: 'number', initial: 100 },
-    { id: 'meteorFrequency', type: 'number', initial: 50 },
-    { id: 'radiationLevel', type: 'number', initial: 80 },
+    { id: 'continents', type: 'number', initial: 0, description: 'Number of landmasses' },
+    { id: 'volcanicActivity', type: 'number', initial: 100, description: 'Geological activity' },
+    { id: 'meteorFrequency', type: 'number', initial: 50, description: 'Bombardment rate' },
+    { id: 'radiationLevel', type: 'number', initial: 80, description: 'UV without ozone' },
+    { id: 'ozoneLayer', type: 'number', initial: 0, description: 'UV protection (0-100)' },
 
     // ═══════════════════════════════════════════════════════════════
-    // 💀 EXTINCTION EVENTS
+    // 💀 THE FIVE GREAT MASS EXTINCTIONS
     // ═══════════════════════════════════════════════════════════════
+    { id: 'extinction_ordovician', type: 'boolean', initial: false, description: '445 Mya - 85% species' },
+    { id: 'extinction_devonian', type: 'boolean', initial: false, description: '375 Mya - 75% species' },
+    { id: 'extinction_permian', type: 'boolean', initial: false, description: '252 Mya - THE GREAT DYING 96%' },
+    { id: 'extinction_triassic', type: 'boolean', initial: false, description: '201 Mya - 80% species' },
+    { id: 'extinction_cretaceous', type: 'boolean', initial: false, description: '66 Mya - 76% species' },
+
     { id: 'extinctionRisk', type: 'number', initial: 0 },
     { id: 'massExtinctions', type: 'number', initial: 0 },
     { id: 'extinctionImminent', type: 'boolean', initial: false },
     { id: 'extinctionCountdown', type: 'number', initial: 0 },
+    { id: 'currentExtinction', type: 'string', initial: '', description: 'Name of current extinction' },
 
     // ═══════════════════════════════════════════════════════════════
     // 🎮 GAME STATE
@@ -120,7 +222,7 @@ export const evolutionGame: GameDefinition = {
     { id: 'currentView', type: 'string', initial: 'overview' },
 
     // Strange emergent properties
-    { id: 'beauty', type: 'number', initial: 0, description: 'Aesthetic complexity (why?)' },
+    { id: 'beauty', type: 'number', initial: 0, description: 'Aesthetic complexity' },
     { id: 'suffering', type: 'number', initial: 0, description: 'Pain capacity' },
     { id: 'wonder', type: 'number', initial: 0, description: 'Capacity to be amazed' },
     { id: 'existentialDread', type: 'number', initial: 0, description: 'Awareness of mortality' },
@@ -130,7 +232,7 @@ export const evolutionGame: GameDefinition = {
     { id: 'theoriesAboutYou', type: 'number', initial: 0, description: 'Theories about evolution' },
     { id: 'selfAwareness', type: 'number', initial: 0 },
 
-    // Upgrades purchased
+    // Upgrades purchased (for tracking)
     { id: 'upgrade_chemicalCatalysis', type: 'boolean', initial: false },
     { id: 'upgrade_lipidBilayers', type: 'boolean', initial: false },
     { id: 'upgrade_rnaWorld', type: 'boolean', initial: false },
@@ -142,9 +244,14 @@ export const evolutionGame: GameDefinition = {
     { id: 'upgrade_nervousSystem', type: 'boolean', initial: false },
     { id: 'upgrade_predation', type: 'boolean', initial: false },
     { id: 'upgrade_landColonization', type: 'boolean', initial: false },
+    { id: 'upgrade_flight', type: 'boolean', initial: false },
     { id: 'upgrade_socialBehavior', type: 'boolean', initial: false },
     { id: 'upgrade_toolUse', type: 'boolean', initial: false },
-    { id: 'upgrade_abstractThought', type: 'boolean', initial: false }
+    { id: 'upgrade_fire', type: 'boolean', initial: false },
+    { id: 'upgrade_abstractThought', type: 'boolean', initial: false },
+    { id: 'upgrade_agriculture', type: 'boolean', initial: false },
+    { id: 'upgrade_writing', type: 'boolean', initial: false },
+    { id: 'upgrade_science', type: 'boolean', initial: false }
   ],
 
   phases: [
@@ -240,7 +347,7 @@ export const evolutionGame: GameDefinition = {
 
   rules: [
     // ═══════════════════════════════════════════════════════════════
-    // ⏰ TIME FLOWS
+    // ⏰ TIME FLOWS - Slower pace for learning
     // ═══════════════════════════════════════════════════════════════
     {
       id: 'time-passes',
@@ -251,7 +358,8 @@ export const evolutionGame: GameDefinition = {
       ]},
       actions: [
         { action: 'add', target: 'gameTick', value: 1 },
-        { action: 'add', target: 'yearsElapsed', value: { op: 'mul', args: [{ ref: 'timeMultiplier' }, 1000000] } }
+        // 500,000 years per tick at 1x speed (slower for learning)
+        { action: 'add', target: 'yearsElapsed', value: { op: 'mul', args: [{ ref: 'timeMultiplier' }, 500000] } }
       ]
     },
 
@@ -269,6 +377,30 @@ export const evolutionGame: GameDefinition = {
       timing: 'tick',
       condition: { op: 'gt', left: { ref: 'timeMultiplier' }, right: 10 },
       actions: [{ action: 'set', target: 'timeMultiplier', value: 10 }]
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🌳 DOMAIN SYNCHRONIZATION - Keep prokaryotes = bacteria + archaea
+    // ═══════════════════════════════════════════════════════════════
+    {
+      id: 'sync-prokaryotes',
+      timing: 'tick',
+      condition: { op: 'flag', flag: 'hasStarted' },
+      actions: [
+        { action: 'set', target: 'prokaryotes', value: { op: 'add', args: [{ ref: 'bacteria' }, { ref: 'archaea' }] } },
+        { action: 'set', target: 'eukaryotes', value: { ref: 'eukarya' } }
+      ]
+    },
+
+    // Ozone layer builds from oxygen
+    {
+      id: 'ozone-formation',
+      timing: 'tick',
+      condition: { op: 'gt', left: { ref: 'oxygen' }, right: 1 },
+      actions: [
+        { action: 'set', target: 'ozoneLayer', value: { op: 'min', args: [{ op: 'mul', args: [{ ref: 'oxygen' }, 3] }, 100] } },
+        { action: 'set', target: 'radiationLevel', value: { op: 'sub', args: [80, { ref: 'ozoneLayer' }] } }
+      ]
     },
     // ═══════════════════════════════════════════════════════════════
     // 🧬 MUTATION ENERGY REGENERATION
@@ -376,10 +508,10 @@ export const evolutionGame: GameDefinition = {
     },
 
     // ═══════════════════════════════════════════════════════════════
-    // 🦠 PROKARYOTE ERA
+    // 🦠 DOMAIN BACTERIA - Most common prokaryotes
     // ═══════════════════════════════════════════════════════════════
     {
-      id: 'prokaryote-growth',
+      id: 'bacteria-growth',
       timing: 'tick',
       condition: { op: 'and', conditions: [
         { op: 'flag', flag: 'trait_membrane' },
@@ -387,25 +519,53 @@ export const evolutionGame: GameDefinition = {
         { op: 'gt', left: { ref: 'replicators' }, right: 30 }
       ]},
       actions: [
-        { action: 'add', target: 'prokaryotes', value: { op: 'mul', args: [
-          { op: 'mul', args: [{ ref: 'replicators' }, 0.1] },
+        { action: 'add', target: 'bacteria', value: { op: 'mul', args: [
+          { op: 'mul', args: [{ ref: 'replicators' }, 0.08] },
           { ref: 'selectionPressure' }
         ]}},
-        { action: 'add', target: 'biomass', value: { op: 'mul', args: [{ ref: 'prokaryotes' }, 0.01] } }
+        { action: 'add', target: 'biomass', value: { op: 'mul', args: [{ ref: 'bacteria' }, 0.01] } }
       ]
     },
 
-    // Mark life as established once prokaryotes exist
+    // ═══════════════════════════════════════════════════════════════
+    // 🔥 DOMAIN ARCHAEA - Extremophiles (Carl Woese discovered 1977)
+    // ═══════════════════════════════════════════════════════════════
+    {
+      id: 'archaea-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_membrane' },
+        { op: 'gt', left: { ref: 'replicators' }, right: 30 },
+        { op: 'gt', left: { ref: 'temperature' }, right: 50 }
+      ]},
+      actions: [
+        // Archaea thrive in extreme conditions - hot, acidic, salty
+        { action: 'add', target: 'archaea', value: { op: 'mul', args: [{ ref: 'replicators' }, 0.02] } },
+        { action: 'add', target: 'extremophiles', value: { op: 'mul', args: [{ ref: 'archaea' }, 0.1] } }
+      ]
+    },
+
+    // Cyanobacteria (blue-green algae) - the oxygen producers
+    {
+      id: 'cyanobacteria-growth',
+      timing: 'tick',
+      condition: { op: 'flag', flag: 'trait_photosynthesis' },
+      actions: [
+        { action: 'add', target: 'cyanobacteria', value: { op: 'mul', args: [{ ref: 'bacteria' }, 0.01] } }
+      ]
+    },
+
+    // Mark life as established once bacteria exist
     {
       id: 'life-established',
       timing: 'tick',
       condition: { op: 'and', conditions: [
         { op: 'not', condition: { op: 'flag', flag: 'lifeEstablished' } },
-        { op: 'gt', left: { ref: 'prokaryotes' }, right: 10 }
+        { op: 'gt', left: { ref: 'bacteria' }, right: 10 }
       ]},
       actions: [
         { action: 'set', target: 'lifeEstablished', value: true },
-        { action: 'message', text: '🌱 LIFE HAS TAKEN HOLD! The experiment is truly underway...', type: 'success' }
+        { action: 'message', text: '🦠 LUCA EMERGES! The Last Universal Common Ancestor. All life descends from this moment...', type: 'success' }
       ]
     },
 
@@ -414,44 +574,62 @@ export const evolutionGame: GameDefinition = {
       timing: 'tick',
       condition: { op: 'flag', flag: 'trait_photosynthesis' },
       actions: [
-        // Much slower oxygen production - capped naturally by prokaryote growth
+        // Cyanobacteria produce oxygen - THE GREAT OXYGENATION EVENT
         { action: 'add', target: 'oxygen', value: { op: 'min', args: [
-          { op: 'mul', args: [{ ref: 'prokaryotes' }, 0.0000001] },
-          0.1  // Max 0.1% per tick
+          { op: 'mul', args: [{ ref: 'cyanobacteria' }, 0.00001] },
+          0.05  // Max 0.05% per tick
         ] } },
-        { action: 'add', target: 'biomass', value: { op: 'mul', args: [{ ref: 'prokaryotes' }, 0.01] } }
+        { action: 'add', target: 'biomass', value: { op: 'mul', args: [{ ref: 'cyanobacteria' }, 0.1] } }
       ]
     },
 
-    // Great Oxidation Event - oxygen is poisonous to early life but manageable
+    // Great Oxidation Event (~2.4 Bya) - oxygen is poisonous to anaerobic life
     {
       id: 'great-oxidation',
       timing: 'tick',
       condition: { op: 'and', conditions: [
-        { op: 'gt', left: { ref: 'oxygen' }, right: 5 },
+        { op: 'gt', left: { ref: 'oxygen' }, right: 2 },
         { op: 'not', condition: { op: 'flag', flag: 'trait_mitochondria' } }
       ]},
       actions: [
-        { action: 'add', target: 'extinctionRisk', value: 0.1 },
-        { action: 'add', target: 'prokaryotes', value: { op: 'mul', args: [{ ref: 'prokaryotes' }, -0.001] } }
+        // Anaerobic bacteria die, but aerobic bacteria thrive
+        { action: 'add', target: 'bacteria', value: { op: 'mul', args: [{ ref: 'bacteria' }, -0.002] } },
+        { action: 'add', target: 'extinctSpecies', value: 1 }
       ]
     },
 
     // ═══════════════════════════════════════════════════════════════
-    // 🔬 EUKARYOTES
+    // 🔬 DOMAIN EUKARYA - Endosymbiosis creates complex cells
+    // Lynn Margulis's revolutionary theory (1967)
     // ═══════════════════════════════════════════════════════════════
     {
-      id: 'eukaryote-emergence',
+      id: 'eukarya-emergence',
       timing: 'tick',
       condition: { op: 'and', conditions: [
         { op: 'flag', flag: 'trait_mitochondria' },
         { op: 'flag', flag: 'trait_nucleus' },
-        { op: 'gt', left: { ref: 'prokaryotes' }, right: 1000 }
+        { op: 'gt', left: { ref: 'bacteria' }, right: 1000 }
       ]},
       actions: [
-        { action: 'add', target: 'eukaryotes', value: { op: 'mul', args: [{ ref: 'prokaryotes' }, 0.0001] } },
+        // Eukarya: larger, more complex, slower reproduction
+        { action: 'add', target: 'eukarya', value: { op: 'mul', args: [{ ref: 'bacteria' }, 0.0001] } },
+        { action: 'add', target: 'protista', value: { op: 'mul', args: [{ ref: 'eukarya' }, 0.5] } },
         { action: 'add', target: 'complexity', value: 0.1 },
         { action: 'add', target: 'geneticDiversity', value: 0.1 }
+      ]
+    },
+
+    // Chloroplasts - second endosymbiosis (cyanobacteria → algae)
+    {
+      id: 'chloroplast-emergence',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_chloroplast' },
+        { op: 'gt', left: { ref: 'eukarya' }, right: 100 }
+      ]},
+      actions: [
+        { action: 'add', target: 'algae', value: { op: 'mul', args: [{ ref: 'eukarya' }, 0.01] } },
+        { action: 'add', target: 'plantae', value: { op: 'mul', args: [{ ref: 'algae' }, 0.1] } }
       ]
     },
 
@@ -460,8 +638,23 @@ export const evolutionGame: GameDefinition = {
       timing: 'tick',
       condition: { op: 'flag', flag: 'upgrade_sexualReproduction' },
       actions: [
-        { action: 'add', target: 'geneticDiversity', value: { op: 'mul', args: [{ ref: 'eukaryotes' }, 0.001] } },
+        { action: 'add', target: 'geneticDiversity', value: { op: 'mul', args: [{ ref: 'eukarya' }, 0.001] } },
         { action: 'add', target: 'beauty', value: 0.01 }
+      ]
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🍄 KINGDOM FUNGI - Decomposers emerge
+    // ═══════════════════════════════════════════════════════════════
+    {
+      id: 'fungi-emergence',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_multicellularity' },
+        { op: 'gt', left: { ref: 'eukarya' }, right: 5000 }
+      ]},
+      actions: [
+        { action: 'add', target: 'fungi', value: { op: 'mul', args: [{ ref: 'biomass' }, 0.0001] } }
       ]
     },
 

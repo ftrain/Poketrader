@@ -29,7 +29,7 @@ describe('Evolution Game - Game Definition', () => {
   test('game definition has required meta fields', () => {
     expect(evolutionGame.meta.id).toBe('evolution');
     expect(evolutionGame.meta.name).toContain('EVOLUTION');
-    expect(evolutionGame.meta.version).toBe('1.0.0');
+    expect(evolutionGame.meta.version).toBe('2.0.0');
   });
 
   test('game has all required state variables', () => {
@@ -138,9 +138,9 @@ describe('Evolution Game - Value Bounds', () => {
     engine.start();
     engine.playerAction('startGame');
 
-    // Force photosynthesis and lots of prokaryotes
+    // Force photosynthesis and lots of cyanobacteria (oxygen producers)
     engine.setState('trait_photosynthesis', true);
-    engine.setState('prokaryotes', 1000000000);
+    engine.setState('cyanobacteria', 1000000000);
 
     // Run many ticks
     for (let i = 0; i < 10000; i++) {
@@ -249,12 +249,12 @@ describe('Evolution Game - Progression Chain', () => {
     engine.start();
     engine.playerAction('startGame');
 
-    // Manually set prokaryotes
-    engine.setState('prokaryotes', 0);
+    // Manually set bacteria (now the main prokaryote type)
+    engine.setState('bacteria', 0);
     engine.tick();
     expect(engine.getState('lifeEstablished')).toBe(false);
 
-    engine.setState('prokaryotes', 15);
+    engine.setState('bacteria', 15);
     engine.tick();
     expect(engine.getState('lifeEstablished')).toBe(true);
   });
@@ -330,16 +330,16 @@ describe('Evolution Game - Great Oxidation Event', () => {
     engine.start();
     engine.playerAction('startGame');
 
-    engine.setState('oxygen', 3); // Below 5% threshold
-    engine.setState('prokaryotes', 1000);
+    engine.setState('oxygen', 1); // Below 2% threshold
+    engine.setState('bacteria', 1000);
     engine.setState('trait_mitochondria', false);
 
-    const initialProkaryotes = engine.getState<number>('prokaryotes')!;
+    const initialBacteria = engine.getState<number>('bacteria')!;
     engine.tick();
-    const finalProkaryotes = engine.getState<number>('prokaryotes')!;
+    const finalBacteria = engine.getState<number>('bacteria')!;
 
-    // Should not have lost prokaryotes to oxidation
-    expect(finalProkaryotes).toBe(initialProkaryotes);
+    // Should not have lost bacteria to oxidation
+    expect(finalBacteria).toBe(initialBacteria);
   });
 
   test('oxygen damages life when above threshold without mitochondria', () => {
@@ -347,16 +347,16 @@ describe('Evolution Game - Great Oxidation Event', () => {
     engine.start();
     engine.playerAction('startGame');
 
-    engine.setState('oxygen', 10); // Above 5% threshold
-    engine.setState('prokaryotes', 1000);
+    engine.setState('oxygen', 5); // Above 2% threshold
+    engine.setState('bacteria', 1000);
     engine.setState('trait_mitochondria', false);
 
-    const initialProkaryotes = engine.getState<number>('prokaryotes')!;
+    const initialBacteria = engine.getState<number>('bacteria')!;
     engine.tick();
-    const finalProkaryotes = engine.getState<number>('prokaryotes')!;
+    const finalBacteria = engine.getState<number>('bacteria')!;
 
-    // Should have lost some prokaryotes
-    expect(finalProkaryotes).toBeLessThan(initialProkaryotes);
+    // Should have lost some bacteria
+    expect(finalBacteria).toBeLessThan(initialBacteria);
   });
 
   test('mitochondria protects against oxidation', () => {
@@ -364,16 +364,16 @@ describe('Evolution Game - Great Oxidation Event', () => {
     engine.start();
     engine.playerAction('startGame');
 
-    engine.setState('oxygen', 10);
-    engine.setState('prokaryotes', 1000);
+    engine.setState('oxygen', 5);
+    engine.setState('bacteria', 1000);
     engine.setState('trait_mitochondria', true); // Protected!
 
-    const initialProkaryotes = engine.getState<number>('prokaryotes')!;
+    const initialBacteria = engine.getState<number>('bacteria')!;
     engine.tick();
-    const finalProkaryotes = engine.getState<number>('prokaryotes')!;
+    const finalBacteria = engine.getState<number>('bacteria')!;
 
-    // Should NOT have lost prokaryotes
-    expect(finalProkaryotes).toBe(initialProkaryotes);
+    // Should NOT have lost bacteria
+    expect(finalBacteria).toBe(initialBacteria);
   });
 });
 

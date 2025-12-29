@@ -48,7 +48,7 @@ export const evolutionGame: GameDefinition = {
     // 🧬 EVOLUTIONARY RESOURCES
     // ═══════════════════════════════════════════════════════════════
     { id: 'mutationEnergy', type: 'number', initial: 25, description: 'μ - fuel for change' },
-    { id: 'maxMutationEnergy', type: 'number', initial: 200 },
+    { id: 'maxMutationEnergy', type: 'number', initial: 500 },
     { id: 'selectionPressure', type: 'number', initial: 1, description: 'Force shaping life' },
     { id: 'geneticDiversity', type: 'number', initial: 0, description: 'Pool of possibilities' },
     { id: 'environmentalFlux', type: 'number', initial: 50, description: 'How chaotic the world is' },

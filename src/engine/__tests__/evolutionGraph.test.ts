@@ -88,6 +88,25 @@ describe('Evolution Game - Game Definition', () => {
     // Advanced traits
     expect(projectIds).toContain('trait-consciousness');
   });
+
+  test('all project costs are affordable (no cost exceeds maxMutationEnergy)', () => {
+    // Find maxMutationEnergy initial value
+    const maxEnergyState = evolutionGame.state.find(s => s.id === 'maxMutationEnergy');
+    const maxEnergy = maxEnergyState?.initial as number;
+    expect(maxEnergy).toBeGreaterThan(0);
+
+    // Check all projects
+    const unaffordableProjects: string[] = [];
+    for (const project of evolutionGame.projects) {
+      for (const cost of project.costs) {
+        if (cost.resource === 'mutationEnergy' && cost.amount > maxEnergy) {
+          unaffordableProjects.push(`${project.id} costs ${cost.amount}μ but max is ${maxEnergy}μ`);
+        }
+      }
+    }
+
+    expect(unaffordableProjects).toEqual([]);
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════

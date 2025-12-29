@@ -1870,6 +1870,7 @@ export const evolutionGame: GameDefinition = {
       name: '🦴 Skeleton',
       description: 'Internal structure, larger bodies',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 3960000000 },
         { op: 'flag', flag: 'upgrade_predation' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_bones' } },
         { op: 'gt', left: { ref: 'species' }, right: 20 }
@@ -1886,6 +1887,7 @@ export const evolutionGame: GameDefinition = {
       name: '🦈 Jaws',
       description: 'Hinged mouth - the first bite',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 3960000000 },
         { op: 'flag', flag: 'trait_bones' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_jaws' } },
         { op: 'gt', left: { ref: 'agnatha' }, right: 50 }
@@ -1906,6 +1908,7 @@ export const evolutionGame: GameDefinition = {
       name: '🏝️ Land Colonization',
       description: 'Escape the ocean',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 3960000000 },
         { op: 'flag', flag: 'trait_bones' },
         { op: 'not', condition: { op: 'flag', flag: 'upgrade_landColonization' } },
         { op: 'gt', left: { ref: 'oxygen' }, right: 10 },
@@ -1923,6 +1926,7 @@ export const evolutionGame: GameDefinition = {
       name: '🫁 Lungs',
       description: 'Breathe air directly',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 3960000000 },
         { op: 'flag', flag: 'upgrade_landColonization' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_lungs' } }
       ]},
@@ -1937,6 +1941,7 @@ export const evolutionGame: GameDefinition = {
       name: '🦵 Legs',
       description: 'Walk upon the land',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 3960000000 },
         { op: 'flag', flag: 'trait_lungs' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_legs' } }
       ]},
@@ -1971,6 +1976,7 @@ export const evolutionGame: GameDefinition = {
       name: '🌡️ Warm Blood',
       description: 'Internal temperature control',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4250000000 },
         { op: 'flag', flag: 'trait_legs' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_warmblood' } },
         { op: 'gt', left: { ref: 'species' }, right: 500 }
@@ -1987,6 +1993,7 @@ export const evolutionGame: GameDefinition = {
       name: '🪶 Feathers',
       description: 'Insulation and... flight?',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4250000000 },
         { op: 'flag', flag: 'trait_warmblood' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_feathers' } }
       ]},
@@ -2002,6 +2009,7 @@ export const evolutionGame: GameDefinition = {
       name: '🦊 Fur',
       description: 'Warm coat for small warm-blooded creatures',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4250000000 },
         { op: 'flag', flag: 'trait_warmblood' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_fur' } }
       ]},
@@ -2016,6 +2024,7 @@ export const evolutionGame: GameDefinition = {
       name: '🍼 Milk',
       description: 'Nurture young with body - the mammalian innovation',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4250000000 },
         { op: 'flag', flag: 'trait_fur' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_milk' } }
       ]},
@@ -2031,6 +2040,7 @@ export const evolutionGame: GameDefinition = {
       name: '🤰 Placenta',
       description: 'Grow babies inside the body',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4250000000 },
         { op: 'flag', flag: 'trait_fur' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_placenta' } }
       ]},
@@ -2050,6 +2060,7 @@ export const evolutionGame: GameDefinition = {
       name: '👥 Social Behavior',
       description: 'Cooperation and hierarchy',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4435000000 },
         { op: 'flag', flag: 'trait_placenta' },
         { op: 'not', condition: { op: 'flag', flag: 'upgrade_socialBehavior' } },
         { op: 'gt', left: { ref: 'complexity' }, right: 100 }
@@ -2066,6 +2077,7 @@ export const evolutionGame: GameDefinition = {
       name: '👍 Opposable Thumbs',
       description: 'Grasp tools, manipulate world',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4435000000 },
         { op: 'flag', flag: 'upgrade_socialBehavior' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_thumbs' } }
       ]},
@@ -2080,6 +2092,7 @@ export const evolutionGame: GameDefinition = {
       name: '🔨 Tool Use',
       description: 'Extend the body with objects',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4435000000 },
         { op: 'flag', flag: 'trait_thumbs' },
         { op: 'not', condition: { op: 'flag', flag: 'upgrade_toolUse' } }
       ]},
@@ -2094,6 +2107,7 @@ export const evolutionGame: GameDefinition = {
       name: '🧠 Large Brain',
       description: 'Expensive but powerful',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4435000000 },
         { op: 'flag', flag: 'upgrade_toolUse' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_largebrain' } }
       ]},
@@ -2113,6 +2127,7 @@ export const evolutionGame: GameDefinition = {
       name: '💬 Language',
       description: 'Symbols carry meaning between minds',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4490000000 },
         { op: 'flag', flag: 'trait_largebrain' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_language' } },
         { op: 'gt', left: { ref: 'complexity' }, right: 200 }
@@ -2129,6 +2144,7 @@ export const evolutionGame: GameDefinition = {
       name: '💭 Abstract Thought',
       description: 'Think about things that aren\'t there',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4490000000 },
         { op: 'flag', flag: 'trait_language' },
         { op: 'not', condition: { op: 'flag', flag: 'upgrade_abstractThought' } }
       ]},
@@ -2145,6 +2161,7 @@ export const evolutionGame: GameDefinition = {
       name: '✨ Consciousness',
       description: 'The universe becomes aware of itself',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4495000000 },
         { op: 'flag', flag: 'upgrade_abstractThought' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_consciousness' } },
         { op: 'gt', left: { ref: 'complexity' }, right: 400 }
@@ -2161,6 +2178,7 @@ export const evolutionGame: GameDefinition = {
       name: '❓ The Question',
       description: 'They ask where they came from',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4498000000 }, // Late Cenozoic - ~2 Mya
         { op: 'flag', flag: 'trait_consciousness' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_questioning' } },
         { op: 'gt', left: { ref: 'theoriesAboutYou' }, right: 10 }
@@ -2348,6 +2366,7 @@ export const evolutionGame: GameDefinition = {
       name: '🔥 Synthesize: Fire Mastery',
       description: '💪 Tool Use + Large Brain → Control of flames',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4490000000 }, // Late Cenozoic - ~10 Mya
         { op: 'flag', flag: 'upgrade_toolUse' },
         { op: 'flag', flag: 'trait_largebrain' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_fire' } }
@@ -2365,6 +2384,7 @@ export const evolutionGame: GameDefinition = {
       name: '🍖 Synthesize: Cooking',
       description: '🔥 Fire + Social Behavior → Transform food',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4490000000 }, // Late Cenozoic - ~10 Mya
         { op: 'flag', flag: 'trait_fire' },
         { op: 'flag', flag: 'upgrade_socialBehavior' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_cooking' } }
@@ -2381,6 +2401,7 @@ export const evolutionGame: GameDefinition = {
       name: '🎨 Synthesize: Art',
       description: '✨ Abstract Thought + Beauty → Create meaning',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4495000000 }, // Late Cenozoic - ~5 Mya
         { op: 'flag', flag: 'upgrade_abstractThought' },
         { op: 'gt', left: { ref: 'beauty' }, right: 50 },
         { op: 'not', condition: { op: 'flag', flag: 'trait_art' } }
@@ -2398,6 +2419,7 @@ export const evolutionGame: GameDefinition = {
       name: '🎵 Synthesize: Music',
       description: '🎶 Language + Art → Organized sound',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4495000000 }, // Late Cenozoic - ~5 Mya
         { op: 'flag', flag: 'trait_language' },
         { op: 'flag', flag: 'trait_art' },
         { op: 'not', condition: { op: 'flag', flag: 'trait_music' } }
@@ -2415,6 +2437,7 @@ export const evolutionGame: GameDefinition = {
       name: '🌾 Synthesize: Agriculture',
       description: '🌱 Tool Use + Plant Knowledge → Farming',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4499000000 }, // Late Cenozoic - ~1 Mya
         { op: 'flag', flag: 'upgrade_toolUse' },
         { op: 'gt', left: { ref: 'angiosperms' }, right: 500 },
         { op: 'flag', flag: 'trait_largebrain' },
@@ -2434,6 +2457,7 @@ export const evolutionGame: GameDefinition = {
       name: '📜 Synthesize: Writing',
       description: '✍️ Language + Tool Use + Abstract Thought → External memory',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4499500000 }, // Very late Cenozoic - ~500K years ago
         { op: 'flag', flag: 'trait_language' },
         { op: 'flag', flag: 'upgrade_toolUse' },
         { op: 'flag', flag: 'upgrade_abstractThought' },
@@ -2453,6 +2477,7 @@ export const evolutionGame: GameDefinition = {
       name: '🔬 Synthesize: Science',
       description: '🧪 Writing + Abstract Thought + Questions → Systematic inquiry',
       trigger: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4499900000 }, // Very late Cenozoic - ~100K years ago
         { op: 'flag', flag: 'trait_writing' },
         { op: 'flag', flag: 'upgrade_abstractThought' },
         { op: 'flag', flag: 'trait_questioning' },

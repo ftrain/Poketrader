@@ -526,6 +526,112 @@ describe('Evolution Game - Upgrade Dependencies', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════
+// 🧪 TESTS: TEMPORAL CONSISTENCY
+// Projects should only be available in their appropriate geological era
+// ═══════════════════════════════════════════════════════════════
+
+describe('Evolution Game - Temporal Consistency', () => {
+  // Define minimum years elapsed for each project category
+  // Earth formed 4.5 billion years ago, so:
+  // - Hadean: 0 - 0.5 Bya elapsed
+  // - Archean: 0.5 - 1.5 Bya elapsed (first life)
+  // - Proterozoic: 1.5 - 3.96 Bya elapsed (complex cells)
+  // - Paleozoic: 3.96 - 4.25 Bya elapsed (Cambrian, land)
+  // - Mesozoic: 4.25 - 4.435 Bya elapsed (dinosaurs)
+  // - Cenozoic: 4.435 - 4.5 Bya elapsed (mammals, humans)
+
+  const ERA_BOUNDARIES = {
+    HADEAN_END: 500_000_000,
+    ARCHEAN_END: 1_500_000_000,
+    PROTEROZOIC_END: 3_960_000_000,
+    PALEOZOIC_END: 4_250_000_000,
+    MESOZOIC_END: 4_435_000_000,
+    CENOZOIC_END: 4_500_000_000,
+  };
+
+  // Projects that should ONLY appear after certain times
+  const TEMPORAL_REQUIREMENTS: Record<string, number> = {
+    // Paleozoic projects (after 3.96 Bya)
+    'trait-bones': ERA_BOUNDARIES.PROTEROZOIC_END,
+    'trait-jaws': ERA_BOUNDARIES.PROTEROZOIC_END,
+    'land-colonization': ERA_BOUNDARIES.PROTEROZOIC_END,
+    'trait-lungs': ERA_BOUNDARIES.PROTEROZOIC_END,
+    'trait-legs': ERA_BOUNDARIES.PROTEROZOIC_END,
+
+    // Mesozoic projects (after 4.25 Bya)
+    'trait-warmblood': ERA_BOUNDARIES.PALEOZOIC_END,
+    'trait-feathers': ERA_BOUNDARIES.PALEOZOIC_END,
+    'trait-fur': ERA_BOUNDARIES.PALEOZOIC_END,
+    'trait-milk': ERA_BOUNDARIES.PALEOZOIC_END,
+    'trait-placenta': ERA_BOUNDARIES.PALEOZOIC_END,
+
+    // Cenozoic projects (after 4.435 Bya)
+    'social-behavior': ERA_BOUNDARIES.MESOZOIC_END,
+    'trait-thumbs': ERA_BOUNDARIES.MESOZOIC_END,
+    'tool-use': ERA_BOUNDARIES.MESOZOIC_END,
+    'trait-largebrain': ERA_BOUNDARIES.MESOZOIC_END,
+
+    // Late Cenozoic - human evolution (last 10 million years)
+    'trait-language': 4_490_000_000,
+    'abstract-thought': 4_490_000_000,
+    'trait-consciousness': 4_495_000_000,
+    'trait-questioning': 4_498_000_000,
+
+    // Synthesis projects also need time constraints
+    'synthesis-fire': 4_490_000_000,
+    'synthesis-cooking': 4_490_000_000,
+    'synthesis-art': 4_495_000_000,
+    'synthesis-music': 4_495_000_000,
+    'synthesis-agriculture': 4_499_000_000,
+    'synthesis-writing': 4_499_500_000,
+    'synthesis-science': 4_499_900_000,
+  };
+
+  test('late-game projects have temporal constraints', () => {
+    const missingConstraints: string[] = [];
+
+    for (const [projectId, minYears] of Object.entries(TEMPORAL_REQUIREMENTS)) {
+      const project = evolutionGame.projects.find(p => p.id === projectId);
+      if (!project) continue;
+
+      // Check if trigger contains a yearsElapsed constraint
+      const triggerStr = JSON.stringify(project.trigger);
+      const hasTimeConstraint = triggerStr.includes('yearsElapsed');
+
+      if (!hasTimeConstraint) {
+        missingConstraints.push(`${projectId} should require yearsElapsed >= ${minYears.toLocaleString()}`);
+      }
+    }
+
+    // This test will FAIL initially, showing us what needs to be fixed
+    expect(missingConstraints).toEqual([]);
+  });
+
+  test('projects form a valid temporal chain', () => {
+    // Verify that prerequisite traits are from earlier eras
+    // For example, if project A requires trait_language, and trait_language
+    // requires yearsElapsed > X, then project A should also require >= X
+
+    const projectsByTime: { id: string; minTime: number }[] = [];
+
+    for (const project of evolutionGame.projects) {
+      const triggerStr = JSON.stringify(project.trigger);
+      // Extract yearsElapsed requirements from trigger
+      const match = triggerStr.match(/"yearsElapsed".*?"right":\s*(\d+)/);
+      if (match) {
+        projectsByTime.push({ id: project.id, minTime: parseInt(match[1]) });
+      }
+    }
+
+    // Sort by time to verify chain
+    projectsByTime.sort((a, b) => a.minTime - b.minTime);
+
+    // Just verify we found some time-constrained projects
+    expect(projectsByTime.length).toBeGreaterThan(0);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
 // 🧪 TESTS: FULL PLAYTHROUGH SIMULATION
 // ═══════════════════════════════════════════════════════════════
 

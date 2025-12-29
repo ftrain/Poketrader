@@ -197,6 +197,14 @@ export function EvolutionGame({ onNavigateToHub }: EvolutionGameProps) {
 
   const eraData = ERA_DATA[era] || ERA_DATA.hadean;
 
+  // Reset game (clear save and restart)
+  const handleReset = () => {
+    localStorage.removeItem('game_save_evolution_default');
+    game.reset();
+    setVisibleMessages([]);
+    lastMessageCount.current = 0;
+  };
+
   // Start screen
   if (!hasStarted) {
     return (
@@ -258,7 +266,7 @@ export function EvolutionGame({ onNavigateToHub }: EvolutionGameProps) {
             <div>🎨 {Math.floor(beauty)} beauty emerged</div>
           </div>
 
-          <button className="play-again-btn" onClick={() => window.location.reload()}>
+          <button className="play-again-btn" onClick={handleReset}>
             🔄 Begin Again
           </button>
           <button className="back-btn" onClick={onNavigateToHub}>
@@ -280,7 +288,7 @@ export function EvolutionGame({ onNavigateToHub }: EvolutionGameProps) {
           <p>The universe grows cold and silent.</p>
           <p>You fade into the void...</p>
 
-          <button className="play-again-btn" onClick={() => window.location.reload()}>
+          <button className="play-again-btn" onClick={handleReset}>
             🔄 Try Again
           </button>
           <button className="back-btn" onClick={onNavigateToHub}>

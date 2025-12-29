@@ -5,10 +5,17 @@
  * Guide life from chemistry to consciousness.
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { useGameEngine } from '../engine/useGameEngine';
 import { evolutionGame } from './evolutionGame';
 import './EvolutionGame.css';
+
+interface TimedMessage {
+  id: number;
+  text: string;
+  type: string;
+  timestamp: number;
+}
 
 interface EvolutionGameProps {
   onNavigateToHub: () => void;
@@ -85,6 +92,38 @@ const ERA_DATA: Record<string, { name: string; emoji: string; color: string; bgG
 
 export function EvolutionGame({ onNavigateToHub }: EvolutionGameProps) {
   const game = useGameEngine(evolutionGame, { autoStart: true, autoLoad: true });
+
+  // Auto-dismissing messages
+  const [visibleMessages, setVisibleMessages] = useState<TimedMessage[]>([]);
+  const messageIdCounter = useRef(0);
+  const lastMessageCount = useRef(0);
+
+  useEffect(() => {
+    // Check for new messages
+    if (game.messages.length > lastMessageCount.current) {
+      const newMessages = game.messages.slice(lastMessageCount.current);
+      const timedMessages = newMessages.map(msg => ({
+        id: messageIdCounter.current++,
+        text: msg.text,
+        type: msg.type,
+        timestamp: Date.now()
+      }));
+      setVisibleMessages(prev => [...prev, ...timedMessages].slice(-5));
+    }
+    lastMessageCount.current = game.messages.length;
+  }, [game.messages.length]);
+
+  // Auto-dismiss messages after 4 seconds
+  useEffect(() => {
+    if (visibleMessages.length === 0) return;
+
+    const timer = setInterval(() => {
+      const now = Date.now();
+      setVisibleMessages(prev => prev.filter(msg => now - msg.timestamp < 4000));
+    }, 500);
+
+    return () => clearInterval(timer);
+  }, [visibleMessages.length]);
 
   // State
   const hasStarted = game.state.hasStarted as boolean;
@@ -491,8 +530,8 @@ export function EvolutionGame({ onNavigateToHub }: EvolutionGameProps) {
 
       {/* Messages */}
       <div className="messages-container">
-        {game.messages.slice(-5).map((msg, i) => (
-          <div key={i} className={`message ${msg.type}`}>
+        {visibleMessages.map((msg) => (
+          <div key={msg.id} className={`message ${msg.type}`}>
             {msg.text}
           </div>
         ))}

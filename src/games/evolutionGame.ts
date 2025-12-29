@@ -676,7 +676,7 @@ export const evolutionGame: GameDefinition = {
     },
 
     // ═══════════════════════════════════════════════════════════════
-    // 👁️ CAMBRIAN EXPLOSION
+    // 👁️ CAMBRIAN EXPLOSION - Animal Phyla Emerge (~540 Mya)
     // ═══════════════════════════════════════════════════════════════
     // Early speciation when nerves/eyes first appear
     {
@@ -702,6 +702,564 @@ export const evolutionGame: GameDefinition = {
         { action: 'add', target: 'species', value: { op: 'mul', args: [{ ref: 'selectionPressure' }, 10] } },
         { action: 'add', target: 'complexity', value: 5 },
         { action: 'add', target: 'suffering', value: 1 }
+      ]
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🧽 ANIMAL PHYLA - The Great Diversification
+    // ═══════════════════════════════════════════════════════════════
+    // Porifera (sponges) - first animals, no nerves, filter feeders
+    {
+      id: 'porifera-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_multicellularity' },
+        { op: 'gt', left: { ref: 'multicellular' }, right: 500 }
+      ]},
+      actions: [
+        { action: 'add', target: 'porifera', value: { op: 'mul', args: [{ ref: 'multicellular' }, 0.001] } },
+        { action: 'add', target: 'animalia', value: { op: 'mul', args: [{ ref: 'porifera' }, 0.01] } }
+      ]
+    },
+
+    // Cnidaria (jellyfish, corals) - first nerves, radial symmetry
+    {
+      id: 'cnidaria-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_nerves' },
+        { op: 'gt', left: { ref: 'porifera' }, right: 100 }
+      ]},
+      actions: [
+        { action: 'add', target: 'cnidaria', value: { op: 'mul', args: [{ ref: 'porifera' }, 0.01] } },
+        { action: 'add', target: 'animalia', value: { op: 'mul', args: [{ ref: 'cnidaria' }, 0.01] } }
+      ]
+    },
+
+    // Platyhelminthes (flatworms) - bilateral symmetry, cephalization
+    {
+      id: 'platyhelminthes-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_bilateral' },
+        { op: 'gt', left: { ref: 'cnidaria' }, right: 50 }
+      ]},
+      actions: [
+        { action: 'add', target: 'platyhelminthes', value: { op: 'mul', args: [{ ref: 'cnidaria' }, 0.005] } }
+      ]
+    },
+
+    // Annelida (segmented worms) - segmentation
+    {
+      id: 'annelida-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_segmentation' },
+        { op: 'gt', left: { ref: 'platyhelminthes' }, right: 20 }
+      ]},
+      actions: [
+        { action: 'add', target: 'annelida', value: { op: 'mul', args: [{ ref: 'platyhelminthes' }, 0.01] } }
+      ]
+    },
+
+    // Mollusca (snails, clams, cephalopods) - shells, complex eyes
+    {
+      id: 'mollusca-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_shell' },
+        { op: 'gt', left: { ref: 'annelida' }, right: 10 }
+      ]},
+      actions: [
+        { action: 'add', target: 'mollusca', value: { op: 'mul', args: [{ ref: 'annelida' }, 0.02] } }
+      ]
+    },
+
+    // Arthropoda (insects, crustaceans) - exoskeletons, jointed legs
+    {
+      id: 'arthropoda-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_exoskeleton' },
+        { op: 'gt', left: { ref: 'annelida' }, right: 10 }
+      ]},
+      actions: [
+        { action: 'add', target: 'arthropoda', value: { op: 'mul', args: [{ ref: 'annelida' }, 0.05] } },
+        { action: 'add', target: 'trilobites', value: { op: 'mul', args: [{ ref: 'arthropoda' }, 0.1] } }
+      ]
+    },
+
+    // Echinodermata (starfish, sea urchins) - radial symmetry as adults
+    {
+      id: 'echinodermata-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_coelom' },
+        { op: 'gt', left: { ref: 'mollusca' }, right: 50 }
+      ]},
+      actions: [
+        { action: 'add', target: 'echinodermata', value: { op: 'mul', args: [{ ref: 'mollusca' }, 0.01] } }
+      ]
+    },
+
+    // Chordata - the vertebrate lineage begins
+    {
+      id: 'chordata-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_bones' },
+        { op: 'gt', left: { ref: 'echinodermata' }, right: 20 }
+      ]},
+      actions: [
+        { action: 'add', target: 'chordata', value: { op: 'mul', args: [{ ref: 'echinodermata' }, 0.005] } }
+      ]
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🐟 VERTEBRATE EVOLUTION - The Fish to Human Journey
+    // ═══════════════════════════════════════════════════════════════
+    // Agnatha - jawless fish (lampreys, hagfish) - first vertebrates
+    {
+      id: 'agnatha-growth',
+      timing: 'tick',
+      condition: { op: 'gt', left: { ref: 'chordata' }, right: 50 },
+      actions: [
+        { action: 'add', target: 'agnatha', value: { op: 'mul', args: [{ ref: 'chordata' }, 0.01] } }
+      ]
+    },
+
+    // Placodermi - armored fish with jaws (Devonian, now extinct)
+    {
+      id: 'placodermi-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_jaws' },
+        { op: 'gt', left: { ref: 'agnatha' }, right: 100 },
+        { op: 'not', condition: { op: 'flag', flag: 'extinction_devonian' } }
+      ]},
+      actions: [
+        { action: 'add', target: 'placodermi', value: { op: 'mul', args: [{ ref: 'agnatha' }, 0.02] } }
+      ]
+    },
+
+    // Chondrichthyes - cartilaginous fish (sharks, rays)
+    {
+      id: 'chondrichthyes-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_jaws' },
+        { op: 'gt', left: { ref: 'agnatha' }, right: 200 }
+      ]},
+      actions: [
+        { action: 'add', target: 'chondrichthyes', value: { op: 'mul', args: [{ ref: 'agnatha' }, 0.01] } }
+      ]
+    },
+
+    // Osteichthyes - bony fish (most modern fish)
+    {
+      id: 'osteichthyes-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_bones' },
+        { op: 'gt', left: { ref: 'chondrichthyes' }, right: 50 }
+      ]},
+      actions: [
+        { action: 'add', target: 'osteichthyes', value: { op: 'mul', args: [{ ref: 'chondrichthyes' }, 0.05] } }
+      ]
+    },
+
+    // Amphibia - first land vertebrates
+    {
+      id: 'amphibia-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_lungs' },
+        { op: 'flag', flag: 'trait_legs' },
+        { op: 'gt', left: { ref: 'osteichthyes' }, right: 100 }
+      ]},
+      actions: [
+        { action: 'add', target: 'amphibia', value: { op: 'mul', args: [{ ref: 'osteichthyes' }, 0.001] } }
+      ]
+    },
+
+    // Reptilia - amniotes, true land dwellers
+    {
+      id: 'reptilia-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_amnioticEgg' },
+        { op: 'gt', left: { ref: 'amphibia' }, right: 50 }
+      ]},
+      actions: [
+        { action: 'add', target: 'reptilia', value: { op: 'mul', args: [{ ref: 'amphibia' }, 0.01] } }
+      ]
+    },
+
+    // Dinosauria - the terrible lizards dominate the Mesozoic
+    {
+      id: 'dinosauria-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'gt', left: { ref: 'reptilia' }, right: 100 },
+        { op: 'not', condition: { op: 'flag', flag: 'extinction_cretaceous' } }
+      ]},
+      actions: [
+        { action: 'add', target: 'dinosauria', value: { op: 'mul', args: [{ ref: 'reptilia' }, 0.02] } }
+      ]
+    },
+
+    // Aves - birds, the surviving dinosaurs
+    {
+      id: 'aves-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_feathers' },
+        { op: 'gt', left: { ref: 'dinosauria' }, right: 50 }
+      ]},
+      actions: [
+        { action: 'add', target: 'aves', value: { op: 'mul', args: [{ ref: 'dinosauria' }, 0.005] } }
+      ]
+    },
+
+    // Mammalia - warm-blooded, fur, milk (slow growth while dinosaurs dominate)
+    {
+      id: 'mammalia-growth-slow',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_fur' },
+        { op: 'flag', flag: 'trait_milk' },
+        { op: 'gt', left: { ref: 'reptilia' }, right: 100 },
+        { op: 'not', condition: { op: 'flag', flag: 'extinction_cretaceous' } }
+      ]},
+      actions: [
+        // Mammals are small and rare while dinosaurs dominate
+        { action: 'add', target: 'mammalia', value: { op: 'mul', args: [{ ref: 'reptilia' }, 0.001] } }
+      ]
+    },
+
+    // Primates - forward eyes, grasping hands
+    {
+      id: 'primates-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_placenta' },
+        { op: 'flag', flag: 'extinction_cretaceous' },
+        { op: 'gt', left: { ref: 'mammalia' }, right: 500 }
+      ]},
+      actions: [
+        { action: 'add', target: 'primates', value: { op: 'mul', args: [{ ref: 'mammalia' }, 0.0001] } }
+      ]
+    },
+
+    // Hominidae - great apes
+    {
+      id: 'hominidae-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_thumbs' },
+        { op: 'gt', left: { ref: 'primates' }, right: 100 }
+      ]},
+      actions: [
+        { action: 'add', target: 'hominidae', value: { op: 'mul', args: [{ ref: 'primates' }, 0.001] } }
+      ]
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🐛 ARTHROPOD DIVERSIFICATION
+    // ═══════════════════════════════════════════════════════════════
+    // Insects - most diverse group on Earth
+    {
+      id: 'insects-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'upgrade_landColonization' },
+        { op: 'gt', left: { ref: 'arthropoda' }, right: 500 }
+      ]},
+      actions: [
+        { action: 'add', target: 'insects', value: { op: 'mul', args: [{ ref: 'arthropoda' }, 0.01] } }
+      ]
+    },
+
+    // Arachnids - spiders, scorpions
+    {
+      id: 'arachnids-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'upgrade_landColonization' },
+        { op: 'gt', left: { ref: 'arthropoda' }, right: 300 }
+      ]},
+      actions: [
+        { action: 'add', target: 'arachnids', value: { op: 'mul', args: [{ ref: 'arthropoda' }, 0.002] } }
+      ]
+    },
+
+    // Crustaceans - crabs, lobsters, shrimp (stay in water)
+    {
+      id: 'crustaceans-growth',
+      timing: 'tick',
+      condition: { op: 'gt', left: { ref: 'arthropoda' }, right: 200 },
+      actions: [
+        { action: 'add', target: 'crustaceans', value: { op: 'mul', args: [{ ref: 'arthropoda' }, 0.005] } }
+      ]
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🌿 PLANT EVOLUTION - Colonizing the Land
+    // ═══════════════════════════════════════════════════════════════
+    // Bryophytes (mosses) - first land plants, no vascular tissue
+    {
+      id: 'bryophytes-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'upgrade_landColonization' },
+        { op: 'gt', left: { ref: 'algae' }, right: 1000 }
+      ]},
+      actions: [
+        { action: 'add', target: 'bryophytes', value: { op: 'mul', args: [{ ref: 'algae' }, 0.0001] } },
+        { action: 'add', target: 'plantae', value: { op: 'mul', args: [{ ref: 'bryophytes' }, 0.1] } }
+      ]
+    },
+
+    // Pteridophytes (ferns) - vascular plants, Carboniferous forests
+    {
+      id: 'pteridophytes-growth',
+      timing: 'tick',
+      condition: { op: 'gt', left: { ref: 'bryophytes' }, right: 500 },
+      actions: [
+        { action: 'add', target: 'pteridophytes', value: { op: 'mul', args: [{ ref: 'bryophytes' }, 0.01] } },
+        // Carboniferous forests → coal → future energy
+        { action: 'add', target: 'biomass', value: { op: 'mul', args: [{ ref: 'pteridophytes' }, 0.1] } }
+      ]
+    },
+
+    // Gymnosperms (conifers) - naked seeds, drought resistant
+    {
+      id: 'gymnosperms-growth',
+      timing: 'tick',
+      condition: { op: 'gt', left: { ref: 'pteridophytes' }, right: 200 },
+      actions: [
+        { action: 'add', target: 'gymnosperms', value: { op: 'mul', args: [{ ref: 'pteridophytes' }, 0.005] } }
+      ]
+    },
+
+    // Angiosperms (flowering plants) - co-evolve with insects
+    {
+      id: 'angiosperms-growth',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'gt', left: { ref: 'gymnosperms' }, right: 100 },
+        { op: 'gt', left: { ref: 'insects' }, right: 500 }
+      ]},
+      actions: [
+        { action: 'add', target: 'angiosperms', value: { op: 'mul', args: [{ ref: 'gymnosperms' }, 0.01] } },
+        { action: 'add', target: 'beauty', value: { op: 'mul', args: [{ ref: 'angiosperms' }, 0.001] } }
+      ]
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    // 💀 THE FIVE GREAT MASS EXTINCTIONS - Historical Triggers
+    // ═══════════════════════════════════════════════════════════════
+    // 1. End-Ordovician (445 Mya / 4.055 Bya elapsed) - 85% species
+    // Cause: Glaciation, sea level drop
+    {
+      id: 'extinction-ordovician-trigger',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4055000000 },
+        { op: 'lt', left: { ref: 'yearsElapsed' }, right: 4060000000 },
+        { op: 'not', condition: { op: 'flag', flag: 'extinction_ordovician' } },
+        { op: 'gt', left: { ref: 'species' }, right: 100 }
+      ]},
+      actions: [
+        { action: 'set', target: 'extinction_ordovician', value: true },
+        { action: 'set', target: 'currentExtinction', value: 'End-Ordovician' },
+        { action: 'add', target: 'temperature', value: -20 },
+        { action: 'message', text: '🧊 END-ORDOVICIAN EXTINCTION! Ice sheets spread. Sea levels plummet. 85% of marine species perish in the cold...', type: 'error' }
+      ]
+    },
+    {
+      id: 'extinction-ordovician-effects',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'extinction_ordovician' },
+        { op: 'lt', left: { ref: 'yearsElapsed' }, right: 4070000000 }
+      ]},
+      actions: [
+        // Trilobites hit hard but survive
+        { action: 'add', target: 'trilobites', value: { op: 'mul', args: [{ ref: 'trilobites' }, -0.03] } },
+        { action: 'add', target: 'mollusca', value: { op: 'mul', args: [{ ref: 'mollusca' }, -0.02] } },
+        { action: 'add', target: 'extinctSpecies', value: 5 }
+      ]
+    },
+
+    // 2. Late Devonian (375 Mya / 4.125 Bya elapsed) - 75% species
+    // Cause: Ocean anoxia, possibly asteroid
+    {
+      id: 'extinction-devonian-trigger',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4125000000 },
+        { op: 'lt', left: { ref: 'yearsElapsed' }, right: 4130000000 },
+        { op: 'not', condition: { op: 'flag', flag: 'extinction_devonian' } },
+        { op: 'gt', left: { ref: 'species' }, right: 200 }
+      ]},
+      actions: [
+        { action: 'set', target: 'extinction_devonian', value: true },
+        { action: 'set', target: 'currentExtinction', value: 'Late Devonian' },
+        { action: 'add', target: 'oxygen', value: -5 },
+        { action: 'message', text: '🌊 LATE DEVONIAN EXTINCTION! Oceans lose oxygen. The Age of Fishes ends. Armored fish vanish forever...', type: 'error' }
+      ]
+    },
+    {
+      id: 'extinction-devonian-effects',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'extinction_devonian' },
+        { op: 'lt', left: { ref: 'yearsElapsed' }, right: 4140000000 }
+      ]},
+      actions: [
+        // Placodermi (armored fish) go COMPLETELY extinct
+        { action: 'add', target: 'placodermi', value: { op: 'mul', args: [{ ref: 'placodermi' }, -0.2] } },
+        { action: 'add', target: 'trilobites', value: { op: 'mul', args: [{ ref: 'trilobites' }, -0.05] } },
+        { action: 'add', target: 'extinctSpecies', value: 8 }
+      ]
+    },
+
+    // 3. End-Permian (252 Mya / 4.248 Bya elapsed) - THE GREAT DYING - 96% species
+    // Cause: Siberian Traps volcanism, ocean acidification
+    {
+      id: 'extinction-permian-trigger',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4248000000 },
+        { op: 'lt', left: { ref: 'yearsElapsed' }, right: 4253000000 },
+        { op: 'not', condition: { op: 'flag', flag: 'extinction_permian' } },
+        { op: 'gt', left: { ref: 'species' }, right: 500 }
+      ]},
+      actions: [
+        { action: 'set', target: 'extinction_permian', value: true },
+        { action: 'set', target: 'currentExtinction', value: 'The Great Dying' },
+        { action: 'add', target: 'volcanicActivity', value: 50 },
+        { action: 'add', target: 'temperature', value: 10 },
+        { action: 'add', target: 'co2', value: 5 },
+        { action: 'message', text: '🌋 THE GREAT DYING! Siberian volcanism poisons the world. 96% of species vanish. Life nearly ends...', type: 'error' }
+      ]
+    },
+    {
+      id: 'extinction-permian-effects',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'extinction_permian' },
+        { op: 'lt', left: { ref: 'yearsElapsed' }, right: 4260000000 }
+      ]},
+      actions: [
+        // Trilobites finally go COMPLETELY extinct after 300 million years
+        { action: 'set', target: 'trilobites', value: 0 },
+        // Most marine life devastated
+        { action: 'add', target: 'mollusca', value: { op: 'mul', args: [{ ref: 'mollusca' }, -0.15] } },
+        { action: 'add', target: 'echinodermata', value: { op: 'mul', args: [{ ref: 'echinodermata' }, -0.1] } },
+        { action: 'add', target: 'arthropoda', value: { op: 'mul', args: [{ ref: 'arthropoda' }, -0.1] } },
+        { action: 'add', target: 'species', value: { op: 'mul', args: [{ ref: 'species' }, -0.05] } },
+        { action: 'add', target: 'extinctSpecies', value: 20 }
+      ]
+    },
+
+    // 4. End-Triassic (201 Mya / 4.299 Bya elapsed) - 80% species
+    // Cause: CAMP volcanism, rising CO2
+    {
+      id: 'extinction-triassic-trigger',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4299000000 },
+        { op: 'lt', left: { ref: 'yearsElapsed' }, right: 4304000000 },
+        { op: 'not', condition: { op: 'flag', flag: 'extinction_triassic' } },
+        { op: 'gt', left: { ref: 'species' }, right: 300 }
+      ]},
+      actions: [
+        { action: 'set', target: 'extinction_triassic', value: true },
+        { action: 'set', target: 'currentExtinction', value: 'End-Triassic' },
+        { action: 'add', target: 'co2', value: 3 },
+        { action: 'message', text: '🔥 END-TRIASSIC EXTINCTION! Volcanic CO2 heats the world. Large amphibians vanish. Dinosaurs inherit the Earth...', type: 'error' }
+      ]
+    },
+    {
+      id: 'extinction-triassic-effects',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'extinction_triassic' },
+        { op: 'lt', left: { ref: 'yearsElapsed' }, right: 4310000000 }
+      ]},
+      actions: [
+        { action: 'add', target: 'amphibia', value: { op: 'mul', args: [{ ref: 'amphibia' }, -0.08] } },
+        { action: 'add', target: 'extinctSpecies', value: 10 },
+        // Dinosaurs benefit - less competition
+        { action: 'add', target: 'dinosauria', value: { op: 'mul', args: [{ ref: 'dinosauria' }, 0.05] } }
+      ]
+    },
+
+    // 5. End-Cretaceous (66 Mya / 4.434 Bya elapsed) - 76% species
+    // Cause: Chicxulub asteroid impact
+    {
+      id: 'extinction-cretaceous-trigger',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4434000000 },
+        { op: 'lt', left: { ref: 'yearsElapsed' }, right: 4439000000 },
+        { op: 'not', condition: { op: 'flag', flag: 'extinction_cretaceous' } },
+        { op: 'gt', left: { ref: 'dinosauria' }, right: 100 }
+      ]},
+      actions: [
+        { action: 'set', target: 'extinction_cretaceous', value: true },
+        { action: 'set', target: 'currentExtinction', value: 'Chicxulub Impact' },
+        { action: 'add', target: 'meteorFrequency', value: 100 },
+        { action: 'add', target: 'temperature', value: -15 },
+        { action: 'message', text: '☄️ CHICXULUB IMPACT! A 10km asteroid strikes. Darkness covers Earth. The dinosaurs\' 165 million year reign ends in fire and ice...', type: 'error' }
+      ]
+    },
+    {
+      id: 'extinction-cretaceous-effects',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'extinction_cretaceous' },
+        { op: 'lt', left: { ref: 'yearsElapsed' }, right: 4445000000 }
+      ]},
+      actions: [
+        // Non-avian dinosaurs go COMPLETELY extinct
+        { action: 'add', target: 'dinosauria', value: { op: 'mul', args: [{ ref: 'dinosauria' }, -0.2] } },
+        // Birds survive (they ARE dinosaurs)
+        { action: 'add', target: 'aves', value: { op: 'mul', args: [{ ref: 'aves' }, -0.02] } },
+        // Mammals survive and will thrive
+        { action: 'add', target: 'extinctSpecies', value: 15 }
+      ]
+    },
+
+    // Dinosaur extinction completion (set to 0 after K-Pg event)
+    {
+      id: 'dinosaur-final-extinction',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'extinction_cretaceous' },
+        { op: 'gte', left: { ref: 'yearsElapsed' }, right: 4445000000 },
+        { op: 'gt', left: { ref: 'dinosauria' }, right: 1 }
+      ]},
+      actions: [
+        { action: 'set', target: 'dinosauria', value: 0 },
+        { action: 'message', text: '🦖 The last non-avian dinosaur has died. Only the birds carry their legacy forward...', type: 'info' }
+      ]
+    },
+
+    // Mammals flourish after K-Pg extinction
+    {
+      id: 'mammal-radiation',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'flag', flag: 'extinction_cretaceous' },
+        { op: 'lte', left: { ref: 'dinosauria' }, right: 1 },
+        { op: 'gt', left: { ref: 'mammalia' }, right: 0 }
+      ]},
+      actions: [
+        { action: 'add', target: 'mammalia', value: { op: 'mul', args: [{ ref: 'mammalia' }, 0.02] } },
+        { action: 'add', target: 'species', value: { op: 'mul', args: [{ ref: 'mammalia' }, 0.001] } }
       ]
     },
 
@@ -1205,6 +1763,86 @@ export const evolutionGame: GameDefinition = {
         { action: 'message', text: '🦷 Predators emerge! The arms race begins! Evolution enters OVERDRIVE. Suffering multiplies...', type: 'success' }
       ]
     },
+    // ═══════════════════════════════════════════════════════════════
+    // 🧬 BODY PLAN INNOVATIONS - Cambrian foundations
+    // ═══════════════════════════════════════════════════════════════
+    {
+      id: 'trait-bilateral',
+      name: '↔️ Bilateral Symmetry',
+      description: 'Left matches right - enables directed movement',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_nerves' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_bilateral' } },
+        { op: 'gt', left: { ref: 'cnidaria' }, right: 20 }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 60 }],
+      effects: [
+        { action: 'set', target: 'trait_bilateral', value: true },
+        { action: 'add', target: 'complexity', value: 5 },
+        { action: 'message', text: '↔️ Bilateral symmetry! Left equals right. Animals can now move with PURPOSE. Head and tail matter...', type: 'success' }
+      ]
+    },
+    {
+      id: 'trait-coelom',
+      name: '🔘 Body Cavity',
+      description: 'Internal space for organs',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_bilateral' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_coelom' } },
+        { op: 'gt', left: { ref: 'platyhelminthes' }, right: 10 }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 65 }],
+      effects: [
+        { action: 'set', target: 'trait_coelom', value: true },
+        { action: 'add', target: 'complexity', value: 8 },
+        { action: 'message', text: '🔘 Body cavity forms! Room for complex organs. Digestion becomes efficient...', type: 'success' }
+      ]
+    },
+    {
+      id: 'trait-segmentation',
+      name: '🔗 Segmentation',
+      description: 'Repeated body units - modularity',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_coelom' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_segmentation' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 70 }],
+      effects: [
+        { action: 'set', target: 'trait_segmentation', value: true },
+        { action: 'add', target: 'complexity', value: 10 },
+        { action: 'message', text: '🔗 Segmentation! Bodies made of repeated units. Arthropods and vertebrates will both use this trick...', type: 'success' }
+      ]
+    },
+    {
+      id: 'trait-shell',
+      name: '🐚 Shell',
+      description: 'Protective calcium carbonate armor',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_coelom' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_shell' } },
+        { op: 'gt', left: { ref: 'annelida' }, right: 5 }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 55 }],
+      effects: [
+        { action: 'set', target: 'trait_shell', value: true },
+        { action: 'message', text: '🐚 Shells! Calcium armor protects soft bodies. Mollusks will dominate the seas...', type: 'success' }
+      ]
+    },
+    {
+      id: 'trait-exoskeleton',
+      name: '🦞 Exoskeleton',
+      description: 'External skeleton of chitin',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_segmentation' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_exoskeleton' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 75 }],
+      effects: [
+        { action: 'set', target: 'trait_exoskeleton', value: true },
+        { action: 'add', target: 'complexity', value: 8 },
+        { action: 'message', text: '🦞 Exoskeleton! Armor on the outside. Trilobites will rule the Paleozoic seas...', type: 'success' }
+      ]
+    },
     {
       id: 'trait-bones',
       name: '🦴 Skeleton',
@@ -1219,6 +1857,22 @@ export const evolutionGame: GameDefinition = {
         { action: 'set', target: 'trait_bones', value: true },
         { action: 'add', target: 'complexity', value: 10 },
         { action: 'message', text: '🦴 Bones provide structure! Vertebrates rise! Giants become possible...', type: 'success' }
+      ]
+    },
+    {
+      id: 'trait-jaws',
+      name: '🦈 Jaws',
+      description: 'Hinged mouth - the first bite',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_bones' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_jaws' } },
+        { op: 'gt', left: { ref: 'agnatha' }, right: 50 }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 70 }],
+      effects: [
+        { action: 'set', target: 'trait_jaws', value: true },
+        { action: 'add', target: 'selectionPressure', value: 2 },
+        { action: 'message', text: '🦈 JAWS! Gill arches become weapons. The first true bite. Predation enters a new era...', type: 'success' }
       ]
     },
 
@@ -1270,6 +1924,22 @@ export const evolutionGame: GameDefinition = {
         { action: 'message', text: '🦵 Fins become legs! Creatures walk! The land belongs to life now!', type: 'success' }
       ]
     },
+    {
+      id: 'trait-amnioticEgg',
+      name: '🥚 Amniotic Egg',
+      description: 'Eggs that survive on land - freedom from water',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_legs' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_amnioticEgg' } },
+        { op: 'gt', left: { ref: 'amphibia' }, right: 20 }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 85 }],
+      effects: [
+        { action: 'set', target: 'trait_amnioticEgg', value: true },
+        { action: 'add', target: 'complexity', value: 12 },
+        { action: 'message', text: '🥚 Amniotic egg! A private pond inside a shell. Reptiles break free from water entirely...', type: 'success' }
+      ]
+    },
 
     // ═══════════════════════════════════════════════════════════════
     // 🦕 MESOZOIC INNOVATIONS
@@ -1317,6 +1987,21 @@ export const evolutionGame: GameDefinition = {
       effects: [
         { action: 'set', target: 'trait_fur', value: true },
         { action: 'message', text: '🦊 Fur keeps mammals warm! They hide from dinosaurs... for now.', type: 'success' }
+      ]
+    },
+    {
+      id: 'trait-milk',
+      name: '🍼 Milk',
+      description: 'Nurture young with body - the mammalian innovation',
+      trigger: { op: 'and', conditions: [
+        { op: 'flag', flag: 'trait_fur' },
+        { op: 'not', condition: { op: 'flag', flag: 'trait_milk' } }
+      ]},
+      costs: [{ resource: 'mutationEnergy', amount: 75 }],
+      effects: [
+        { action: 'set', target: 'trait_milk', value: true },
+        { action: 'add', target: 'complexity', value: 15 },
+        { action: 'message', text: '🍼 Milk! Mothers feed young from their own bodies. Extended care, deeper bonds, larger brains...', type: 'success' }
       ]
     },
     {

@@ -534,6 +534,30 @@
   background: rgba(139, 0, 0, 0.8);
 }
 
+.footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.reset-btn {
+  padding: 0.5rem 1rem;
+  background: rgba(100, 100, 100, 0.3);
+  color: #aaa;
+  border: 1px solid rgba(150, 150, 150, 0.4);
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.reset-btn:hover {
+  background: rgba(100, 100, 100, 0.5);
+  color: #ccc;
+  border-color: rgba(150, 150, 150, 0.6);
+}
+
 /* ═══════════════════════════════════════════════════════════════
    MESSAGES
    ═══════════════════════════════════════════════════════════════ */

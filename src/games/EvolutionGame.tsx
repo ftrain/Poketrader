@@ -529,11 +529,16 @@ export function EvolutionGame({ onNavigateToHub }: EvolutionGameProps) {
             ⏩ Faster
           </button>
         </div>
-        {species > 100 && !extinctionImminent && (
-          <button className="extinction-btn" onClick={() => game.playerAction('triggerExtinction')}>
-            ☄️ Trigger Extinction
+        <div className="footer-actions">
+          {species > 100 && !extinctionImminent && (
+            <button className="extinction-btn" onClick={() => game.playerAction('triggerExtinction')}>
+              ☄️ Trigger Extinction
+            </button>
+          )}
+          <button className="reset-btn" onClick={handleReset}>
+            🔄 Reset
           </button>
-        )}
+        </div>
       </footer>
 
       {/* Messages */}

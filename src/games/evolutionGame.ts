@@ -116,6 +116,7 @@ export const evolutionGame: GameDefinition = {
     { id: 'hasStarted', type: 'boolean', initial: false },
     { id: 'hasWon', type: 'boolean', initial: false },
     { id: 'hasLost', type: 'boolean', initial: false },
+    { id: 'lifeEstablished', type: 'boolean', initial: false, description: 'True once prokaryotes exist' },
     { id: 'currentView', type: 'string', initial: 'overview' },
 
     // Strange emergent properties
@@ -320,10 +321,10 @@ export const evolutionGame: GameDefinition = {
       timing: 'tick',
       condition: { op: 'and', conditions: [
         { op: 'flag', flag: 'upgrade_rnaWorld' },
-        { op: 'gt', left: { ref: 'organicMolecules' }, right: 100 }
+        { op: 'gt', left: { ref: 'organicMolecules' }, right: 50 }
       ]},
       actions: [
-        { action: 'add', target: 'rnaStrands', value: { op: 'mul', args: [{ ref: 'organicMolecules' }, 0.001] } }
+        { action: 'add', target: 'rnaStrands', value: { op: 'mul', args: [{ ref: 'organicMolecules' }, 0.1] } }
       ]
     },
 
@@ -332,10 +333,10 @@ export const evolutionGame: GameDefinition = {
       timing: 'tick',
       condition: { op: 'and', conditions: [
         { op: 'flag', flag: 'upgrade_lipidBilayers' },
-        { op: 'gt', left: { ref: 'rnaStrands' }, right: 50 }
+        { op: 'gt', left: { ref: 'rnaStrands' }, right: 20 }
       ]},
       actions: [
-        { action: 'add', target: 'protocells', value: { op: 'mul', args: [{ ref: 'rnaStrands' }, 0.001] } }
+        { action: 'add', target: 'protocells', value: { op: 'mul', args: [{ ref: 'rnaStrands' }, 0.1] } }
       ]
     },
 
@@ -343,12 +344,12 @@ export const evolutionGame: GameDefinition = {
       id: 'first-replicators',
       timing: 'tick',
       condition: { op: 'and', conditions: [
-        { op: 'gt', left: { ref: 'protocells' }, right: 100 },
+        { op: 'gt', left: { ref: 'protocells' }, right: 30 },
         { op: 'flag', flag: 'upgrade_dnaStorage' }
       ]},
       actions: [
-        { action: 'add', target: 'replicators', value: { op: 'mul', args: [{ ref: 'protocells' }, 0.01] } },
-        { action: 'add', target: 'geneticDiversity', value: 0.01 }
+        { action: 'add', target: 'replicators', value: { op: 'mul', args: [{ ref: 'protocells' }, 0.1] } },
+        { action: 'add', target: 'geneticDiversity', value: 0.1 }
       ]
     },
 
@@ -361,14 +362,28 @@ export const evolutionGame: GameDefinition = {
       condition: { op: 'and', conditions: [
         { op: 'flag', flag: 'trait_membrane' },
         { op: 'flag', flag: 'trait_metabolism' },
-        { op: 'gt', left: { ref: 'replicators' }, right: 100 }
+        { op: 'gt', left: { ref: 'replicators' }, right: 30 }
       ]},
       actions: [
         { action: 'add', target: 'prokaryotes', value: { op: 'mul', args: [
-          { op: 'mul', args: [{ ref: 'replicators' }, 0.01] },
+          { op: 'mul', args: [{ ref: 'replicators' }, 0.1] },
           { ref: 'selectionPressure' }
         ]}},
-        { action: 'add', target: 'biomass', value: { op: 'mul', args: [{ ref: 'prokaryotes' }, 0.001] } }
+        { action: 'add', target: 'biomass', value: { op: 'mul', args: [{ ref: 'prokaryotes' }, 0.01] } }
+      ]
+    },
+
+    // Mark life as established once prokaryotes exist
+    {
+      id: 'life-established',
+      timing: 'tick',
+      condition: { op: 'and', conditions: [
+        { op: 'not', condition: { op: 'flag', flag: 'lifeEstablished' } },
+        { op: 'gt', left: { ref: 'prokaryotes' }, right: 10 }
+      ]},
+      actions: [
+        { action: 'set', target: 'lifeEstablished', value: true },
+        { action: 'message', text: '🌱 LIFE HAS TAKEN HOLD! The experiment is truly underway...', type: 'success' }
       ]
     },
 
@@ -634,13 +649,13 @@ export const evolutionGame: GameDefinition = {
       ]
     },
 
-    // Lose if all life dies after establishing some life
+    // Lose only if life was established and then ALL died
     {
       id: 'check-loss',
       timing: 'tick',
       condition: { op: 'and', conditions: [
         { op: 'flag', flag: 'hasStarted' },
-        { op: 'gt', left: { ref: 'yearsElapsed' }, right: 2000000000 },
+        { op: 'flag', flag: 'lifeEstablished' },
         { op: 'lt', left: { ref: 'biomass' }, right: 1 },
         { op: 'lt', left: { ref: 'prokaryotes' }, right: 1 },
         { op: 'lt', left: { ref: 'replicators' }, right: 1 }
